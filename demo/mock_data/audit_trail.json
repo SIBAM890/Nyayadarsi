@@ -1,0 +1,54 @@
+[
+  {
+    "id": 1,
+    "timestamp": "2025-04-28T10:00:00.123456Z",
+    "entity_type": "tender",
+    "entity_id": "CRPF-2025-CONST-001",
+    "action": "TENDER_UPLOADED",
+    "sha256_input": "a3f2b8c91d4e5f6789012345678901234567890abcdef1234567890abcdef12",
+    "sha256_output": "b4c3d9e02a5f67890123456789012345678901bcdef2345678901bcdef234567",
+    "model_version": null,
+    "officer_id": "OFF_001",
+    "confidence": null,
+    "verdict": null
+  },
+  {
+    "id": 2,
+    "timestamp": "2025-04-28T10:00:05.234567Z",
+    "entity_type": "tender",
+    "entity_id": "CRPF-2025-CONST-001",
+    "action": "CRITERIA_EXTRACTED",
+    "sha256_input": "b4c3d9e02a5f67890123456789012345678901bcdef2345678901bcdef234567",
+    "sha256_output": "c5d4ea13b6071890234567890123456789012cdef3456789012cdef3456789a",
+    "model_version": "gemini-1.5-flash",
+    "officer_id": null,
+    "confidence": null,
+    "verdict": null
+  },
+  {
+    "id": 3,
+    "timestamp": "2025-04-28T10:05:12.345678Z",
+    "entity_type": "evaluation",
+    "entity_id": "CRPF-2025-CONST-001:BID_001:FIN_001",
+    "action": "CRITERION_EVALUATED",
+    "sha256_input": "d6e5fb24c7182901345678901234567890123def4567890123def456789abc0",
+    "sha256_output": "e7f60c35d829a012456789012345678901234ef0678901234ef0567890bcd1",
+    "model_version": "gemini-1.5-flash",
+    "officer_id": null,
+    "confidence": 0.94,
+    "verdict": "GREEN"
+  },
+  {
+    "id": 4,
+    "timestamp": "2025-04-28T10:15:30.456789Z",
+    "entity_type": "evaluation",
+    "entity_id": "CRPF-2025-CONST-001:BID_003:COMP_002",
+    "action": "OFFICER_DECISION",
+    "sha256_input": "f8071d46e93ab123567890123456789012345f01789012345f01678901cde2",
+    "sha256_output": "09182e57fa4bc234678901234567890123456012890123456012789012def3",
+    "model_version": null,
+    "officer_id": "OFF_002",
+    "confidence": null,
+    "verdict": "PASS"
+  }
+]

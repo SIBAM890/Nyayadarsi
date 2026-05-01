@@ -1,0 +1,51 @@
+"""
+Gemini AI Client for Nyayadarsi
+Wrapper around Google Generative AI SDK.
+Uses gemini-1.5-flash for all extraction tasks.
+"""
+import time
+import google.generativeai as genai
+from backend.config import GEMINI_API_KEY
+
+# Configure on import
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+
+_model = None
+
+
+def _get_model():
+    global _model
+    if _model is None:
+        _model = genai.GenerativeModel("gemini-1.5-flash")
+    return _model
+
+
+async def generate(prompt: str, max_tokens: int = 2000) -> str:
+    """
+    Send prompt to Gemini and return text response.
+    Retries once on rate limit with 10s backoff.
+    Raises exception on second failure so caller can fallback to Groq.
+    """
+    model = _get_model()
+
+    for attempt in range(2):
+        try:
+            response = model.generate_content(
+                prompt,
+                generation_config=genai.GenerationConfig(
+                    max_output_tokens=max_tokens,
+                    temperature=0.1,  # Low temperature for extraction accuracy
+                )
+            )
+            return response.text
+        except Exception as e:
+            error_str = str(e).lower()
+            if "rate" in error_str or "quota" in error_str or "429" in error_str:
+                if attempt == 0:
+                    print(f"⚠️ Gemini rate limited. Waiting 10s before retry...")
+                    time.sleep(10)
+                    continue
+            raise Exception(f"Gemini API error: {e}")
+
+    raise Exception("Gemini rate limit exceeded after retry")

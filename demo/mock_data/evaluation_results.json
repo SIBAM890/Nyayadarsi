@@ -1,0 +1,220 @@
+{
+  "tender_id": "CRPF-2025-CONST-001",
+  "tender_title": "Construction of Barracks — CRPF Camp Bhubaneswar",
+  "evaluation_date": "2025-04-28T10:30:00Z",
+  "bidders": [
+    {
+      "bidder_id": "BID_001",
+      "company_name": "Acme Infrastructure Pvt Ltd",
+      "overall_verdict": "GREEN",
+      "bid_amount": 6200000,
+      "verdicts": [
+        {
+          "criterion_id": "FIN_001",
+          "criterion": "Minimum Annual Turnover Rs 5 Crore (average of last 3 FYs)",
+          "verdict": "GREEN",
+          "confidence": 0.94,
+          "extracted_value": 62000000,
+          "source_document": "Annexure_B_CA_Certificate.pdf",
+          "source_page": 2,
+          "source_cell": "Net Turnover FY 2024-25, Row 3",
+          "citation": "PASS. Net Turnover FY 2024-25: Rs 6.2 Crore. Threshold: Rs 5 Crore. Source: Annexure_B_CA_Certificate.pdf, Page 2, Table 1, Row 3.",
+          "mandatory": true,
+          "blocker": true
+        },
+        {
+          "criterion_id": "FIN_002",
+          "criterion": "Minimum Net Worth Rs 1 Crore",
+          "verdict": "GREEN",
+          "confidence": 0.91,
+          "extracted_value": 18500000,
+          "source_document": "Annexure_B_CA_Certificate.pdf",
+          "source_page": 3,
+          "source_cell": "Net Worth as on 31.03.2025",
+          "citation": "PASS. Net Worth: Rs 1.85 Crore. Threshold: Rs 1 Crore. Source: Annexure_B_CA_Certificate.pdf, Page 3.",
+          "mandatory": true,
+          "blocker": true
+        },
+        {
+          "criterion_id": "TECH_001",
+          "criterion": "Minimum 3 similar construction projects completed in last 7 years",
+          "verdict": "GREEN",
+          "confidence": 0.88,
+          "extracted_value": 5,
+          "source_document": "Experience_Letters_Combined.pdf",
+          "source_page": 1,
+          "source_cell": "Project List Summary",
+          "citation": "PASS. 5 similar projects documented. Threshold: 3 projects. Source: Experience_Letters_Combined.pdf, Pages 1-8.",
+          "mandatory": true,
+          "blocker": true
+        },
+        {
+          "criterion_id": "COMP_001",
+          "criterion": "Valid GST Registration",
+          "verdict": "GREEN",
+          "confidence": 0.99,
+          "extracted_value": "21AABCA1234F1Z5",
+          "source_document": "GST_Certificate.pdf",
+          "source_page": 1,
+          "citation": "PASS. Valid GSTIN: 21AABCA1234F1Z5. Status: Active. Source: GST_Certificate.pdf, Page 1.",
+          "mandatory": true,
+          "blocker": true
+        },
+        {
+          "criterion_id": "COMP_002",
+          "criterion": "ISO 9001:2015 Certification",
+          "verdict": "GREEN",
+          "confidence": 0.96,
+          "extracted_value": "ISO 9001:2015",
+          "source_document": "ISO_9001_Certificate.pdf",
+          "source_page": 1,
+          "citation": "PASS. ISO 9001:2015 certificate valid until 2027-03-15. Issuing body: Bureau Veritas. Source: ISO_9001_Certificate.pdf, Page 1.",
+          "mandatory": false,
+          "blocker": false
+        }
+      ]
+    },
+    {
+      "bidder_id": "BID_002",
+      "company_name": "BuildFast Pvt Ltd",
+      "overall_verdict": "RED",
+      "bid_amount": 4850000,
+      "verdicts": [
+        {
+          "criterion_id": "FIN_001",
+          "criterion": "Minimum Annual Turnover Rs 5 Crore (average of last 3 FYs)",
+          "verdict": "RED",
+          "confidence": 0.97,
+          "extracted_value": 38000000,
+          "source_document": "Balance_Sheet_FY25.pdf",
+          "source_page": 4,
+          "source_cell": "Revenue from Operations, Row 12",
+          "citation": "FAIL. Net Revenue from Operations FY 2024-25: Rs 3.8 Crore. Below threshold of Rs 5 Crore. Source: Balance_Sheet_FY25.pdf, Page 4, Row 12.",
+          "mandatory": true,
+          "blocker": true
+        },
+        {
+          "criterion_id": "FIN_002",
+          "criterion": "Minimum Net Worth Rs 1 Crore",
+          "verdict": "GREEN",
+          "confidence": 0.89,
+          "extracted_value": 12000000,
+          "source_document": "Balance_Sheet_FY25.pdf",
+          "source_page": 5,
+          "citation": "PASS. Net Worth: Rs 1.2 Crore. Threshold: Rs 1 Crore.",
+          "mandatory": true,
+          "blocker": true
+        },
+        {
+          "criterion_id": "TECH_001",
+          "criterion": "Minimum 3 similar construction projects completed in last 7 years",
+          "verdict": "GREEN",
+          "confidence": 0.85,
+          "extracted_value": 4,
+          "source_document": "Work_Experience.pdf",
+          "source_page": 1,
+          "citation": "PASS. 4 similar projects documented. Threshold: 3 projects.",
+          "mandatory": true,
+          "blocker": true
+        },
+        {
+          "criterion_id": "COMP_001",
+          "criterion": "Valid GST Registration",
+          "verdict": "GREEN",
+          "confidence": 0.98,
+          "extracted_value": "21AABCB5678G1Z3",
+          "source_document": "GST_Certificate.pdf",
+          "source_page": 1,
+          "citation": "PASS. Valid GSTIN: 21AABCB5678G1Z3. Status: Active.",
+          "mandatory": true,
+          "blocker": true
+        }
+      ]
+    },
+    {
+      "bidder_id": "BID_003",
+      "company_name": "Construct Co. Pvt Ltd",
+      "overall_verdict": "YELLOW",
+      "bid_amount": 4910000,
+      "verdicts": [
+        {
+          "criterion_id": "FIN_001",
+          "criterion": "Minimum Annual Turnover Rs 5 Crore (average of last 3 FYs)",
+          "verdict": "GREEN",
+          "confidence": 0.92,
+          "extracted_value": 55000000,
+          "source_document": "CA_Certificate_FY25.pdf",
+          "source_page": 2,
+          "citation": "PASS. Annual Turnover: Rs 5.5 Crore. Threshold: Rs 5 Crore.",
+          "mandatory": true,
+          "blocker": true
+        },
+        {
+          "criterion_id": "COMP_002",
+          "criterion": "ISO 9001:2015 Certification",
+          "verdict": "YELLOW",
+          "confidence": 0.61,
+          "flag_reason": "Entity name mismatch",
+          "ambiguity": "Certificate entity: 'Construct Company'. Bidding entity: 'Construct Co. Pvt Ltd'. These may refer to the same legal entity or different entities. Manual verification required before eligibility can be determined.",
+          "source_document": "ISO_9001_Certificate.pdf",
+          "source_page": 1,
+          "mandatory": true,
+          "blocker": true,
+          "officer_options": [
+            "PASS — Same entity, verified via MCA records",
+            "FAIL — Different entity, cannot verify",
+            "Request clarification from bidder"
+          ]
+        },
+        {
+          "criterion_id": "TECH_001",
+          "criterion": "Minimum 3 similar construction projects completed in last 7 years",
+          "verdict": "YELLOW",
+          "confidence": 0.58,
+          "flag_reason": "Document quality issue",
+          "ambiguity": "Experience letter scan is partially illegible. Project count appears to be 3 or 8 — OCR confidence too low to determine. Higher quality document required.",
+          "source_document": "Experience_Letters.pdf",
+          "source_page": 3,
+          "mandatory": true,
+          "blocker": true,
+          "officer_options": [
+            "PASS — Can verify project count from scan",
+            "FAIL — Cannot determine project count",
+            "Request original document from bidder"
+          ]
+        }
+      ]
+    },
+    {
+      "bidder_id": "BID_004",
+      "company_name": "Rapid Build Ltd",
+      "overall_verdict": "RED",
+      "bid_amount": 4880000,
+      "verdicts": [
+        {
+          "criterion_id": "FIN_001",
+          "criterion": "Minimum Annual Turnover Rs 5 Crore (average of last 3 FYs)",
+          "verdict": "GREEN",
+          "confidence": 0.90,
+          "extracted_value": 58000000,
+          "source_document": "CA_Certificate.pdf",
+          "source_page": 2,
+          "citation": "PASS. Annual Turnover: Rs 5.8 Crore. Threshold: Rs 5 Crore.",
+          "mandatory": true,
+          "blocker": true
+        },
+        {
+          "criterion_id": "COMP_001",
+          "criterion": "Valid GST Registration",
+          "verdict": "RED",
+          "confidence": 0.95,
+          "extracted_value": null,
+          "source_document": null,
+          "citation": "FAIL. GST Registration Certificate not found in submission. This is a mandatory document.",
+          "mandatory": true,
+          "blocker": true
+        }
+      ]
+    }
+  ]
+}

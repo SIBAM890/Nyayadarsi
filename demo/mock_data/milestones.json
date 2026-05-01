@@ -1,0 +1,68 @@
+{
+  "contract_id": "CRPF-2025-CONST-001-ACME",
+  "contractor": "Acme Infrastructure Pvt Ltd",
+  "total_value": 6200000,
+  "milestones": [
+    {
+      "id": "MS_001",
+      "title": "Foundation & Earthwork",
+      "description": "Site clearing, excavation, PCC, and foundation laying",
+      "target_percent": 20,
+      "current_percent": 20,
+      "status": "completed",
+      "payment_amount": 1240000,
+      "payment_status": "released",
+      "payment_released_at": "2025-03-15T14:30:00Z",
+      "ai_verified": true,
+      "officer_confirmed": true
+    },
+    {
+      "id": "MS_002",
+      "title": "RCC Superstructure",
+      "description": "Column casting, beam work, slab casting for all floors",
+      "target_percent": 45,
+      "current_percent": 38,
+      "status": "in_progress",
+      "payment_amount": 1550000,
+      "payment_status": "locked",
+      "ai_verified": false,
+      "officer_confirmed": false
+    },
+    {
+      "id": "MS_003",
+      "title": "Brickwork & Plastering",
+      "description": "Wall construction, internal and external plastering",
+      "target_percent": 65,
+      "current_percent": 0,
+      "status": "pending",
+      "payment_amount": 1240000,
+      "payment_status": "locked",
+      "ai_verified": false,
+      "officer_confirmed": false
+    },
+    {
+      "id": "MS_004",
+      "title": "Electrical & Plumbing",
+      "description": "Complete electrical wiring, plumbing, and fixtures",
+      "target_percent": 85,
+      "current_percent": 0,
+      "status": "pending",
+      "payment_amount": 1240000,
+      "payment_status": "locked",
+      "ai_verified": false,
+      "officer_confirmed": false
+    },
+    {
+      "id": "MS_005",
+      "title": "Finishing & Handover",
+      "description": "Painting, flooring, final inspection, and handover",
+      "target_percent": 100,
+      "current_percent": 0,
+      "status": "pending",
+      "payment_amount": 930000,
+      "payment_status": "locked",
+      "ai_verified": false,
+      "officer_confirmed": false
+    }
+  ]
+}
