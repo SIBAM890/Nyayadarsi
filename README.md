@@ -43,124 +43,214 @@ Indian government procurement corruption enters at **five specific points**. Nya
 
 ## 🏗️ System Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                         NYAYADARSI PLATFORM                            │
-│                                                                         │
-│   ┌────────────┐      ┌────────────┐      ┌────────────┐               │
-│   │ Dashboard 1│      │ Dashboard 2│      │ Dashboard 3│               │
-│   │  Gov       │      │ Evaluation │      │  Builder   │               │
-│   │  Officer   │      │  Officer   │      │ Contractor │               │
-│   │ (Next.js)  │      │ (Next.js)  │      │(Next.js/RN)│               │
-│   └─────┬──────┘      └─────┬──────┘      └─────┬──────┘               │
-│         │                   │                    │                       │
-│   ══════╪═══════════════════╪════════════════════╪══════════════════     │
-│         │              FastAPI Backend            │                      │
-│   ┌─────┴────────────────────────────────────────┴─────────────┐        │
-│   │                                                             │        │
-│   │  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐  │        │
-│   │  │   AI Engine   │  │   Collusion   │  │    Audit      │  │        │
-│   │  │               │  │    Engine     │  │    System     │  │        │
-│   │  │ • Gemini 1.5  │  │               │  │               │  │        │
-│   │  │ • Criteria    │  │ • Bid Cluster │  │ • SHA-256     │  │        │
-│   │  │   Extractor   │  │   (scipy)     │  │   Logger      │  │        │
-│   │  │ • Integrity   │  │ • CA Finger-  │  │ • PDF Export  │  │        │
-│   │  │   Alerts      │  │   print       │  │   (ReportLab) │  │        │
-│   │  │ • Financial   │  │ • Address     │  │ • Court-      │  │        │
-│   │  │   Ontology    │  │   Flag        │  │   Admissible  │  │        │
-│   │  │ • Groq        │  │ • Ownership   │  │               │  │        │
-│   │  │   Fallback    │  │   Network     │  │               │  │        │
-│   │  └───────────────┘  └───────────────┘  └───────────────┘  │        │
-│   │                                                             │        │
-│   │  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐  │        │
-│   │  │   PDF Reader  │  │ GPS Verifier  │  │  File Handler │  │        │
-│   │  │  pdfplumber + │  │  Haversine    │  │  SHA-256 hash │  │        │
-│   │  │  PyMuPDF      │  │  100m radius  │  │  validation   │  │        │
-│   │  └───────────────┘  └───────────────┘  └───────────────┘  │        │
-│   │                                                             │        │
-│   └──────────────────────────┬──────────────────────────────────┘        │
-│                              │                                           │
-│                    ┌─────────┴─────────┐                                 │
-│                    │   SQLite (WAL)    │                                 │
-│                    │   Append-Only     │                                 │
-│                    │   Audit Log       │                                 │
-│                    └───────────────────┘                                 │
-└─────────────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TB
+    subgraph Frontend["🎨 Frontend Layer (Next.js 14 + Tailwind CSS)"]
+        D1["📋 Dashboard 1<br/>Gov Officer<br/>Create Tender"]
+        D2["🛡️ Dashboard 2<br/>Evaluation Officer<br/>Review Bids"]
+        D3["🏗️ Dashboard 3<br/>Builder<br/>Progress Monitoring"]
+    end
+
+    subgraph API["🌐 FastAPI Backend (Python 3.13)"]
+        direction TB
+        subgraph Routes["API Routes (16 Endpoints)"]
+            R1["tender.py<br/>Upload / Integrity / Status"]
+            R2["evaluation.py<br/>Results / Yellow Queue / Decision"]
+            R3["collusion.py<br/>Run Scan / Report"]
+            R4["builder.py<br/>Upload / Milestones / GPS"]
+            R5["payment.py<br/>72h Auto-Release"]
+            R6["audit.py<br/>Trail / Export PDF"]
+        end
+
+        subgraph Engines["Core Engines"]
+            AI["🤖 AI Engine<br/>Gemini 1.5 Flash<br/>Groq Llama 3 Fallback"]
+            COL["🛡️ Collusion Engine<br/>Bid Clustering (scipy)<br/>CA Fingerprint<br/>Address / Ownership / DocQuality"]
+            AUD["🔐 Audit System<br/>SHA-256 Logger<br/>PDF Exporter (ReportLab)"]
+        end
+
+        subgraph Utils["Utility Modules"]
+            PDF["📄 PDF Reader<br/>pdfplumber + PyMuPDF"]
+            GPS["📍 GPS Verifier<br/>Haversine Formula"]
+            FH["📁 File Handler<br/>SHA-256 Validation"]
+        end
+    end
+
+    subgraph Data["💾 Data Layer"]
+        DB[("SQLite (WAL Mode)<br/>Append-Only Audit Log")]
+        MOCK["📊 Demo Data<br/>JSON Mock Files"]
+    end
+
+    D1 -->|"POST /api/tender/upload"| R1
+    D2 -->|"GET /api/evaluation"| R2
+    D3 -->|"POST /api/builder/upload"| R4
+    D2 -->|"POST /api/collusion/run"| R3
+    D3 -->|"POST /api/payment/trigger"| R5
+    D1 -->|"GET /api/audit/trail"| R6
+
+    R1 --> AI
+    R1 --> PDF
+    R2 --> AUD
+    R3 --> COL
+    R4 --> GPS
+    R4 --> FH
+    R5 --> AUD
+    R6 --> AUD
+
+    AI --> DB
+    COL --> DB
+    AUD --> DB
+    R2 --> MOCK
+
+    style Frontend fill:#1a237e,stroke:#6366f1,color:#fff
+    style API fill:#0f1555,stroke:#4338ca,color:#fff
+    style Data fill:#0a0e3d,stroke:#818cf8,color:#fff
+    style AI fill:#4338ca,stroke:#818cf8,color:#fff
+    style COL fill:#e65100,stroke:#ff9800,color:#fff
+    style AUD fill:#1b5e20,stroke:#4caf50,color:#fff
 ```
 
 ---
 
 ## 🔄 Core Workflows
 
-### Flow 1 — Tender PDF → AI Criteria Extraction → Integrity Alerts
+### Flow 1 — Tender Upload → AI Extraction → Integrity Alerts
 
-```
-Officer uploads PDF
-  │
-  ├─→ pdf_reader.py extracts text (pdfplumber → PyMuPDF fallback)
-  │
-  ├─→ criteria_extractor.py sends to Gemini 1.5 Flash
-  │     └─→ Returns structured JSON array of eligibility criteria
-  │
-  ├─→ integrity_alert.py runs 3 rule-based checks on each criterion:
-  │     ├── Brand/model name detection (regex)
-  │     ├── Narrow year range detection (< 5 years)
-  │     └── Threshold extremity vs category baseline (> 3x median)
-  │
-  ├─→ sha256_logger.py creates immutable audit record
-  │
-  └─→ Response: {criteria[], alerts[], doc_hash, audit_hash}
-```
+```mermaid
+flowchart TD
+    A["📤 Officer Uploads<br/>Tender PDF"] --> B["📄 pdf_reader.py<br/>Extract Text"]
+    B --> C{"Text<br/>Extracted?"}
+    C -->|No| D["❌ Error 422<br/>Scanned/Corrupted PDF"]
+    C -->|Yes| E["🤖 criteria_extractor.py<br/>Send to Gemini 1.5 Flash"]
+    E --> F{"Gemini<br/>Available?"}
+    F -->|Yes| G["✅ Parse JSON<br/>Validate Schema"]
+    F -->|No / Rate Limited| H["🔄 Fallback to<br/>Groq Llama 3"]
+    H --> G
+    G --> I["🚨 integrity_alert.py<br/>Run 3 Checks"]
+    I --> J["Check 1: Brand/Model<br/>Name Detection"]
+    I --> K["Check 2: Year Range<br/>Narrower than 5 Years?"]
+    I --> L["Check 3: Threshold<br/>Above 3x Baseline?"]
+    J & K & L --> M{"Any Alert<br/>Triggered?"}
+    M -->|Yes| N["🔴 Integrity Alert<br/>Est. Qualifying Vendors ≤ 3"]
+    M -->|No| O["🟢 Criteria Clean"]
+    N & O --> P["🔐 sha256_logger.py<br/>Create Audit Record"]
+    P --> Q["📊 Response:<br/>criteria[] + alerts[] + doc_hash"]
 
-### Flow 2 — Bidder Evaluation → Officer Decision → Audit Trail
-
-```
-Evaluation data loads (mock JSON for MVP)
-  │
-  ├─→ Each criterion gets GREEN / YELLOW / RED verdict
-  │     ├── GREEN: Evidence clearly meets threshold (with citation)
-  │     ├── RED: Document missing or value falls short (with citation)
-  │     └── YELLOW: Ambiguity detected — goes to human review queue
-  │
-  ├─→ Yellow Queue sorts by: blocker first → mandatory → lowest confidence
-  │
-  ├─→ Officer types mandatory reason (min 10 chars) → clicks PASS or FAIL
-  │
-  ├─→ sha256_logger.py creates audit record with officer_id + decision hash
-  │
-  └─→ Frontend shows green confirmation with audit hash displayed
+    style A fill:#1a237e,stroke:#6366f1,color:#fff
+    style E fill:#4338ca,stroke:#818cf8,color:#fff
+    style N fill:#c62828,stroke:#ef5350,color:#fff
+    style O fill:#1b5e20,stroke:#4caf50,color:#fff
+    style P fill:#1b5e20,stroke:#66bb6a,color:#fff
 ```
 
-### Flow 3 — Builder GPS Upload → Acceptance/Rejection
+### Flow 2 — Bidder Evaluation → Officer Decision → Audit
 
-```
-Builder submits coordinates + photos
-  │
-  ├─→ Client-side: Haversine distance check (preview)
-  │
-  ├─→ Server-side: gps_verifier.py computes distance
-  │     ├── distance ≤ 100m → ACCEPTED (stored + audit logged)
-  │     └── distance > 100m → REJECTED (400 error + reason + audit logged)
-  │
-  ├─→ Milestone progress tracked per contract
-  │
-  └─→ Payment auto-releases 72 hours after AI verify + officer confirm
+```mermaid
+flowchart TD
+    A["📊 Load Evaluation<br/>Results (Mock JSON)"] --> B["🔍 Per-Criterion<br/>Verdict Assignment"]
+    B --> C["🟢 GREEN<br/>Evidence meets threshold<br/>Full citation provided"]
+    B --> D["🔴 RED<br/>Document missing or<br/>value falls short"]
+    B --> E["🟡 YELLOW<br/>Ambiguity detected<br/>Needs human review"]
+
+    E --> F["📋 Yellow Queue<br/>Sort: Blocker → Mandatory → Low Confidence"]
+    F --> G["👤 Officer Reviews<br/>Sees ambiguity + source doc + confidence"]
+    G --> H["✍️ Types Mandatory<br/>Reason (min 10 chars)"]
+    H --> I{"Decision"}
+    I -->|PASS| J["✅ Criterion Passed<br/>With Officer Justification"]
+    I -->|FAIL| K["❌ Bidder Excluded<br/>With Full Citation Trail"]
+    J & K --> L["🔐 sha256_logger.py<br/>officer_id + decision + SHA-256"]
+    L --> M["🎯 Frontend Shows<br/>Green ✓ + Audit Hash"]
+
+    style C fill:#1b5e20,stroke:#4caf50,color:#fff
+    style D fill:#c62828,stroke:#ef5350,color:#fff
+    style E fill:#e65100,stroke:#ff9800,color:#fff
+    style L fill:#1b5e20,stroke:#66bb6a,color:#fff
 ```
 
-### Flow 4 — Collusion Risk Scan
+### Flow 3 — Builder GPS Upload → Accept / Reject
 
+```mermaid
+flowchart TD
+    A["📱 Builder Takes<br/>Geotagged Photo"] --> B["📍 Capture GPS<br/>Coordinates"]
+    B --> C["📤 Submit to<br/>POST /api/builder/upload"]
+    C --> D["🧮 gps_verifier.py<br/>Haversine Distance Calc"]
+    D --> E{"Distance ≤<br/>100 meters?"}
+
+    E -->|"✅ Yes"| F["📦 Store Upload<br/>+ Photo Metadata"]
+    F --> G["🔐 Audit Log<br/>UPLOAD_ACCEPTED"]
+    G --> H["✅ Response:<br/>accepted + distance + audit_hash"]
+
+    E -->|"❌ No"| I["🔐 Audit Log<br/>UPLOAD_REJECTED_GPS"]
+    I --> J["❌ HTTP 400<br/>Rejection Reason + Distance"]
+
+    H --> K["📊 Update Milestone<br/>Progress Tracker"]
+    K --> L{"AI Verified +<br/>Officer Confirmed?"}
+    L -->|Yes| M["💰 Payment Auto-Release<br/>72 Hours, No Discretion"]
+    L -->|No| N["🔒 Payment Locked<br/>Awaiting Verification"]
+
+    style A fill:#1a237e,stroke:#6366f1,color:#fff
+    style D fill:#4338ca,stroke:#818cf8,color:#fff
+    style F fill:#1b5e20,stroke:#4caf50,color:#fff
+    style J fill:#c62828,stroke:#ef5350,color:#fff
+    style M fill:#1b5e20,stroke:#66bb6a,color:#fff
 ```
-Officer triggers collusion scan with bid amounts
-  │
-  ├─→ bid_clustering.py (REAL scipy)
-  │     └── CV < 5% triggers flag — "0.3% probability by chance"
-  │
-  ├─→ ca_fingerprint.py — document formatting similarity
-  ├─→ address_flag.py — shared registered office
-  ├─→ ownership_network.py — MCA API (Phase 2 stub)
-  ├─→ doc_quality.py — quality asymmetry detection
-  │
-  └─→ 5-flag report: none auto-disqualify, all surface to senior officer
+
+### Flow 4 — Collusion Risk Scan (5-Flag Analysis)
+
+```mermaid
+flowchart TD
+    A["🛡️ Officer Triggers<br/>Collusion Scan"] --> B["📊 Input: Bid Amounts<br/>from All Bidders"]
+
+    B --> C["📈 Flag 1: Bid Clustering<br/>scipy CV Calculation<br/>(REAL - Not Mocked)"]
+    B --> D["🔍 Flag 2: CA Fingerprint<br/>Document Formatting<br/>Similarity Score"]
+    B --> E["📍 Flag 3: Shared Address<br/>Registered Office<br/>Overlap Detection"]
+    B --> F["🕸️ Flag 4: Ownership Network<br/>MCA Director Links<br/>(Phase 2 Stub)"]
+    B --> G["📄 Flag 5: Doc Quality<br/>Asymmetry Detection<br/>DPI / OCR Variance"]
+
+    C --> H{"CV < 5%?"}
+    H -->|Yes| I["🔴 TRIGGERED<br/>0.3% chance by luck"]
+    H -->|No| J["🟢 CLEAR"]
+
+    D --> K{"Similarity > 80%?"}
+    K -->|Yes| L["🔴 TRIGGERED<br/>Same CA firm suspected"]
+    K -->|No| M["🟢 CLEAR"]
+
+    I & J & L & M & E & F & G --> N["📋 5-Flag Report<br/>None auto-disqualify"]
+    N --> O["👤 Senior Officer<br/>Reviews Evidence"]
+    N --> P["🔐 Audit Log<br/>Collusion Scan Recorded"]
+
+    style A fill:#e65100,stroke:#ff9800,color:#fff
+    style C fill:#4338ca,stroke:#818cf8,color:#fff
+    style I fill:#c62828,stroke:#ef5350,color:#fff
+    style L fill:#c62828,stroke:#ef5350,color:#fff
+    style J fill:#1b5e20,stroke:#4caf50,color:#fff
+    style M fill:#1b5e20,stroke:#4caf50,color:#fff
+```
+
+### Flow 5 — Audit Trail → Court-Admissible PDF Export
+
+```mermaid
+flowchart TD
+    A["⚖️ Disqualified Bidder<br/>Files Challenge in<br/>CAT / High Court"] --> B["📋 CRPF Requests<br/>Audit Trail for Entity"]
+    B --> C["GET /api/audit/{'{entity_id}'}/trail<br/>Returns Chronological Chain"]
+    C --> D["📜 Each Entry Contains:"]
+
+    D --> E["🕐 Microsecond Timestamp (UTC)"]
+    D --> F["🔐 SHA-256 Hash of Input"]
+    D --> G["🔐 SHA-256 Hash of Output"]
+    D --> H["🤖 AI Model Version Used"]
+    D --> I["👤 Officer ID (if human decision)"]
+    D --> J["📊 Confidence Score"]
+    D --> K["📎 Verbatim Extracted Value + Citation"]
+
+    E & F & G & H & I & J & K --> L["GET /api/audit/{'{entity_id}'}/export-pdf"]
+    L --> M["📄 ReportLab Generates<br/>Court-Admissible PDF"]
+    M --> N["✅ Every Hash<br/>Independently Verifiable"]
+    N --> O["⚖️ Officer is Legally<br/>Untouchable — Full Evidence Chain"]
+
+    style A fill:#c62828,stroke:#ef5350,color:#fff
+    style M fill:#1a237e,stroke:#6366f1,color:#fff
+    style N fill:#1b5e20,stroke:#4caf50,color:#fff
+    style O fill:#1b5e20,stroke:#66bb6a,color:#fff
 ```
 
 ---
