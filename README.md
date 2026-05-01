@@ -474,9 +474,9 @@ Every action generates an immutable record:
 
 **Coding Aghoris** — PAN IIT AI for Bharat Hackathon, Grand Finale 2026
 
-| Name | Role |
+| Team | Role |
 |------|------|
-| **Sibam Nanda** | Team Lead |
+| **Coding Aghoris** | Coder |
 
 ---
 
