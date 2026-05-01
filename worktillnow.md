@@ -1,5 +1,6 @@
 # Nyayadarsi — Work Progress Tracker
 
+### Developed by: Satya Sarthak Manohari, Sibam Prasad Sahoo, Suryansh Anand, Pritam
 
 ### Last Updated: 1st May 2026, 4:09 PM IST
 ### Grand Finale: 16th May 2026 — Taj Yeshwantpur, Bengaluru
