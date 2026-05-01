@@ -1,5 +1,6 @@
 # Nyayadarsi — Work Progress Tracker
 
+
 ### Last Updated: 1st May 2026, 4:09 PM IST
 ### Grand Finale: 16th May 2026 — Taj Yeshwantpur, Bengaluru
 ### Days Remaining: **15 days**
@@ -457,3 +458,34 @@ class AuditLog(Base):
 
 ---
 
+### Phase 2: Security & Migration Polish (Late Evening Session)
+
+#### Summary
+Following the core FastAPI migration, applied production-level finishing touches focused on security, database migrations, and structural organization.
+
+#### 🔹 Changes Made
+
+- **Alembic Initialized:** Successfully set up `alembic` (`alembic init alembic`) to manage future SQLAlchemy database migrations, ensuring the schema can evolve without dropping data.
+- **Role-Based Access Control (RBAC):** Added a new `RoleChecker` dependency injection class to `backend/core/dependencies.py`.
+- **Strict Role Enforcement:** Created granular dependencies (`require_gov_officer`, `require_evaluator`, `require_builder`) to restrict endpoints to explicitly authorized roles, preventing horizontal privilege escalation.
+
+#### 🔹 Code Snippets (Key Patterns)
+
+**Role-Based Dependency:**
+```python
+class RoleChecker:
+    """Dependency for Role-Based Access Control (RBAC)."""
+    def __init__(self, allowed_roles: list[str]):
+        self.allowed_roles = allowed_roles
+
+    def __call__(self, user: User = Depends(get_current_user)) -> User:
+        if user.role not in self.allowed_roles:
+            raise HTTPException(
+                status_code=403,
+                detail={"error": True, "message": f"Role '{user.role}' is not authorized.", "code": "FORBIDDEN"}
+            )
+        return user
+
+# Pre-configured roles
+require_gov_officer = RoleChecker(["gov_officer"])
+```
