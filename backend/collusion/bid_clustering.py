@@ -34,16 +34,16 @@ def analyse_bids(bids: list[dict]) -> dict:
     std = np.std(amounts)
     cv = (std / mean) * 100 if mean > 0 else 0
 
-    flag_triggered = cv < 5.0
+    flag_triggered = bool(cv < 5.0)
 
     # Probability calculation
     # CV < 5% in genuine competition: approximately 0.3%
-    probability_by_chance = max(0.003, cv / 200)
+    probability_by_chance = float(max(0.003, cv / 200))
 
     return {
         "flag": "BID_CLUSTERING",
         "triggered": flag_triggered,
-        "cv_percent": round(cv, 2),
+        "cv_percent": round(float(cv), 2),
         "mean_bid": round(float(mean), 2),
         "std_dev": round(float(std), 2),
         "bid_spread": round(float(max(amounts) - min(amounts)), 2),

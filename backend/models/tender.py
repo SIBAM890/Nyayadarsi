@@ -1,53 +1,28 @@
-"""Tender-related Pydantic schemas."""
-from pydantic import BaseModel, Field
-from typing import Optional, List
-from enum import Enum
+"""Tender ORM model."""
+from datetime import datetime, timezone
+
+from sqlalchemy import Column, String, Text, Float, DateTime
+from backend.core.database import Base
 
 
-class CriterionType(str, Enum):
-    FINANCIAL = "financial"
-    TECHNICAL = "technical"
-    COMPLIANCE = "compliance"
+class Tender(Base):
+    """Government procurement tender."""
 
+    __tablename__ = "tender"
 
-class TenderCriterion(BaseModel):
-    criterion_id: str
-    type: CriterionType
-    description: str
-    threshold: Optional[float] = None
-    threshold_unit: Optional[str] = None
-    mandatory: bool = False
-    blocker: bool = False
-    language_signal: Optional[str] = None
-    specificity_alert: bool = False
-    acceptable_documents: List[str] = []
+    id: str = Column(String, primary_key=True)
+    title: str = Column(String, nullable=False)
+    description: str | None = Column(Text, nullable=True)
+    department: str | None = Column(String, nullable=True)
+    category: str | None = Column(String, nullable=True)
+    estimated_value: float | None = Column(Float, nullable=True)
+    criteria_json: str | None = Column(Text, nullable=True)
+    alerts_json: str | None = Column(Text, nullable=True)
+    doc_hash: str | None = Column(String, nullable=True)
+    status: str = Column(String, default="draft")
+    created_at: datetime = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    published_at: datetime | None = Column(DateTime(timezone=True), nullable=True)
+    created_by: str | None = Column(String, nullable=True)
 
-
-class IntegrityAlertResponse(BaseModel):
-    alert: bool
-    reason: str
-    estimated_qualifying_vendors: int
-    criterion_id: Optional[str] = None
-
-
-class TenderCreate(BaseModel):
-    title: str
-    description: Optional[str] = None
-    department: Optional[str] = "CRPF"
-    category: Optional[str] = "construction"
-    estimated_value: Optional[float] = None
-
-
-class TenderUploadResponse(BaseModel):
-    tender_id: str
-    doc_hash: str
-    criteria: List[TenderCriterion]
-    alerts: List[IntegrityAlertResponse]
-    total_criteria: int
-    mandatory_count: int
-    discretionary_count: int
-
-
-class IntegrityCheckRequest(BaseModel):
-    criterion_text: str
-    category: str = "construction"
+    def __repr__(self) -> str:
+        return f"<Tender {self.id}: {self.title}>"
