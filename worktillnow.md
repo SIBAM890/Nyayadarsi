@@ -311,3 +311,149 @@ nyayadarsi/
 
 **Team Coding Aghoris — Nyayadarsi — न्यायदर्शी**
 **PAN IIT AI for Bharat | Grand Finale May 16, 2026**
+
+---
+## Workdone by - Satya Sarthak Manohari
+## 1st May 2026 — Evening Session (10:00 PM IST)
+
+### Production-Grade FastAPI Migration — SQLAlchemy ORM, JWT Auth, Service Layer
+
+#### Summary
+Complete architectural migration of the backend from raw SQLite + flat config to a production-grade FastAPI setup. Introduced SQLAlchemy ORM (7 models), JWT authentication with bcrypt, Pydantic v2 `BaseSettings`, a full service layer (7 services), and Pydantic request/response schemas. All 13 endpoints verified working with proper auth, status codes, and consistent error responses.
+
+#### Files Modified / Created
+
+**NEW — Core Infrastructure (`backend/core/`)**
+- `backend/core/__init__.py`
+- `backend/core/config.py` — Pydantic `BaseSettings` replacing flat `os.getenv()` calls
+- `backend/core/database.py` — SQLAlchemy engine, `SessionLocal`, `Base`, WAL pragmas, `get_db()` dependency
+- `backend/core/security.py` — JWT creation/verification (`python-jose`), bcrypt password hashing
+- `backend/core/dependencies.py` — `get_current_user` via `OAuth2PasswordBearer` + `Depends()`
+
+**NEW — SQLAlchemy ORM Models (`backend/models/`)**
+- `backend/models/__init__.py` — Imports all models for `Base.metadata.create_all()`
+- `backend/models/user.py` — User table (UUID, email, hashed_password, role, is_active)
+- `backend/models/tender.py` — Tender ORM (replaces raw SQL)
+- `backend/models/builder_upload.py` — GPS-verified upload records
+- `backend/models/audit_log.py` — Append-only audit trail
+- `backend/models/bidder_evaluation.py` — Bidder evaluation results
+- `backend/models/milestone.py` — Construction milestone tracking
+- `backend/models/collusion_report.py` — 5-flag collusion reports
+
+**NEW — Pydantic Schemas (`backend/schemas/`)**
+- `backend/schemas/__init__.py`
+- `backend/schemas/auth.py` — `RegisterRequest`, `LoginRequest`, `TokenResponse`, `UserResponse`
+- `backend/schemas/tender.py` — `TenderUploadResponse`, `IntegrityCheckRequest`, `TenderStatusResponse`
+- `backend/schemas/evaluation.py` — `OfficerDecision`, `YellowQueueResponse`, `Verdict` enum
+- `backend/schemas/bidder.py` — `BidderProfile`, `BidderSubmission` with validators
+- `backend/schemas/builder.py` — `GPSData`, `PaymentTrigger`, `PaymentResponse`
+- `backend/schemas/collusion.py` — `CollusionRequest`, `BidItem`, `CollusionReportResponse`
+- `backend/schemas/audit.py` — `AuditTrailResponse`, `AuditEntryResponse`
+
+**NEW — Service Layer (`backend/services/`)**
+- `backend/services/__init__.py`
+- `backend/services/auth_service.py` — register, login, token generation
+- `backend/services/tender_service.py` — PDF upload, AI extraction, integrity checks
+- `backend/services/evaluation_service.py` — results, yellow queue, officer decisions
+- `backend/services/collusion_service.py` — scipy bid clustering + 4 flags
+- `backend/services/builder_service.py` — GPS verification, upload persistence
+- `backend/services/payment_service.py` — 72-hour auto-release logic
+- `backend/services/audit_service.py` — trail retrieval, PDF export
+
+**MODIFIED — Routes (refactored to thin handlers)**
+- `backend/routes/auth.py` — **NEW** — `POST /register`, `POST /login`, `GET /me`
+- `backend/routes/tender.py` — Thin handler → `tender_service`
+- `backend/routes/evaluation.py` — Thin handler → `evaluation_service`
+- `backend/routes/collusion.py` — Thin handler → `collusion_service`
+- `backend/routes/builder.py` — Thin handler → `builder_service`
+- `backend/routes/payment.py` — Thin handler → `payment_service`
+- `backend/routes/audit.py` — Thin handler → `audit_service`
+
+**MODIFIED — Engine Modules**
+- `backend/audit/sha256_logger.py` — Refactored to accept SQLAlchemy `Session` instead of raw `sqlite3`
+- `backend/collusion/bid_clustering.py` — Fixed numpy `bool_` → Python `bool` for JSON serialization
+
+**MODIFIED — Entry Point & Config**
+- `backend/main.py` — `lifespan` replaces deprecated `@app.on_event`, auth router mounted, global error handler
+- `backend/config.py` — Legacy compatibility shim → re-exports from `core.config`
+- `backend/database.py` — Legacy compatibility shim → re-exports from `core.database`
+- `backend/requirements.txt` — Added `sqlalchemy`, `pydantic-settings`, `python-jose`, `passlib`, `bcrypt`
+- `.env.example` — Added `JWT_SECRET_KEY`, `JWT_ALGORITHM`, `ACCESS_TOKEN_EXPIRE_MINUTES`
+
+**DELETED**
+- `backend/models/bidder.py` — Moved to `schemas/bidder.py`
+- `backend/models/evaluation.py` — Moved to `schemas/evaluation.py`
+- `backend/models/builder.py` — Moved to `schemas/builder.py`
+
+#### 🔹 Changes Made
+
+- **SQLAlchemy ORM**: Replaced all raw `sqlite3` with 7 SQLAlchemy ORM models; WAL mode + foreign keys via engine event listener
+- **JWT Authentication**: Added `POST /api/auth/register` and `POST /api/auth/login`; all 16 existing endpoints now protected behind `Depends(get_current_user)`
+- **bcrypt**: Using `bcrypt` directly (not `passlib`) due to `bcrypt 5.x` incompatibility with `passlib`
+- **Service Layer**: Extracted all business logic from route handlers into 7 dedicated service modules
+- **Pydantic v2 Schemas**: `response_model` on every endpoint; `ConfigDict(from_attributes=True)` for ORM compatibility; `Field()` validators for inputs
+- **Proper HTTP Status Codes**: `201 Created` for POST, `401 Unauthorized` for unauthenticated, `409 Conflict` for duplicate email, `404 Not Found` for missing resources
+- **Global Error Handler**: Consistent `{"error": true, "message": "...", "code": "..."}` shape for all errors
+- **Lifespan Manager**: Replaced deprecated `@app.on_event("startup")` with `asynccontextmanager` lifespan
+- **numpy Fix**: Cast `numpy.bool_` and `numpy.float64` to Python natives in `bid_clustering.py` for JSON serialization
+
+#### 🔹 Code Snippets (Key Patterns)
+
+**Thin Route Handler Pattern:**
+```python
+@router.post("/upload", response_model=TenderUploadResponse, status_code=status.HTTP_201_CREATED)
+async def upload_tender(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> TenderUploadResponse:
+    file_bytes = await file.read()
+    return await tender_service.process_tender_upload(db, file_bytes, file.filename)
+```
+
+**JWT Dependency Injection:**
+```python
+async def get_current_user(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db),
+) -> User:
+    payload = decode_access_token(token)
+    user = db.query(User).filter(User.id == payload.get("sub")).first()
+    if not user or not user.is_active:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    return user
+```
+
+**SQLAlchemy ORM Model:**
+```python
+class AuditLog(Base):
+    __tablename__ = "audit_log"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    entity_id = Column(String, nullable=False, index=True)
+    action = Column(String, nullable=False)
+    sha256_input = Column(String, nullable=False)
+    sha256_output = Column(String, nullable=False)
+    timestamp = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+```
+
+#### 🔹 Verification Results
+
+| Test | Result |
+|------|--------|
+| Health check (public) | ✅ `200 OK` — `{"status": "ok", "version": "2.0.0"}` |
+| Register user | ✅ `201 Created` — Returns JWT + user profile |
+| Login | ✅ `200 OK` — Returns JWT token |
+| Get profile (`/auth/me`) | ✅ `200 OK` — Returns authenticated user |
+| Unauthenticated request | ✅ `401 Unauthorized` |
+| Duplicate registration | ✅ `409 Conflict` — `EMAIL_EXISTS` |
+| Evaluation results | ✅ `200 OK` — 4 bidders loaded from mock data |
+| Yellow queue | ✅ `200 OK` — 2 items, sorted by consequence |
+| Officer decision | ✅ `201 Created` — Audit hash generated |
+| Collusion scan (real scipy) | ✅ `201 Created` — 2/5 flags triggered, CV=0.62% |
+| GPS verification | ✅ `200 OK` — Accepted, distance=15.2m |
+| Payment trigger | ✅ `201 Created` — Scheduled for 72h auto-release |
+| Audit trail | ✅ `200 OK` — Entries accumulating correctly |
+| Milestones | ✅ `200 OK` — 5 milestones from mock data |
+
+---
+
