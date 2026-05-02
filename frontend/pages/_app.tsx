@@ -26,15 +26,15 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
-        <title>Nyayadarsi — AI that sees justice | न्यायदर्शी</title>
+        <title>Nyayadarsi — AI-Powered Procurement Accountability</title>
         <meta
           name="description"
-          content="AI-Powered Procurement Justice Platform for Indian Government Procurement. Real-time tender evaluation, fraud detection, and accountability."
+          content="AI-Powered Procurement Accountability Platform for Indian Government. Real-time tender evaluation, collusion detection, and audit trail."
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link
           rel="icon"
-          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚖️</text></svg>"
+          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect rx='20' width='100' height='100' fill='%233d4a85'/><text y='.88em' x='50' text-anchor='middle' font-size='60' fill='white'>N</text></svg>"
         />
       </Head>
       <ErrorBoundary>

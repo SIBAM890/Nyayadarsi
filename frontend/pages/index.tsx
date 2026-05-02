@@ -1,97 +1,123 @@
 /**
- * Landing page — animated logo, navigation cards, auto-redirect.
+ * Landing page — clean, professional entry point with role selection.
  */
-import { useRouter } from 'next/router';
-import { useEffect, useState, useCallback } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import { Scale, FileText, ShieldCheck, HardHat, ArrowRight, Fingerprint, BarChart3, Lock } from 'lucide-react';
 import { APP_NAME, APP_DEVANAGARI, APP_TAGLINE, NAV_ITEMS } from '@/constants';
 
-const NAV_ICONS: Record<string, string> = {
-  '/gov': '📋',
-  '/evaluation': '🛡️',
-  '/builder': '🏗️',
+const NAV_ICONS: Record<string, React.ReactNode> = {
+  '/gov': <FileText className="w-5 h-5" />,
+  '/evaluation': <ShieldCheck className="w-5 h-5" />,
+  '/builder': <HardHat className="w-5 h-5" />,
 };
 
+const FEATURES = [
+  { icon: <Fingerprint className="w-5 h-5 text-nyaya-400" />, title: 'Collusion Detection', desc: 'Statistical bid clustering & document fingerprinting' },
+  { icon: <BarChart3 className="w-5 h-5 text-nyaya-400" />, title: 'AI Evaluation', desc: 'Gemini-powered criteria extraction & analysis' },
+  { icon: <Lock className="w-5 h-5 text-nyaya-400" />, title: 'Audit Trail', desc: 'SHA-256 hashed, court-admissible records' },
+];
+
 export default function Home() {
-  const router = useRouter();
-  const [countdown, setCountdown] = useState(5);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          router.push('/gov');
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [router]);
-
-  const cancelRedirect = useCallback(() => setCountdown(0), []);
-
   return (
     <>
       <Head>
-        <title>Nyayadarsi — AI that sees justice | न्यायदर्शी</title>
+        <title>Nyayadarsi — AI-Powered Procurement Accountability</title>
+        <meta name="description" content="AI-driven tender evaluation, collusion detection, and procurement accountability for Indian government agencies." />
       </Head>
-      <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
-        {/* Background Effects */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-nyaya-600/10 rounded-full blur-[120px] animate-pulse-slow" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-saffron-500/8 rounded-full blur-[120px] animate-pulse-slow" style={{ animationDelay: '1.5s' }} />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-nyaya-500/5 rounded-full blur-[150px]" />
-        </div>
-
-        <div className="relative z-10 text-center animate-fade-in">
-          <div className="mb-8 animate-float">
-            <div className="w-24 h-24 mx-auto rounded-3xl bg-gradient-to-br from-nyaya-600 via-nyaya-500 to-saffron-500 flex items-center justify-center text-5xl shadow-2xl shadow-nyaya-500/30 animate-glow">
-              ⚖️
+      <div className="min-h-screen flex flex-col">
+        {/* Nav bar */}
+        <header className="border-b border-white/[0.06] px-8 py-4">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-nyaya-600 flex items-center justify-center">
+                <Scale className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <span className="text-base font-display font-bold text-white tracking-tight">{APP_NAME}</span>
+                <span className="text-xs text-nyaya-400 ml-2">{APP_DEVANAGARI}</span>
+              </div>
             </div>
+            <nav className="flex items-center gap-1">
+              {NAV_ITEMS.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="px-3 py-1.5 text-sm text-nyaya-300 hover:text-white hover:bg-white/[0.06] rounded-lg transition-colors"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </header>
+
+        {/* Hero */}
+        <main className="flex-1 flex flex-col items-center justify-center px-8">
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-nyaya-600/15 border border-nyaya-500/20 text-xs text-nyaya-300 font-medium mb-6">
+              <div className="w-1.5 h-1.5 rounded-full bg-verdict-green" />
+              PAN IIT AI for Bharat — Grand Finale 2026
+            </div>
+
+            <h1 className="text-5xl md:text-6xl font-display font-bold text-white tracking-tight mb-3">
+              {APP_NAME}
+            </h1>
+            <p className="text-lg text-nyaya-400 mb-2 font-display">{APP_DEVANAGARI}</p>
+            <p className="text-lg text-nyaya-300/70 max-w-xl mx-auto leading-relaxed">
+              {APP_TAGLINE} — AI-powered procurement accountability for CRPF construction tenders
+            </p>
           </div>
 
-          <h1 className="text-6xl md:text-7xl font-display font-bold mb-3 tracking-tight">
-            <span className="gradient-text">{APP_NAME}</span>
-          </h1>
-          <p className="text-3xl text-nyaya-200/60 font-display mb-2">{APP_DEVANAGARI}</p>
-          <p className="text-xl text-nyaya-300/50 font-light mb-12">{APP_TAGLINE}</p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mb-16">
+          {/* Role Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto w-full mb-16">
             {NAV_ITEMS.map((item, i) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="glass-card-hover p-8 text-left group animate-slide-up"
-                style={{ animationDelay: `${i * 0.15}s` }}
-                onClick={cancelRedirect}
+                className="glass-card-hover p-6 group animate-slide-up"
+                style={{ animationDelay: `${i * 0.1}s` }}
               >
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-nyaya-600/30 to-nyaya-500/10 flex items-center justify-center mb-4 group-hover:from-nyaya-500/40 group-hover:to-saffron-500/20 transition-all">
-                  <span className="text-2xl">{NAV_ICONS[item.href] || '📋'}</span>
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-nyaya-600/15 border border-nyaya-500/15 flex items-center justify-center text-nyaya-300 group-hover:bg-nyaya-600/25 group-hover:text-white transition-all">
+                    {NAV_ICONS[item.href]}
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-white">{item.label}</h3>
+                    <p className="text-xs text-nyaya-400">{item.description}</p>
+                  </div>
                 </div>
-                <h3 className="text-lg font-display font-bold text-white mb-1">{item.label}</h3>
-                <p className="text-sm text-nyaya-300/50">{item.description}</p>
-                <div className="mt-4 flex items-center gap-2 text-xs text-nyaya-400/40 group-hover:text-nyaya-300/60 transition-colors">
-                  <span>Enter Dashboard</span>
-                  <span className="group-hover:translate-x-1 transition-transform">→</span>
+                <div className="flex items-center gap-1.5 text-xs text-nyaya-400 group-hover:text-nyaya-200 transition-colors">
+                  <span>Open Dashboard</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </Link>
             ))}
           </div>
 
-          {countdown > 0 && (
-            <p className="text-sm text-nyaya-400/30 animate-pulse">
-              Redirecting to Government Dashboard in {countdown}s...
-            </p>
-          )}
-
-          <div className="mt-8 text-xs text-nyaya-400/20 space-y-1">
-            <p>PAN IIT AI for Bharat Hackathon — Grand Finale 2026</p>
-            <p>Team Coding Aghoris | Theme 3: AI-Based Tender Evaluation for CRPF</p>
+          {/* Features */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto w-full mb-16">
+            {FEATURES.map((f, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-lg bg-surface-2 border border-white/[0.06] flex items-center justify-center flex-shrink-0">
+                  {f.icon}
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-white mb-0.5">{f.title}</p>
+                  <p className="text-xs text-nyaya-400 leading-relaxed">{f.desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+        </main>
+
+        {/* Footer */}
+        <footer className="border-t border-white/[0.06] px-8 py-4">
+          <div className="max-w-6xl mx-auto flex items-center justify-between text-xs text-nyaya-500">
+            <span>Team Coding Aghoris — Theme 3: AI-Based Tender Evaluation for CRPF</span>
+            <span>© 2026 Nyayadarsi</span>
+          </div>
+        </footer>
       </div>
     </>
   );
