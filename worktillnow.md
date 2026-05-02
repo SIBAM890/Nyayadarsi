@@ -386,3 +386,32 @@ Comprehensive migration of the Nyayadarsi frontend from JavaScript to strict Typ
 **Changes by:** Satya Sarthak Manohari
 **Date:** May 2, 2026, 11:35 AM IST  
 
+### 7.5 Frontend UI/UX Professionalization & Design Overhaul
+
+**Changes by:** Satya Sarthak Manohari
+**Date:** May 2, 2026, 11:55 AM IST
+
+**Objective:**
+Transition the Nyayadarsi frontend from its initial "demo-oriented" aesthetic (characterized by neon glows, emoji icons, and heavy glassmorphism) to a professional, government-grade enterprise interface suitable for tender evaluation and infrastructure monitoring.
+
+**Implemented Components:**
+
+*   **Design System Update (`frontend/tailwind.config.js`, `frontend/styles/globals.css`):**
+    *   Replaced the oversaturated neon purple theme with a refined Slate-Indigo palette (`surface-0` through `nyaya-950`).
+    *   Removed heavy glassmorphism blurs and neon shadows, replacing them with a clean surface-based elevation system and subtle borders (`white/[0.06]`).
+    *   Integrated modern, readable typography using Inter for the UI, JetBrains Mono for data/metrics, and Outfit for displays.
+    *   Removed distracting float and pulse animations, favoring clean `fade-in` and `slide-up` transitions.
+
+*   **Iconography Overhaul (`frontend/components/`, `frontend/pages/`):**
+    *   Completely eliminated all emoji-based icons across the application (e.g., ⚖️, 📋, 🚨, 📊).
+    *   Integrated `lucide-react` to provide a cohesive, professional icon set across all navigation, stat cards, and status indicators.
+
+*   **Component & Layout Polish:**
+    *   Refined the `Layout` sidebar to be sleeker and more professional.
+    *   Updated `StatCard`, `VerdictRow`, `MilestoneCard`, `CriterionCard`, and `YellowItem` components to align with the new, restrained color palette and typography rules.
+    *   Redesigned the `CollusionPanel` and `UploadZone` to look more like enterprise SaaS tools rather than conceptual prototypes.
+    *   Cleaned up the landing page (`index.tsx`), removing the auto-redirect countdown, childish animations, and establishing a professional entry point for government and builder personas.
+
+*   **Branding & Polish:**
+    *   Updated the `_app.tsx` to include a proper SVG favicon instead of an emoji, solidifying the product's identity as a formal platform.
+

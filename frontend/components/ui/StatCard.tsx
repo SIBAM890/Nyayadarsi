@@ -1,20 +1,26 @@
 /**
- * StatCard — reusable glassmorphic stat display card.
+ * StatCard — clean stat display card with Lucide icon support.
  */
-import React, { memo } from 'react';
+import React, { memo, type ReactNode } from 'react';
 
 interface StatCardProps {
   label: string;
   value: string | number;
-  icon?: string;
+  icon?: string | ReactNode;
 }
 
 function StatCardInner({ label, value, icon }: StatCardProps) {
   return (
-    <div className="glass-card p-4 text-center">
-      {icon && <p className="text-2xl mb-1">{icon}</p>}
-      <p className="stat-value text-2xl">{value}</p>
-      <p className="text-xs text-nyaya-400/50 mt-1">{label}</p>
+    <div className="glass-card px-5 py-4">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[11px] text-nyaya-400 font-medium uppercase tracking-wider">{label}</span>
+        {icon && (
+          <span className="text-nyaya-500">
+            {typeof icon === 'string' ? icon : icon}
+          </span>
+        )}
+      </div>
+      <p className="stat-value">{value}</p>
     </div>
   );
 }

@@ -2,6 +2,7 @@
  * YellowItem — a single yellow-queue item requiring officer decision.
  */
 import React, { useState, useCallback, memo } from 'react';
+import { CheckCircle2, FileText, Check, X } from 'lucide-react';
 import type { YellowQueueItem, OfficerDecisionResponse } from '@/types/evaluation';
 import { postOfficerDecision } from '@/services/evaluationService';
 import { VerdictBadge } from '@/components/ui/VerdictBadge';
@@ -42,16 +43,17 @@ function YellowItemInner({ item, officerId, onDecision }: YellowItemProps) {
 
   if (decided) {
     return (
-      <div className="glass-card p-4 border-verdict-green/20 bg-verdict-green/5 animate-slide-up">
+      <div className="glass-card p-4 border-verdict-green/15 bg-verdict-green/[0.03] animate-slide-up">
         <div className="flex items-center gap-2 text-verdict-green text-sm">
-          ✅ Decision recorded and logged to audit trail
+          <CheckCircle2 className="w-4 h-4" />
+          Decision recorded and logged to audit trail
         </div>
       </div>
     );
   }
 
   return (
-    <div className="glass-card p-5 border-verdict-yellow/20 space-y-3">
+    <div className="glass-card p-5 border-verdict-yellow/15 space-y-3">
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -60,14 +62,14 @@ function YellowItemInner({ item, officerId, onDecision }: YellowItemProps) {
             {item.mandatory && <span className="badge-red text-[10px]">MANDATORY</span>}
           </div>
           <p className="text-sm font-medium text-white">{item.company_name}</p>
-          <p className="text-xs text-nyaya-400/50 mt-0.5">
+          <p className="text-xs text-nyaya-500 mt-0.5">
             {item.criterion_id} — {item.criterion || item.flag_reason}
           </p>
         </div>
         {item.confidence != null && (
           <div className="text-right">
-            <p className="text-xs text-nyaya-400/40">Confidence</p>
-            <p className="text-lg font-bold text-verdict-yellow">
+            <p className="text-[11px] text-nyaya-500">Confidence</p>
+            <p className="text-lg font-semibold text-verdict-yellow">
               {Math.round(item.confidence * 100)}%
             </p>
           </div>
@@ -75,21 +77,22 @@ function YellowItemInner({ item, officerId, onDecision }: YellowItemProps) {
       </div>
 
       {item.ambiguity && (
-        <div className="px-3 py-2 rounded-lg bg-verdict-yellow/10 border border-verdict-yellow/20 text-xs text-verdict-yellow/80 leading-relaxed">
+        <div className="px-3 py-2 rounded-lg bg-verdict-yellow/10 border border-verdict-yellow/15 text-xs text-verdict-yellow/80 leading-relaxed">
           {item.ambiguity}
         </div>
       )}
 
       {item.source_document && (
-        <p className="text-xs text-nyaya-400/40">
-          📄 {item.source_document}
+        <p className="text-xs text-nyaya-500 flex items-center gap-1.5">
+          <FileText className="w-3 h-3" />
+          {item.source_document}
           {item.source_page ? `, Page ${item.source_page}` : ''}
         </p>
       )}
 
       {item.officer_options && (
-        <div className="text-xs text-nyaya-400/50 space-y-1">
-          <p className="font-medium text-nyaya-300/60">Options:</p>
+        <div className="text-xs text-nyaya-500 space-y-1">
+          <p className="font-medium text-nyaya-400">Options:</p>
           {item.officer_options.map((opt, i) => (
             <p key={i} className="ml-3">• {opt}</p>
           ))}
@@ -105,20 +108,22 @@ function YellowItemInner({ item, officerId, onDecision }: YellowItemProps) {
           placeholder="Mandatory: Document your reasoning (min 10 characters)..."
           className="input-field text-xs h-16 resize-none"
         />
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <button
             onClick={() => handleDecision('PASS')}
             disabled={reason.length < 10 || submitting}
-            className="px-4 py-2 bg-verdict-green/20 hover:bg-verdict-green/30 text-verdict-green rounded-lg text-xs font-bold transition-colors disabled:opacity-30"
+            className="px-3 py-1.5 bg-verdict-green/15 hover:bg-verdict-green/25 text-verdict-green rounded-lg text-xs font-semibold transition-colors disabled:opacity-30 flex items-center gap-1"
           >
-            {submitting ? '...' : '✓ PASS'}
+            <Check className="w-3 h-3" />
+            {submitting ? '...' : 'PASS'}
           </button>
           <button
             onClick={() => handleDecision('FAIL')}
             disabled={reason.length < 10 || submitting}
-            className="px-4 py-2 bg-verdict-red/20 hover:bg-verdict-red/30 text-verdict-red rounded-lg text-xs font-bold transition-colors disabled:opacity-30"
+            className="px-3 py-1.5 bg-verdict-red/15 hover:bg-verdict-red/25 text-verdict-red rounded-lg text-xs font-semibold transition-colors disabled:opacity-30 flex items-center gap-1"
           >
-            {submitting ? '...' : '✗ FAIL'}
+            <X className="w-3 h-3" />
+            {submitting ? '...' : 'FAIL'}
           </button>
         </div>
         {reason.length > 0 && reason.length < 10 && (

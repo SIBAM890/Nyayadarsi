@@ -2,6 +2,7 @@
  * ManualCheckForm — real-time criterion integrity check form.
  */
 import React, { useState, useCallback, memo } from 'react';
+import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { sanitizeText } from '@/utils/sanitize';
 import type { IntegrityAlertResponse } from '@/types/tender';
 
@@ -20,9 +21,9 @@ function ManualCheckFormInner({ onCheck, alert, isChecking }: ManualCheckFormPro
   }, [criterion, onCheck]);
 
   return (
-    <section className="glass-card p-6">
+    <section className="glass-card p-5">
       <h3 className="section-title mb-1">Manual Criterion Check</h3>
-      <p className="section-subtitle mb-4">
+      <p className="section-subtitle mb-3">
         Type a criterion to check for integrity alerts in real time
       </p>
       <div className="flex gap-3">
@@ -43,16 +44,23 @@ function ManualCheckFormInner({ onCheck, alert, isChecking }: ManualCheckFormPro
       </div>
       {alert && (
         <div
-          className={`mt-4 p-4 rounded-xl text-sm animate-slide-up ${
+          className={`mt-3 p-3 rounded-lg text-sm animate-slide-up flex items-start gap-2.5 ${
             alert.alert
-              ? 'bg-red-500/10 border border-red-500/20 text-red-300'
-              : 'bg-verdict-green/10 border border-verdict-green/20 text-verdict-green'
+              ? 'bg-verdict-red/10 border border-verdict-red/15 text-red-300'
+              : 'bg-verdict-green/10 border border-verdict-green/15 text-verdict-green'
           }`}
         >
-          {alert.alert ? '🚨' : '✅'} {alert.reason}
-          <span className="block text-xs mt-1 opacity-60">
-            Estimated qualifying vendors: {alert.estimated_qualifying_vendors}
-          </span>
+          {alert.alert ? (
+            <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          ) : (
+            <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
+          )}
+          <div>
+            <span>{alert.reason}</span>
+            <span className="block text-xs mt-1 opacity-60">
+              Estimated qualifying vendors: {alert.estimated_qualifying_vendors}
+            </span>
+          </div>
         </div>
       )}
     </section>

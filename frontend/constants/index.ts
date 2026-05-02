@@ -66,11 +66,4 @@ export const FLAG_LABELS: Record<CollusionFlagName, FlagLabelInfo> = {
   DOC_QUALITY_ASYMMETRY: { label: 'Doc Quality', icon: 'FileWarning', description: 'Document quality variance' },
 } as const;
 
-/** Icon mapping for collusion flags in the UI */
-export const FLAG_ICONS: Record<CollusionFlagName, string> = {
-  BID_CLUSTERING: '📊',
-  CA_FINGERPRINT: '🔍',
-  SHARED_ADDRESS: '📍',
-  OWNERSHIP_NETWORK: '🕸️',
-  DOC_QUALITY_ASYMMETRY: '📄',
-} as const;
+/** Icon mapping for collusion flags — Lucide icons used directly in CollusionPanel */
