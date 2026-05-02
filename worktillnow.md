@@ -351,7 +351,7 @@ Implementation of structural database migration tracking and advanced access con
 
 ### 7.3 Frontend TypeScript Migration & Refactoring
 
-**Engineer:** Satya Sarthak Manohari
+**Changes by:** Satya Sarthak Manohari
 **Date:** May 2, 2026, 11:22 AM IST  
 
 **Objective:**
@@ -380,3 +380,9 @@ Comprehensive migration of the Nyayadarsi frontend from JavaScript to strict Typ
     *   Updated `tailwind.config.ts` and `next.config.ts` for `.ts`/`.tsx` support.
     *   Implemented XSS protection via `sanitizeText` utility for all user input prior to API submission.
     *   Removed hardcoded demo data and integrated actual data flows.
+
+### 7.4 Made changes in the readme and made it more descriptive and professional. 
+
+**Changes by:** Satya Sarthak Manohari
+**Date:** May 2, 2026, 11:35 AM IST  
+
