@@ -5,6 +5,7 @@ import { useState, useCallback } from 'react';
 import Head from 'next/head';
 import Layout from '@/components/layout/Layout';
 import { BidderList } from '@/components/evaluation/BidderList';
+import { BidderComparisonTable } from '@/components/evaluation/BidderComparisonTable';
 import { VerdictRow } from '@/components/evaluation/VerdictRow';
 import { YellowItem } from '@/components/evaluation/YellowItem';
 import { CollusionPanel } from '@/components/evaluation/CollusionPanel';
@@ -21,6 +22,7 @@ export default function EvaluationDashboard() {
   const { collusionData, scanning, scan } = useCollusionScan();
   const [selectedBidder, setSelectedBidder] = useState<BidderEvaluation | null>(null);
   const [showCollusion, setShowCollusion] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'compare'>('list');
 
   const handleCollusionScan = useCallback(async () => {
     const bids = evalData?.bidders?.map((b) => ({
@@ -53,39 +55,51 @@ export default function EvaluationDashboard() {
               <p className="text-xs text-nyaya-400/50 font-mono">{evalData?.tender_id}</p>
               <h3 className="text-lg text-nyaya-200/80">{evalData?.tender_title}</h3>
             </div>
-            <button onClick={handleCollusionScan} disabled={scanning} className="btn-saffron text-sm">
-              {scanning ? 'Scanning...' : 'Collusion Risk Scan'}
-            </button>
+            <div className="flex gap-3">
+              <button onClick={() => setViewMode(v => v === 'list' ? 'compare' : 'list')} className="btn-secondary text-sm">
+                {viewMode === 'list' ? 'Compare Bidders' : 'List View'}
+              </button>
+              <button onClick={handleCollusionScan} disabled={scanning} className="btn-saffron text-sm">
+                {scanning ? 'Scanning...' : 'Collusion Risk Scan'}
+              </button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-12 gap-6">
-            <div className="col-span-4">
-              <BidderList
-                bidders={evalData?.bidders || []}
-                selectedBidderId={selectedBidder?.bidder_id || null}
-                onSelect={handleSelectBidder}
-              />
-            </div>
-            <div className="col-span-8 space-y-4">
-              {selectedBidder ? (
-                <>
-                  <div className="flex items-center justify-between">
-                    <h4 className="section-title text-base">{selectedBidder.company_name}</h4>
-                    <VerdictBadge verdict={selectedBidder.overall_verdict} />
+          {viewMode === 'list' ? (
+            <div className="grid grid-cols-12 gap-6">
+              <div className="col-span-4">
+                <BidderList
+                  bidders={evalData?.bidders || []}
+                  selectedBidderId={selectedBidder?.bidder_id || null}
+                  onSelect={handleSelectBidder}
+                />
+              </div>
+              <div className="col-span-8 space-y-4">
+                {selectedBidder ? (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <h4 className="section-title text-base">{selectedBidder.company_name}</h4>
+                      <VerdictBadge verdict={selectedBidder.overall_verdict} />
+                    </div>
+                    <div className="space-y-3">
+                      {selectedBidder.verdicts?.map((v, i) => (
+                        <VerdictRow key={v.criterion_id || i} verdict={v} />
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div className="glass-card p-12 text-center">
+                    <p className="text-nyaya-400/40">← Select a bidder to view evaluation details</p>
                   </div>
-                  <div className="space-y-3">
-                    {selectedBidder.verdicts?.map((v, i) => (
-                      <VerdictRow key={v.criterion_id || i} verdict={v} />
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <div className="glass-card p-12 text-center">
-                  <p className="text-nyaya-400/40">← Select a bidder to view evaluation details</p>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="mb-8">
+              <h4 className="section-title mb-4 text-base">Comparative Analysis</h4>
+              <BidderComparisonTable bidders={evalData?.bidders || []} />
+            </div>
+          )}
 
           {yellowQueue?.items?.length && yellowQueue.items.length > 0 && (
             <section className="mt-10">

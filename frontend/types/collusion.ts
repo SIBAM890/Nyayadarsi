@@ -12,6 +12,8 @@ export type CollusionFlagName =
 export interface CollusionEvidence {
   interpretation?: string;
   matching_features?: string[];
+  bids?: BidItem[];
+  bidders?: string[];
 }
 
 export interface CollusionFlag {
@@ -20,6 +22,9 @@ export interface CollusionFlag {
   cv_percent?: number;
   similarity_score?: number;
   reason?: string;
+  mean_bid?: number;
+  bid_spread?: number;
+  probability_by_chance?: string;
   evidence?: CollusionEvidence;
 }
 
