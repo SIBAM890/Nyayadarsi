@@ -27,7 +27,7 @@ async def generate(prompt: str, max_tokens: int = 2000) -> str:
 
     try:
         response = client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="llama-3.1-8b-instant",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=max_tokens,
             temperature=0.1,

@@ -24,7 +24,7 @@ def test_gemini():
     try:
         import google.generativeai as genai
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-2.5-flash")
 
         print("📡 Testing Gemini API connection...")
         start = time.time()
@@ -66,7 +66,7 @@ def test_groq():
         start = time.time()
 
         response = client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="llama-3.1-8b-instant",
             messages=[{"role": "user", "content": 'Return ONLY: [{"test": true}]'}],
             max_tokens=50,
             temperature=0,
