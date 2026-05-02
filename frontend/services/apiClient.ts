@@ -1,0 +1,127 @@
+/**
+ * Centralized API client with typed responses and auth token injection.
+ */
+import type { ApiResponse } from '@/types/api';
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
+
+/**
+ * Retrieve the stored auth token from sessionStorage.
+ */
+function getStoredToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return sessionStorage.getItem('nyayadarsi_token');
+}
+
+/**
+ * Build common headers for JSON requests.
+ */
+function buildHeaders(customHeaders?: HeadersInit): HeadersInit {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  const token = getStoredToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  if (customHeaders) {
+    const entries =
+      customHeaders instanceof Headers
+        ? Array.from(customHeaders.entries())
+        : Object.entries(customHeaders);
+    for (const [key, value] of entries) {
+      headers[key] = value as string;
+    }
+  }
+
+  return headers;
+}
+
+/**
+ * Extract a human-readable error message from a failed API response.
+ */
+function extractErrorMessage(data: Record<string, unknown>, fallback: string): string {
+  if (typeof data.detail === 'string') return data.detail;
+  if (typeof data.message === 'string') return data.message;
+  if (typeof data.detail === 'object' && data.detail !== null) {
+    const detail = data.detail as Record<string, unknown>;
+    if (typeof detail.message === 'string') return detail.message;
+  }
+  return fallback;
+}
+
+/**
+ * Typed JSON API fetch wrapper.
+ * Returns a consistent `{ data, error }` shape for every request.
+ */
+export async function apiFetch<T>(
+  url: string,
+  options: RequestInit = {}
+): Promise<ApiResponse<T>> {
+  try {
+    const response = await fetch(`${API_BASE}${url}`, {
+      ...options,
+      headers: buildHeaders(options.headers as HeadersInit | undefined),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        data: null,
+        error: extractErrorMessage(data, `Request failed (${response.status})`),
+      };
+    }
+
+    if (data.error === true) {
+      return {
+        data: null,
+        error: extractErrorMessage(data, 'Unknown error'),
+      };
+    }
+
+    return { data: data as T, error: null };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Network error';
+    return { data: null, error: message };
+  }
+}
+
+/**
+ * Typed FormData upload wrapper.
+ * Does NOT set Content-Type — lets the browser set the multipart boundary.
+ */
+export async function apiUpload<T>(
+  url: string,
+  formData: FormData
+): Promise<ApiResponse<T>> {
+  try {
+    const headers: Record<string, string> = {};
+    const token = getStoredToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE}${url}`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        data: null,
+        error: extractErrorMessage(data, 'Upload failed'),
+      };
+    }
+
+    return { data: data as T, error: null };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Network error';
+    return { data: null, error: message };
+  }
+}
