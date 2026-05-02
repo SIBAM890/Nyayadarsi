@@ -1,15 +1,23 @@
+/**
+ * Layout — application shell with sidebar navigation and top bar.
+ */
+import React, { type ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { APP_NAME, APP_DEVANAGARI, NAV_ITEMS } from '../../lib/constants';
+import { APP_NAME, APP_DEVANAGARI, NAV_ITEMS } from '@/constants';
 
-export default function Layout({ children, title }) {
+interface LayoutProps {
+  children: ReactNode;
+  title?: string;
+}
+
+export default function Layout({ children, title }: LayoutProps) {
   const router = useRouter();
 
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
       <aside className="w-72 bg-nyaya-950/80 backdrop-blur-xl border-r border-white/5 flex flex-col p-6 fixed h-full z-20">
-        {/* Logo */}
         <Link href="/" className="block mb-10 group">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-nyaya-500 to-saffron-500 flex items-center justify-center text-lg font-bold shadow-lg shadow-nyaya-500/30 group-hover:shadow-nyaya-400/50 transition-all">
@@ -22,8 +30,7 @@ export default function Layout({ children, title }) {
           </div>
         </Link>
 
-        {/* Navigation */}
-        <nav className="flex-1 space-y-2">
+        <nav className="flex-1 space-y-2" aria-label="Main navigation">
           {NAV_ITEMS.map((item) => {
             const isActive = router.pathname === item.href;
             return (
@@ -35,6 +42,7 @@ export default function Layout({ children, title }) {
                     ? 'bg-nyaya-600/20 text-white border border-nyaya-500/30'
                     : 'text-nyaya-300/60 hover:text-white hover:bg-white/5'
                 }`}
+                aria-current={isActive ? 'page' : undefined}
               >
                 <div className={`w-2 h-2 rounded-full transition-all ${isActive ? 'bg-nyaya-400 shadow-lg shadow-nyaya-400/50' : 'bg-nyaya-600/30'}`} />
                 <div>
@@ -46,7 +54,6 @@ export default function Layout({ children, title }) {
           })}
         </nav>
 
-        {/* Footer */}
         <div className="mt-auto pt-6 border-t border-white/5">
           <div className="text-xs text-nyaya-400/40 space-y-1">
             <p className="font-medium text-nyaya-300/60">Coding Aghoris</p>
@@ -58,7 +65,6 @@ export default function Layout({ children, title }) {
 
       {/* Main Content */}
       <main className="flex-1 ml-72">
-        {/* Top Bar */}
         <header className="sticky top-0 z-10 bg-nyaya-950/60 backdrop-blur-xl border-b border-white/5 px-8 py-4">
           <div className="flex items-center justify-between">
             <div>
@@ -73,11 +79,7 @@ export default function Layout({ children, title }) {
             </div>
           </div>
         </header>
-
-        {/* Page Content */}
-        <div className="p-8">
-          {children}
-        </div>
+        <div className="p-8">{children}</div>
       </main>
     </div>
   );
