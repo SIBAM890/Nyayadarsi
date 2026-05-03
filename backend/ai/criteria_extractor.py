@@ -5,7 +5,7 @@ Uses Gemini with fallback to Groq.
 """
 import json
 import re
-from backend.ai import gemini_client, groq_client
+from backend.ai import gemini_client, openrouter_client
 
 
 EXTRACTION_PROMPT = """You are an expert in Indian government procurement law under GFR 2017.
@@ -62,7 +62,7 @@ async def extract(tender_text: str) -> list:
 
     prompt = EXTRACTION_PROMPT.format(tender_text=tender_text[:15000])  # Cap context
 
-    # Try Gemini first, fallback to Groq
+    # Try Gemini first, fallback to OpenRouter
     raw_response = None
     model_used = None
 
@@ -70,10 +70,10 @@ async def extract(tender_text: str) -> list:
         raw_response = await gemini_client.generate(prompt, max_tokens=4000)
         model_used = "gemini-1.5-flash"
     except Exception as e:
-        print(f"⚠️ Gemini failed: {e}. Falling back to Groq...")
+        print(f"⚠️ Gemini failed: {e}. Falling back to OpenRouter...")
         try:
-            raw_response = await groq_client.generate(prompt, max_tokens=4000)
-            model_used = "groq-llama3-8b"
+            raw_response = await openrouter_client.generate(prompt, max_tokens=4000)
+            model_used = "openrouter-deepseek"
         except Exception as e2:
             print(f"❌ Both AI providers failed: {e2}")
             return []
