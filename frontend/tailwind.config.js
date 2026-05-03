@@ -41,6 +41,19 @@ module.exports = {
           yellow: '#f59e0b', // Warning yellow
           red: '#ef4444', // Alert red
         },
+        emerald: {
+          600: '#059669',
+        },
+        purple: {
+          500: '#a855f7',
+          700: '#7e22ce',
+        },
+        amber: {
+          600: '#d97706',
+        },
+        red: {
+          600: '#dc2626',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],

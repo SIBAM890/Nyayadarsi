@@ -64,30 +64,26 @@ export default function GovDashboard() {
         <title>Government Dashboard — Nyayadarsi</title>
       </Head>
 
-      <div className="min-h-screen bg-surface-0 flex flex-col font-sans text-white overflow-hidden">
-        {/* Header Bar */}
-        <header className="h-14 border-b border-white/[0.06] bg-surface-1/50 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-40">
-          <div className="flex items-center gap-2 text-sm text-nyaya-400">
-            <span>Nyayadarsi</span>
-            <span>/</span>
-            <span className="text-white font-medium">Government Officer</span>
+      <Layout title="Government Officer — Create Tender">
+        {/* Break out of Layout padding for edge-to-edge 3-column grid */}
+        <div className="flex h-[calc(100vh-8.5rem)] -m-8 border-t border-white/[0.06] overflow-hidden">
+
+        {/* Inline header with officer info */}
+        <div className="absolute top-0 right-0 z-30 flex items-center gap-4 pr-8 pt-3">
+          <div className="flex items-center gap-2 text-xs font-mono text-nyaya-300 bg-surface-2 px-3 py-1.5 rounded-md border border-white/[0.04]">
+            <Clock className="w-3.5 h-3.5" />
+            {time}
           </div>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2 text-xs font-mono text-nyaya-300 bg-surface-2 px-3 py-1.5 rounded-md border border-white/[0.04]">
-              <Clock className="w-3.5 h-3.5" />
-              {time}
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-nyaya-600/20 flex items-center justify-center border border-nyaya-500/30">
+              <span className="text-xs font-bold text-nyaya-300">GO</span>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-nyaya-600/20 flex items-center justify-center border border-nyaya-500/30">
-                <span className="text-xs font-bold text-nyaya-300">GO</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-semibold">Ananya Sharma</span>
-                <span className="text-[10px] text-nyaya-500 uppercase tracking-widest">Procurement Dir</span>
-              </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-semibold text-white">Ananya Sharma</span>
+              <span className="text-[10px] text-nyaya-500 uppercase tracking-widest">Procurement Dir</span>
             </div>
           </div>
-        </header>
+        </div>
 
         {/* MAIN LAYOUT */}
         <div className="flex-1 grid grid-cols-12 overflow-hidden">
@@ -326,6 +322,7 @@ export default function GovDashboard() {
 
         </div>
       </div>
+      </Layout>
 
       {/* Override Modal */}
       <AnimatePresence>
