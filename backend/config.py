@@ -6,7 +6,7 @@ from backend.core.config import settings
 
 # Re-export for backward compatibility with AI/collusion/utils modules
 GEMINI_API_KEY = settings.GEMINI_API_KEY
-GROQ_API_KEY = settings.GROQ_API_KEY
+OPENROUTER_API_KEY = settings.OPENROUTER_API_KEY
 DATABASE_URL = settings.DATABASE_URL
 DB_PATH = settings.DB_PATH
 REGISTERED_SITE_LAT = settings.REGISTERED_SITE_LAT

@@ -28,7 +28,7 @@ async def generate(prompt: str, max_tokens: int = 2000) -> str:
     """
     Send prompt to Gemini and return text response.
     Retries once on rate limit with 10s backoff (async-safe).
-    Raises exception on second failure so caller can fallback to Groq.
+    Raises exception on second failure so caller can fallback to OpenRouter.
     """
     model = _get_model()
 
