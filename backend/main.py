@@ -7,19 +7,27 @@ FastAPI Application Entry Point
 v2.0 — Production architecture with SQLAlchemy, JWT auth, service layer.
 """
 import sys
+import logging
 from pathlib import Path
 from contextlib import asynccontextmanager
 
 # Ensure backend is importable
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from backend.core.config import settings
 from backend.core.database import init_db
 from backend.routes import tender, evaluation, collusion, builder, payment, audit, auth
+
+# ── Structured logging ────────────────────────────────────────────────────────
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
+logger = logging.getLogger("nyayadarsi")
 
 
 # ── Lifespan ─────────────────────────────────────────────────────────────────
@@ -48,31 +56,37 @@ app = FastAPI(
 
 
 # ── CORS ─────────────────────────────────────────────────────────────────────
+_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://nyaya-darshi.vercel.app",
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "https://nyaya-darshi.vercel.app",
-        "https://*.vercel.app",
-    ],
+    allow_origins=_ALLOWED_ORIGINS,
+    allow_origin_regex=r"https://nyayadarsi.*\.vercel\.app",  # Only Nyayadarsi Vercel previews
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept"],
 )
 
 
 # ── Global Exception Handler ────────────────────────────────────────────────
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
-    """Catch-all for unhandled exceptions — returns consistent error shape."""
+    """Catch-all for unhandled exceptions — preserves HTTP semantics."""
+    # Let FastAPI handle HTTPExceptions normally (404, 401, 422, etc.)
+    if isinstance(exc, HTTPException):
+        raise exc
+    # Log the unexpected error with full traceback for server-side debugging
+    logger.error("Unhandled exception on %s %s", request.method, request.url, exc_info=exc)
+    # Never leak internal details to the client in production
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         content={
             "error": True,
-            "message": "Internal server error",
+            "message": "An unexpected error occurred. Please try again.",
             "code": "INTERNAL_ERROR",
-            "detail": str(exc) if settings.APP_VERSION.startswith("2") else None,
         },
     )
 

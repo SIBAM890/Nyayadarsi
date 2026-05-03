@@ -24,9 +24,17 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./nyayadarsi.db"
 
     # ── JWT Authentication ───────────────────────────────────────────────
-    JWT_SECRET_KEY: str = "nyayadarsi-super-secret-key-change-in-production"
+    # Must be set in .env — no insecure default in production.
+    JWT_SECRET_KEY: str = "nyayadarsi-dev-secret-CHANGE-BEFORE-DEPLOYING-32chars+"
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Fail fast if someone is using the default key in a non-local environment
+        import os
+        if self.JWT_SECRET_KEY.startswith("nyayadarsi-dev-secret") and os.getenv("RAILWAY_ENVIRONMENT"):
+            raise RuntimeError("❌ JWT_SECRET_KEY must be set to a strong random value in production! Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\"")
 
     # ── GPS Configuration ────────────────────────────────────────────────
     REGISTERED_SITE_LAT: float = 20.2961
