@@ -9,6 +9,7 @@ import { NotificationProvider, useNotification } from '@/store/NotificationConte
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { Toast } from '@/components/ui/Toast';
 import '@/styles/globals.css';
+import 'leaflet/dist/leaflet.css';
 
 function ToastContainer() {
   const { notifications, dismiss } = useNotification();

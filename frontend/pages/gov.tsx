@@ -242,7 +242,7 @@ export default function GovDashboard() {
                             </div>
                             <div className="flex items-center gap-1 bg-surface-1 px-2 py-1 rounded text-[10px] font-mono text-nyaya-400">
                               <ShieldCheck className="w-3 h-3 text-verdict-green" />
-                              {(c.confidence * 100).toFixed(0)}% Conf
+                              {((c.confidence ?? 0) * 100).toFixed(0)}% Conf
                             </div>
                           </div>
                           <p className="text-sm text-white leading-relaxed mb-3">{c.description}</p>
@@ -277,7 +277,7 @@ export default function GovDashboard() {
                   result.alerts.map((alert, i) => (
                     <div key={i} className="bg-surface-0 border border-verdict-red/20 rounded-lg overflow-hidden">
                       <div className="bg-verdict-red/10 px-3 py-2 border-b border-verdict-red/10">
-                        <span className="text-xs font-semibold text-verdict-red">{alert.alert_type.replace(/_/g, ' ')}</span>
+                        <span className="text-xs font-semibold text-verdict-red">{(alert.alert_type ?? 'ALERT').replace(/_/g, ' ')}</span>
                       </div>
                       <div className="p-3">
                         <p className="text-xs text-nyaya-300 leading-relaxed mb-2">{alert.reason}</p>

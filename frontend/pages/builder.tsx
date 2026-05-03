@@ -1,18 +1,42 @@
 import { useState, useCallback, useEffect } from 'react';
 import Head from 'next/head';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Camera, Video, UploadCloud, MapPin, CheckCircle2, 
-  AlertTriangle, Clock, Target, Wallet, Calendar 
+  AlertTriangle, Clock, Target, Wallet, Calendar,
+  Navigation, Crosshair, Radar
 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useMilestones } from '@/hooks/useBuilder';
+import { useLocation } from '@/hooks/useLocation';
+import { LocationProvider } from '@/store/LocationContext';
 import { CONTRACT_ID } from '@/constants';
+import type { MapViewProps } from '@/components/builder/MapView';
+
+// ── Lazy-loaded Map Component (Leaflet requires `window`) ──────────────────
+const MapView = dynamic<MapViewProps>(
+  () => import('@/components/builder/MapView'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[340px] rounded-xl bg-surface-2 border border-white/[0.06] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Radar className="w-8 h-8 text-nyaya-500 animate-spin" />
+          <span className="text-xs text-nyaya-500 uppercase tracking-widest font-bold">
+            Initializing Map...
+          </span>
+        </div>
+      </div>
+    ),
+  }
+);
 
 const DEMO_OFFICER_ID = 'OFF_DEMO_001';
 
-export default function BuilderDashboard() {
+// ── Inner component that uses LocationContext ──────────────────────────────
+function BuilderDashboardInner() {
   const {
     milestoneData,
     milestones,
@@ -22,18 +46,38 @@ export default function BuilderDashboard() {
     handleTriggerPayment,
   } = useMilestones(CONTRACT_ID);
 
+  const {
+    location,
+    startTracking,
+    stopTracking,
+    triggerVerification,
+  } = useLocation();
+
   const [paymentMsg, setPaymentMsg] = useState<string | null>(null);
-  const [gpsState, setGpsState] = useState<'verifying' | 'verified' | 'offsite'>('verifying');
   const [photos, setPhotos] = useState<string[]>([]);
   const [submitState, setSubmitState] = useState<'idle' | 'uploading' | 'verifying' | 'accepted' | 'rejected'>('idle');
 
-  // Simulate GPS check on load
+  // Start GPS tracking on mount
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setGpsState('verified');
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
+    startTracking();
+    return () => stopTracking();
+  }, [startTracking, stopTracking]);
+
+  // If geolocation is denied or unavailable, use demo coordinates
+  useEffect(() => {
+    if (location.error) {
+      // Fallback: simulate a position near the registered site for demo
+      triggerVerification(20.2965, 85.8240);
+    }
+  }, [location.error, triggerVerification]);
+
+  // Derive GPS state from location context
+  const gpsState: 'verifying' | 'verified' | 'offsite' | 'flagged' = (() => {
+    if (location.isOnsite === null) return 'verifying';
+    if (location.isFlagged) return 'flagged';
+    if (!location.isOnsite) return 'offsite';
+    return 'verified';
+  })();
 
   const handlePhotoUpload = () => {
     if (photos.length < 3) {
@@ -68,7 +112,10 @@ export default function BuilderDashboard() {
   }
 
   // Find current milestone index
-  const currentMsIndex = milestones.findIndex(m => m.status === 'PENDING' || m.status === 'IN_PROGRESS');
+  const currentMsIndex = milestones.findIndex(m => {
+    const s = (m.status as string).toUpperCase();
+    return s === 'PENDING' || s === 'IN_PROGRESS';
+  });
 
   return (
     <>
@@ -124,26 +171,40 @@ export default function BuilderDashboard() {
                 
                 <div className="flex items-start justify-between mb-6">
                   <div>
-                    <h3 className="text-base font-display font-semibold text-white mb-1">Today's Site Report</h3>
+                    <h3 className="text-base font-display font-semibold text-white mb-1">Today&apos;s Site Report</h3>
                     <p className="text-xs text-nyaya-400">Cryptographically signed geospatial upload.</p>
                   </div>
                   
-                  {/* GPS Badge */}
+                  {/* GPS Badge — now driven by live location data */}
                   <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${
                     gpsState === 'verifying' ? 'bg-nyaya-600/10 border-nyaya-500/20 text-nyaya-400' :
                     gpsState === 'verified' ? 'bg-verdict-green/10 border-verdict-green/20 text-verdict-green' :
+                    gpsState === 'flagged' ? 'bg-verdict-yellow/10 border-verdict-yellow/20 text-verdict-yellow' :
                     'bg-verdict-red/10 border-verdict-red/20 text-verdict-red'
                   }`}>
                     {gpsState === 'verifying' && <div className="w-2 h-2 rounded-full bg-nyaya-400 animate-ping" />}
                     {gpsState === 'verified' && <div className="w-2 h-2 rounded-full bg-verdict-green animate-pulse" />}
+                    {gpsState === 'flagged' && <Navigation className="w-3.5 h-3.5" />}
                     {gpsState === 'offsite' && <AlertTriangle className="w-3.5 h-3.5" />}
                     <span className="text-xs font-bold tracking-wide uppercase">
                       {gpsState === 'verifying' ? 'Acquiring Satellites...' :
-                       gpsState === 'verified' ? 'Site Verified ✓' :
-                       'Off-Site ⚠ — 347m deviation'}
+                       gpsState === 'verified' ? `Site Verified ✓ — ${location.distanceMeters?.toFixed(0) ?? '?'}m` :
+                       gpsState === 'flagged' ? `Flagged ⚠ — ${location.distanceMeters?.toFixed(0) ?? '?'}m deviation` :
+                       `Off-Site ⚠ — ${location.distanceMeters?.toFixed(0) ?? '?'}m deviation`}
                     </span>
                   </div>
                 </div>
+
+                {/* Reverse-geocoded address bar */}
+                {location.address && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+                    className="mb-4 px-3 py-2 rounded-lg bg-surface-2 border border-white/[0.04] flex items-center gap-2"
+                  >
+                    <Crosshair className="w-3.5 h-3.5 text-nyaya-500 flex-shrink-0" />
+                    <p className="text-[11px] text-nyaya-400 truncate">{location.address}</p>
+                  </motion.div>
+                )}
 
                 <div className="flex gap-4 mb-6">
                   {/* Photo Slots */}
@@ -207,12 +268,48 @@ export default function BuilderDashboard() {
 
                   <button 
                     onClick={handleSubmit}
-                    disabled={photos.length < 3 || gpsState !== 'verified' || submitState !== 'idle'}
+                    disabled={photos.length < 3 || gpsState === 'verifying' || gpsState === 'offsite' || submitState !== 'idle'}
                     className="btn-primary flex items-center gap-2 px-8 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <UploadCloud className="w-4 h-4" />
                     Submit Evidence
                   </button>
+                </div>
+              </section>
+
+              {/* MAP SECTION — Live GPS Tracker */}
+              <section>
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-sm font-semibold text-nyaya-300 uppercase tracking-wider flex items-center gap-2">
+                    <Navigation className="w-4 h-4" /> Live GPS Tracker
+                  </h4>
+                  <div className="flex items-center gap-3">
+                    {location.accuracy !== null && (
+                      <span className="text-[10px] text-nyaya-500 font-mono bg-surface-2 px-2 py-0.5 rounded border border-white/[0.04]">
+                        GPS Accuracy: ±{location.accuracy.toFixed(0)}m
+                      </span>
+                    )}
+                    <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md ${
+                      location.isTracking 
+                        ? 'bg-verdict-green/10 text-verdict-green border border-verdict-green/20' 
+                        : 'bg-surface-2 text-nyaya-500 border border-white/[0.04]'
+                    }`}>
+                      <div className={`w-1.5 h-1.5 rounded-full ${location.isTracking ? 'bg-verdict-green animate-pulse' : 'bg-nyaya-500'}`} />
+                      {location.isTracking ? 'Tracking' : location.error ? 'Demo Mode' : 'Inactive'}
+                    </div>
+                  </div>
+                </div>
+                <div className="h-[340px]">
+                  <MapView
+                    builderPosition={location.coordinates}
+                    sitePosition={location.siteCoordinates}
+                    distanceMeters={location.distanceMeters}
+                    isOnsite={location.isOnsite}
+                    isFlagged={location.isFlagged}
+                    address={location.address}
+                    accuracy={location.accuracy}
+                    flagThreshold={location.verification?.flag_threshold_meters ?? 500}
+                  />
                 </div>
               </section>
 
@@ -229,7 +326,7 @@ export default function BuilderDashboard() {
 
                   <div className="flex justify-between min-w-[600px] px-4">
                     {milestones.map((ms, i) => {
-                      const isComplete = ms.status === 'COMPLETED';
+                      const isComplete = (ms.status as string).toUpperCase() === 'COMPLETED';
                       const isCurrent = i === currentMsIndex;
                       
                       return (
@@ -296,5 +393,14 @@ export default function BuilderDashboard() {
         </div>
       </Layout>
     </>
+  );
+}
+
+// ── Page Export — wraps with LocationProvider ───────────────────────────────
+export default function BuilderDashboard() {
+  return (
+    <LocationProvider>
+      <BuilderDashboardInner />
+    </LocationProvider>
   );
 }

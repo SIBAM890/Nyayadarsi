@@ -23,6 +23,8 @@ class BuilderUpload(Base):
     audit_hash: str | None = Column(String, nullable=True)
     verified_by: str | None = Column(String, nullable=True)
     progress_percent: float | None = Column(Float, nullable=True)
+    reverse_geocoded_address: str | None = Column(Text, nullable=True)
+    flagged_offsite: int = Column(Integer, default=0, nullable=False)
 
     def __repr__(self) -> str:
         return f"<BuilderUpload {self.id} contract={self.contract_id}>"
