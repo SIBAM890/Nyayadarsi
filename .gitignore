@@ -37,6 +37,9 @@ yarn-error.log*
 
 # ── Database (local dev only) ──
 *.db
+*.db-shm
+*.db-wal
+*.db-journal
 *.sqlite
 *.sqlite3
 
