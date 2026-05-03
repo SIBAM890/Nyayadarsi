@@ -1,0 +1,16 @@
+.git
+.env
+.env.*
+__pycache__/
+*.pyc
+venv/
+.venv/
+env/
+node_modules/
+.next/
+frontend/
+demo/
+nyayadarsi.db
+nyayadarsi.db-shm
+nyayadarsi.db-wal
+backend/uploads/
