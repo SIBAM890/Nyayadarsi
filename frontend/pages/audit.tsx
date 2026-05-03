@@ -27,7 +27,7 @@ export default function AuditDashboard() {
               </button>
               <button 
                 className="btn-primary text-sm" 
-                onClick={() => window.open('http://127.0.0.1:8000/api/v1/audit/export-pdf', '_blank')}
+                onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/audit/export-pdf`, '_blank')}
               >
                 Export PDF Report
               </button>
