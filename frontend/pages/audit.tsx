@@ -27,7 +27,30 @@ export default function AuditDashboard() {
               </button>
               <button 
                 className="btn-primary text-sm" 
-                onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/audit/export-pdf`, '_blank')}
+                onClick={async () => {
+                  try {
+                    const API = process.env.NEXT_PUBLIC_API_URL || '';
+                    const response = await fetch(`${API}/api/v1/audit/export-pdf`);
+                    
+                    if (!response.ok) {
+                      throw new Error("Failed to fetch PDF");
+                    }
+
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "audit_report.pdf";
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                  } catch (error) {
+                    console.error("Error downloading PDF:", error);
+                    alert("Failed to download PDF report. Please try again later.");
+                  }
+                }}
               >
                 Export PDF Report
               </button>
