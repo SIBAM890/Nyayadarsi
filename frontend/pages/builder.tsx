@@ -1,13 +1,11 @@
-/**
- * Builder Dashboard — GPS uploads, milestones, payments.
- */
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Head from 'next/head';
-import { BarChart3, Target, Wallet, DollarSign } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Camera, Video, UploadCloud, MapPin, CheckCircle2, 
+  AlertTriangle, Clock, Target, Wallet, Calendar 
+} from 'lucide-react';
 import Layout from '@/components/layout/Layout';
-import { MilestoneCard } from '@/components/builder/MilestoneCard';
-import { GPSUploadSection } from '@/components/builder/GPSUploadSection';
-import { StatCard } from '@/components/ui/StatCard';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useMilestones } from '@/hooks/useBuilder';
 import { CONTRACT_ID } from '@/constants';
@@ -19,14 +17,39 @@ export default function BuilderDashboard() {
     milestoneData,
     milestones,
     loading,
-    completedCount,
     totalPayment,
     releasedPayment,
-    overallProgress,
     handleTriggerPayment,
   } = useMilestones(CONTRACT_ID);
 
   const [paymentMsg, setPaymentMsg] = useState<string | null>(null);
+  const [gpsState, setGpsState] = useState<'verifying' | 'verified' | 'offsite'>('verifying');
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [submitState, setSubmitState] = useState<'idle' | 'uploading' | 'verifying' | 'accepted' | 'rejected'>('idle');
+
+  // Simulate GPS check on load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setGpsState('verified');
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handlePhotoUpload = () => {
+    if (photos.length < 3) {
+      setPhotos([...photos, `photo_${photos.length + 1}.jpg`]);
+    }
+  };
+
+  const handleSubmit = () => {
+    setSubmitState('uploading');
+    setTimeout(() => {
+      setSubmitState('verifying');
+      setTimeout(() => {
+        setSubmitState('accepted');
+      }, 1500);
+    }, 1000);
+  };
 
   const onTriggerPayment = useCallback(
     async (milestoneId: string) => {
@@ -38,56 +61,236 @@ export default function BuilderDashboard() {
 
   if (loading) {
     return (
-      <Layout title="Builder — Progress Monitoring">
-        <LoadingSpinner message="Loading builder data..." />
+      <Layout title="Contractor — Live Monitoring">
+        <LoadingSpinner message="Loading contract telemetry..." />
       </Layout>
     );
   }
 
+  // Find current milestone index
+  const currentMsIndex = milestones.findIndex(m => m.status === 'PENDING' || m.status === 'IN_PROGRESS');
+
   return (
     <>
-      <Head><title>Builder Dashboard — Nyayadarsi</title></Head>
-      <Layout title="Builder — Progress Monitoring">
-        <div className="max-w-5xl mx-auto space-y-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <StatCard label="Overall Progress" value={`${overallProgress}%`} icon={<BarChart3 className="w-4 h-4" />} />
-            <StatCard label="Milestones" value={`${completedCount}/${milestones.length}`} icon={<Target className="w-4 h-4" />} />
-            <StatCard label="Released" value={`₹${(releasedPayment / 100000).toFixed(1)}L`} icon={<Wallet className="w-4 h-4" />} />
-            <StatCard label="Total Value" value={`₹${(totalPayment / 100000).toFixed(1)}L`} icon={<DollarSign className="w-4 h-4" />} />
-          </div>
-
-          {paymentMsg && (
-            <div className="px-4 py-2.5 rounded-lg bg-verdict-green/10 border border-verdict-green/15 text-sm text-verdict-green animate-slide-up">
-              {paymentMsg}
+      <Head>
+        <title>Builder Dashboard — Nyayadarsi</title>
+      </Head>
+      <Layout title="Contractor — Live Monitoring">
+        <div className="flex h-[calc(100vh-8.5rem)] -m-8 border-t border-white/[0.06] overflow-hidden">
+          
+          {/* LEFT SIDEBAR (320px) */}
+          <div className="w-[320px] flex-shrink-0 border-r border-white/[0.06] bg-surface-1 flex flex-col z-10">
+            <div className="p-5 border-b border-white/[0.06] bg-surface-0/50">
+              <h3 className="text-sm font-semibold tracking-wide uppercase text-nyaya-300 flex items-center gap-2">
+                <Target className="w-4 h-4" /> My Contracts
+              </h3>
             </div>
-          )}
-
-          <div className="grid grid-cols-12 gap-6">
-            <div className="col-span-5 space-y-4">
-              <GPSUploadSection />
-              <div className="glass-card p-5">
-                <h4 className="text-sm font-semibold text-white mb-3">Contract Details</h4>
-                <div className="space-y-2.5 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-nyaya-500">Contract ID</span>
-                    <span className="font-mono text-nyaya-300">{CONTRACT_ID}</span>
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {[
+                { id: CONTRACT_ID, name: 'Border Outpost - Sector 4', status: 'On Track', progress: 45, days: 120, textClass: 'text-verdict-green', bgClass: 'bg-verdict-green' },
+                { id: 'CRPF-2025-MED-042', name: 'Field Hospital Wing B', status: 'At Risk', progress: 60, days: 15, textClass: 'text-verdict-yellow', bgClass: 'bg-verdict-yellow' },
+                { id: 'CRPF-2024-HQ-001', name: 'HQ Perimeter Wall', status: 'Delayed', progress: 85, days: -12, textClass: 'text-verdict-red', bgClass: 'bg-verdict-red' }
+              ].map((c) => (
+                <div key={c.id} className={`glass-card-hover p-4 relative overflow-hidden ${c.id === CONTRACT_ID ? 'bg-nyaya-600/5 border-nyaya-500/30' : ''}`}>
+                  <div className={`absolute left-0 top-0 bottom-0 w-1 ${c.bgClass}`} />
+                  <div className="flex justify-between items-start mb-2">
+                    <p className="text-[10px] font-mono text-nyaya-500">{c.id}</p>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider ${c.textClass} ${c.bgClass}/10 px-2 py-0.5 rounded`}>
+                      {c.status}
+                    </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-nyaya-500">Contractor</span>
-                    <span className="text-nyaya-300">{milestoneData?.contractor || 'Acme Infrastructure'}</span>
+                  <h4 className="text-sm font-medium text-white mb-3">{c.name}</h4>
+                  <div className="w-full bg-white/[0.04] h-1.5 rounded-full overflow-hidden mb-2">
+                    <div className="h-full bg-nyaya-500" style={{ width: `${c.progress}%` }} />
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-nyaya-500">Total Value</span>
-                    <span className="font-semibold text-white">₹{((milestoneData?.total_value || 0) / 100000).toFixed(1)}L</span>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-nyaya-400">{c.progress}% Complete</span>
+                    <span className="flex items-center gap-1 text-nyaya-400 bg-surface-2 px-1.5 py-0.5 rounded border border-white/[0.04]">
+                      <Calendar className="w-3 h-3" /> {c.days > 0 ? `${c.days} days left` : `${Math.abs(c.days)} days over`}
+                    </span>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div className="col-span-7 space-y-3">
-              <h4 className="section-title">Milestone Tracker</h4>
-              {milestones.map((ms) => (
-                <MilestoneCard key={ms.id} milestone={ms} onTriggerPayment={onTriggerPayment} />
               ))}
+            </div>
+          </div>
+
+          {/* RIGHT PANEL */}
+          <div className="flex-1 overflow-y-auto bg-surface-0 relative">
+            <div className="max-w-4xl mx-auto p-8 space-y-8">
+              
+              {/* TOP SECTION - TODAY'S UPLOAD */}
+              <section className="bg-surface-1 border border-white/[0.06] rounded-xl p-6 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-[length:20px_20px] bg-[linear-gradient(45deg,rgba(255,255,255,0.05)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.05)_50%,rgba(255,255,255,0.05)_75%,transparent_75%,transparent)]" />
+                
+                <div className="flex items-start justify-between mb-6">
+                  <div>
+                    <h3 className="text-base font-display font-semibold text-white mb-1">Today's Site Report</h3>
+                    <p className="text-xs text-nyaya-400">Cryptographically signed geospatial upload.</p>
+                  </div>
+                  
+                  {/* GPS Badge */}
+                  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${
+                    gpsState === 'verifying' ? 'bg-nyaya-600/10 border-nyaya-500/20 text-nyaya-400' :
+                    gpsState === 'verified' ? 'bg-verdict-green/10 border-verdict-green/20 text-verdict-green' :
+                    'bg-verdict-red/10 border-verdict-red/20 text-verdict-red'
+                  }`}>
+                    {gpsState === 'verifying' && <div className="w-2 h-2 rounded-full bg-nyaya-400 animate-ping" />}
+                    {gpsState === 'verified' && <div className="w-2 h-2 rounded-full bg-verdict-green animate-pulse" />}
+                    {gpsState === 'offsite' && <AlertTriangle className="w-3.5 h-3.5" />}
+                    <span className="text-xs font-bold tracking-wide uppercase">
+                      {gpsState === 'verifying' ? 'Acquiring Satellites...' :
+                       gpsState === 'verified' ? 'Site Verified ✓' :
+                       'Off-Site ⚠ — 347m deviation'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex gap-4 mb-6">
+                  {/* Photo Slots */}
+                  {[0, 1, 2].map((i) => (
+                    <button 
+                      key={i}
+                      onClick={handlePhotoUpload}
+                      disabled={photos.length > i || submitState !== 'idle'}
+                      className={`h-24 flex-1 rounded-lg border-2 border-dashed flex flex-col items-center justify-center transition-all ${
+                        photos.length > i 
+                          ? 'border-verdict-green/30 bg-verdict-green/5' 
+                          : 'border-white/[0.1] hover:border-nyaya-500/50 bg-surface-2 hover:bg-surface-3 cursor-pointer'
+                      }`}
+                    >
+                      {photos.length > i ? (
+                        <>
+                          <CheckCircle2 className="w-6 h-6 text-verdict-green mb-1" />
+                          <span className="text-[10px] text-verdict-green uppercase tracking-widest font-bold">Captured</span>
+                        </>
+                      ) : (
+                        <>
+                          <Camera className="w-6 h-6 text-nyaya-500 mb-1" />
+                          <span className="text-[10px] text-nyaya-500 uppercase tracking-widest">Tap to Photo</span>
+                        </>
+                      )}
+                    </button>
+                  ))}
+                  <button disabled={submitState !== 'idle'} className="h-24 flex-1 rounded-lg border border-white/[0.06] bg-nyaya-600/10 hover:bg-nyaya-600/20 flex flex-col items-center justify-center transition-all text-nyaya-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed">
+                    <Video className="w-6 h-6 mb-1" />
+                    <span className="text-[10px] uppercase tracking-widest text-center px-2">Record 60s Walkthrough</span>
+                  </button>
+                </div>
+
+                <div className="flex justify-end relative">
+                  <AnimatePresence>
+                    {submitState !== 'idle' && (
+                      <motion.div 
+                        initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} 
+                        className={`absolute left-0 top-1/2 -translate-y-1/2 flex items-center gap-2 px-4 py-2 rounded-md ${
+                          submitState === 'accepted' ? 'bg-verdict-green/20 text-verdict-green border border-verdict-green/30' :
+                          submitState === 'rejected' ? 'bg-verdict-red/20 text-verdict-red border border-verdict-red/30' :
+                          'bg-nyaya-600/20 text-nyaya-300 border border-nyaya-500/30'
+                        }`}
+                      >
+                        {submitState === 'uploading' && <UploadCloud className="w-4 h-4 animate-bounce" />}
+                        {submitState === 'verifying' && <Target className="w-4 h-4 animate-spin" />}
+                        {submitState === 'accepted' && <CheckCircle2 className="w-4 h-4" />}
+                        <span className="text-xs font-bold uppercase tracking-wider">
+                          {submitState === 'uploading' ? 'Uploading...' :
+                           submitState === 'verifying' ? 'AI Verifying Evidence...' :
+                           submitState === 'accepted' ? 'Upload Accepted ✓' : 'Rejected'}
+                        </span>
+                        {submitState === 'accepted' && (
+                          <span className="ml-2 text-[10px] font-mono text-nyaya-400 border-l border-current pl-2">
+                            SHA-256: 8f4e2a...
+                          </span>
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  <button 
+                    onClick={handleSubmit}
+                    disabled={photos.length < 3 || gpsState !== 'verified' || submitState !== 'idle'}
+                    className="btn-primary flex items-center gap-2 px-8 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <UploadCloud className="w-4 h-4" />
+                    Submit Evidence
+                  </button>
+                </div>
+              </section>
+
+              {/* MIDDLE SECTION - MILESTONE TRACKER */}
+              <section>
+                <h4 className="text-sm font-semibold text-nyaya-300 uppercase tracking-wider mb-6">Milestone Trajectory</h4>
+                <div className="relative pt-4 pb-12 overflow-x-auto">
+                  {/* Connecting Line */}
+                  <div className="absolute top-7 left-8 right-8 h-1 bg-white/[0.04] -z-10" />
+                  <div 
+                    className="absolute top-7 left-8 h-1 bg-verdict-green -z-10 transition-all duration-1000" 
+                    style={{ width: `${(Math.max(0, currentMsIndex) / Math.max(1, milestones.length - 1)) * 100}%` }} 
+                  />
+
+                  <div className="flex justify-between min-w-[600px] px-4">
+                    {milestones.map((ms, i) => {
+                      const isComplete = ms.status === 'COMPLETED';
+                      const isCurrent = i === currentMsIndex;
+                      
+                      return (
+                        <div key={ms.id} className="flex flex-col items-center w-32 relative">
+                          <div className={`w-7 h-7 rounded-full flex items-center justify-center mb-3 shadow-lg ${
+                            isComplete ? 'bg-verdict-green text-surface-0 shadow-verdict-green/50' :
+                            isCurrent ? 'bg-nyaya-600 text-white shadow-nyaya-600/50 animate-pulse' :
+                            'bg-surface-2 border-2 border-white/[0.1] text-nyaya-500'
+                          }`}>
+                            {isComplete ? <CheckCircle2 className="w-4 h-4" /> : <span className="text-xs font-bold">{i + 1}</span>}
+                          </div>
+                          
+                          <div className="text-center">
+                            <p className={`text-xs font-semibold mb-1 ${isComplete || isCurrent ? 'text-white' : 'text-nyaya-400'}`}>
+                              {ms.title}
+                            </p>
+                            <p className="text-[10px] font-mono text-nyaya-500 mb-2">₹{(ms.payment_amount / 100000).toFixed(1)}L</p>
+                            
+                            {isCurrent && submitState === 'accepted' && (
+                              <motion.button 
+                                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                                onClick={() => onTriggerPayment(ms.id)}
+                                className="px-3 py-1 bg-accent-500 hover:bg-accent-600 text-white text-[10px] uppercase tracking-wider font-bold rounded shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all"
+                              >
+                                Bill Now
+                              </motion.button>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              </section>
+
+              {/* BOTTOM SECTION - PAYMENT STATUS */}
+              <section>
+                <h4 className="text-sm font-semibold text-nyaya-300 uppercase tracking-wider mb-4">Financial Status</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-verdict-green/10 border border-verdict-green/20 rounded-xl p-5 relative overflow-hidden">
+                    <Wallet className="absolute -right-4 -bottom-4 w-24 h-24 text-verdict-green/5" />
+                    <p className="text-[10px] font-bold text-verdict-green uppercase tracking-widest mb-1">Total Released</p>
+                    <p className="text-3xl font-display font-light text-white">₹{(releasedPayment / 100000).toFixed(1)}<span className="text-lg text-verdict-green/70">L</span></p>
+                  </div>
+                  
+                  <div className="bg-verdict-yellow/10 border border-verdict-yellow/20 rounded-xl p-5 relative overflow-hidden">
+                    <Clock className="absolute -right-4 -bottom-4 w-24 h-24 text-verdict-yellow/5" />
+                    <p className="text-[10px] font-bold text-verdict-yellow uppercase tracking-widest mb-1">Pending Approval</p>
+                    <p className="text-3xl font-display font-light text-white">₹{((milestones[currentMsIndex]?.payment_amount || 0) / 100000).toFixed(1)}<span className="text-lg text-verdict-yellow/70">L</span></p>
+                  </div>
+                  
+                  <div className="bg-surface-1 border border-white/[0.06] rounded-xl p-5 flex flex-col justify-center">
+                    <p className="text-xs text-nyaya-400 mb-2 flex items-center gap-2">
+                      <Target className="w-4 h-4 text-nyaya-500" /> Next Auto-Release
+                    </p>
+                    <p className="text-sm text-white font-medium">72 hours after milestone verification</p>
+                    {paymentMsg && <p className="text-[10px] text-verdict-green mt-2 font-mono">{paymentMsg}</p>}
+                  </div>
+                </div>
+              </section>
+
             </div>
           </div>
         </div>

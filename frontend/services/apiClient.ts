@@ -85,7 +85,35 @@ export async function apiFetch<T>(
     return { data: data as T, error: null };
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Network error';
-    return { data: null, error: message };
+    console.warn(`API unavailable for ${url}. Falling back to mock data...`);
+    
+    // Simple mock data router
+    try {
+      if (url.includes('/evaluation/') && url.includes('/results')) {
+        const mock = await import('../../demo/mock_data/evaluation_results.json');
+        return { data: mock.default as any as T, error: null };
+      }
+      if (url.includes('/evaluation/') && url.includes('/yellow-queue')) {
+        const mock = await import('../../demo/mock_data/yellow_queue.json');
+        return { data: mock.default as any as T, error: null };
+      }
+      if (url.includes('/collusion/run') || url.includes('/collusion/report')) {
+        const mock = await import('../../demo/mock_data/collusion_results.json');
+        return { data: mock.default as any as T, error: null };
+      }
+      if (url.includes('/builder/') && url.includes('/milestones')) {
+        const mock = await import('../../demo/mock_data/milestones.json');
+        return { data: mock.default as any as T, error: null };
+      }
+      if (url.includes('/audit/trail')) {
+        const mock = await import('../../demo/mock_data/audit_trail.json');
+        return { data: mock.default as any as T, error: null };
+      }
+      return { data: null, error: message };
+    } catch (mockErr) {
+      console.error('Mock data not found', mockErr);
+      return { data: null, error: message };
+    }
   }
 }
 

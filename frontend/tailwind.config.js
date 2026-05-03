@@ -8,38 +8,38 @@ module.exports = {
     extend: {
       colors: {
         nyaya: {
-          50: '#f0f2f8',
-          100: '#dde2f0',
-          200: '#bcc5e0',
-          300: '#94a1cc',
-          400: '#6e7db5',
-          500: '#4f5fa0',
-          600: '#3d4a85',
-          700: '#2f3968',
-          800: '#1e2544',
-          900: '#141a30',
-          950: '#0c1020',
+          50: '#f8fafc',
+          100: '#f1f5f9', // Text primary
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8', // Text secondary
+          500: '#475569', // Text muted
+          600: '#3b82f6', // Primary accent
+          700: '#2563eb',
+          800: '#1d4ed8',
+          900: '#1e3a8a',
+          950: '#172554',
         },
         accent: {
-          50: '#fff7ed',
-          100: '#ffedd5',
-          200: '#fed7aa',
-          300: '#fdba74',
-          400: '#fb923c',
-          500: '#f97316',
-          600: '#ea580c',
+          50: '#fffbeb',
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#fbbf24',
+          500: '#f59e0b', // Justice gold / Warning yellow
+          600: '#d97706',
         },
         surface: {
-          0: '#0c1020',
-          1: '#111628',
-          2: '#171d34',
-          3: '#1e2544',
-          4: '#252d52',
+          0: '#0a0f1e', // Background
+          1: '#0d1421', // Surface cards
+          2: '#111a2b',
+          3: '#152136',
+          4: '#1a2741',
         },
         verdict: {
-          green: '#22c55e',
-          yellow: '#eab308',
-          red: '#ef4444',
+          green: '#10b981', // Safe green
+          yellow: '#f59e0b', // Warning yellow
+          red: '#ef4444', // Alert red
         },
       },
       fontFamily: {
