@@ -20,7 +20,7 @@ from fastapi.responses import JSONResponse
 
 from backend.core.config import settings
 from backend.core.database import init_db
-from backend.routes import tender, evaluation, collusion, builder, payment, audit, auth
+from backend.routes import tender, evaluation, collusion, builder, payment, audit, auth, upload
 
 # ── Structured logging ────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -99,6 +99,7 @@ app.include_router(collusion.router)
 app.include_router(builder.router)
 app.include_router(payment.router)
 app.include_router(audit.router)
+app.include_router(upload.router)
 
 
 from fastapi.responses import Response
