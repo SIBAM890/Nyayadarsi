@@ -66,7 +66,18 @@ export async function apiFetch<T>(
       headers: buildHeaders(options.headers as HeadersInit | undefined),
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    let data: Record<string, unknown>;
+    
+    try {
+      data = JSON.parse(text);
+    } catch (err) {
+      console.error(`Invalid JSON from ${url}:`, text.substring(0, 100) + '...');
+      return {
+        data: null,
+        error: `Server returned invalid format (HTTP ${response.status})`,
+      };
+    }
 
     if (!response.ok) {
       return {
@@ -82,7 +93,7 @@ export async function apiFetch<T>(
       };
     }
 
-    return { data: data as T, error: null };
+    return { data: data as unknown as T, error: null };
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Network error';
     console.warn(`API unavailable for ${url}. Falling back to mock data...`);
@@ -138,7 +149,18 @@ export async function apiUpload<T>(
       body: formData,
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    let data: Record<string, unknown>;
+    
+    try {
+      data = JSON.parse(text);
+    } catch (err) {
+      console.error(`Invalid JSON from ${url}:`, text.substring(0, 100) + '...');
+      return {
+        data: null,
+        error: `Upload returned invalid format (HTTP ${response.status})`,
+      };
+    }
 
     if (!response.ok) {
       return {
@@ -147,7 +169,7 @@ export async function apiUpload<T>(
       };
     }
 
-    return { data: data as T, error: null };
+    return { data: data as unknown as T, error: null };
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Network error';
     return { data: null, error: message };
