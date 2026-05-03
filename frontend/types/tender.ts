@@ -15,6 +15,12 @@ export interface TenderCriterion {
   language_signal: string | null;
   specificity_alert: boolean;
   acceptable_documents: string[];
+  /** Optional fields from extended API responses */
+  category?: string;
+  is_mandatory?: boolean;
+  integrity_alert?: string | null;
+  confidence?: number;
+  threshold_value?: string | number | null;
 }
 
 export interface IntegrityAlertResponse {
@@ -23,6 +29,7 @@ export interface IntegrityAlertResponse {
   estimated_qualifying_vendors: number;
   criterion_id: string | null;
   checks_triggered: number;
+  alert_type?: string;
 }
 
 export interface PdfInfo {

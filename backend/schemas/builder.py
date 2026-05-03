@@ -4,11 +4,17 @@ from typing import Optional
 
 
 class GPSData(BaseModel):
-    """GPS coordinate data."""
-    latitude: float = Field(..., ge=-90, le=90)
-    longitude: float = Field(..., ge=-180, le=180)
-    accuracy_meters: Optional[float] = Field(None, ge=0)
+    """GPS coordinate data with strict validation."""
+    latitude: float = Field(..., ge=-90, le=90, description="Latitude in degrees (-90 to 90)")
+    longitude: float = Field(..., ge=-180, le=180, description="Longitude in degrees (-180 to 180)")
+    accuracy_meters: Optional[float] = Field(None, ge=0, description="GPS accuracy in metres")
     timestamp: Optional[str] = None
+
+
+class SiteCoordinates(BaseModel):
+    """Registered project site coordinates."""
+    lat: float
+    lon: float
 
 
 class BuilderUploadSchema(BaseModel):
@@ -27,6 +33,8 @@ class BuilderUploadResponse(BaseModel):
     timestamp: str
     audit_hash: str
     message: str
+    flagged: bool = False
+    reverse_geocoded_address: Optional[str] = None
 
 
 class MilestoneUpdate(BaseModel):
@@ -60,3 +68,15 @@ class GPSVerificationResponse(BaseModel):
     distance_meters: float
     threshold_meters: float
     rejection_reason: Optional[str] = None
+
+
+class LocationVerificationResponse(BaseModel):
+    """Full location verification with reverse geocoding and flag status."""
+    accepted: bool
+    distance_meters: float
+    hard_threshold_meters: float
+    flag_threshold_meters: float
+    flagged: bool
+    rejection_reason: Optional[str] = None
+    reverse_geocoded_address: Optional[str] = None
+    site_coordinates: SiteCoordinates

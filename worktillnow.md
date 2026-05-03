@@ -213,12 +213,24 @@ nyayadarsi/
 *   **UI/UX Professionalization:** Redesigned aesthetic from neon/glassmorphism to enterprise Slate-Indigo. Removed emojis in favor of `lucide-react` icons. Cleaned up typography and standardized layouts.
 *   **Documentation:** Restructured `README.md` to be more professional with comprehensive architecture mapping.
 
-**Antigravity AI (May 2, 2026):**
+**Sibam Prasad Sahoo (May 2, 2026):**
 *   **Interface Optimization (Priority 2):** Implemented Recharts-based bar chart for bid clustering analysis, animated SVG gauges for Coefficient of Variation (CV) metrics, constructed `BidderComparisonTable` for side-by-side bidder evaluations, and built a chronologically sorted `AuditTimeline` dashboard for reviewing cryptographic records.
 *   **AI Model Modernization:** Updated deprecated models. Swapped `gemini-1.5-flash` to the new `gemini-2.5-flash`, and upgraded Groq from `llama3` to `llama-3.1-8b-instant`.
 *   **API Validation:** Successfully established and verified connections to both Gemini and Groq APIs. 
+
 **Antigravity AI (May 3, 2026):**
 *   **Design & UI Overhaul:** Completely rebuilt the Landing Page (`/`) and Government Dashboard (`/gov`) to match an authoritative "Supreme Court War Room" aesthetic, utilizing `framer-motion` for enterprise-grade micro-animations (cards lifting, live accountability pipeline). 
 *   **Resilient API Architecture:** Implemented a robust mock data fallback system in `apiClient.ts`. The frontend now automatically intercepts `ERR_CONNECTION_REFUSED` network failures and falls back to `demo/mock_data/` JSON responses when the backend Uvicorn server is offline, allowing seamless UI testing.
 *   **Component Engineering:** Implemented the 3-column layout in the Government Dashboard, complete with an interactive Tender Upload state pipeline, semantic Criteria Cards, and a Live Audit Widget tracking SHA-256 signatures.
 *   **Mission Control Dashboards:** Engineered the Evaluation Dashboard (`/evaluation`) as a high-stakes command center with a 3-column matrix, a Framer Motion-powered sliding Collusion Panel, and prioritized Yellow Queue alert triage. Designed the Builder Dashboard (`/builder`) with dynamic telemetry, live-simulated GPS verification badges, multi-photo capture pipelines, and an animated physical milestone trajectory.
+
+*   **GPS Tracking Module — Builder Verification System:**
+    **Satya Sarthak Manohari (May 3, 2026):**
+    *   **Backend — `location_service.py`:** Created a Clean Architecture service layer centralizing all geospatial operations: Haversine distance calculations (single source of truth), Nominatim/Geopy reverse geocoding for human-readable addresses, and a two-tier distance verification system (100m hard rejection, 500m soft flag with `flagged_offsite` column).
+    *   **Backend — Enhanced Models & Schemas:** Extended `BuilderUpload` ORM model with `reverse_geocoded_address` (Text) and `flagged_offsite` (Integer) columns. Added `LocationVerificationResponse`, `SiteCoordinates` Pydantic schemas. Enhanced `BuilderUploadResponse` with `flagged` and address fields.
+    *   **Backend — New Endpoint:** Added `POST /api/builder/verify-location` for real-time location verification returning full verification result with reverse-geocoded address, flag status, and site coordinates.
+    *   **Frontend — Map Integration:** Integrated React-Leaflet (`v4.2`) with dark CARTO tile layer, lazy-loaded via `next/dynamic` with `ssr: false`. `MapView` component renders builder pulsing marker, site pin, 500m geofence circle (color-coded: green/red), dashed connection polyline, and styled dark-themed popups.
+    *   **Frontend — LocationContext (State Store):** Implemented `LocationContext` using React Context + `useReducer` for centralized GPS state management. `LocationProvider` wraps the builder page. Custom `useLocation` hook manages `navigator.geolocation.watchPosition()` lifecycle with auto-verification (debounced at 2s) against the backend.
+    *   **Frontend — Builder Dashboard Refactor:** Replaced simulated GPS state with real `LocationContext`-driven data. GPS badge now shows live distance. Added reverse-geocoded address bar. Integrated `MapView` section between upload form and milestone tracker. Added "flagged" visual state (yellow badge) for 500m threshold.
+    *   **Frontend — TypeScript Strict Types:** Created `types/location.ts` with `GeoCoordinates`, `LocationState`, `LocationVerification`, `MapEventHandlers` interfaces. All map event handlers strictly typed.
+    *   **Bug Fixes (Pre-existing):** Fixed `useAudit.ts` import error (namespace vs named imports), fixed `ApiResponse` unwrapping in audit hook, added optional fields to `TenderCriterion` and `IntegrityAlertResponse` types for gov.tsx compatibility, fixed `MilestoneStatus` casing comparison.

@@ -1,6 +1,7 @@
 /**
  * Builder types — mirrors backend/schemas/builder.py
  */
+import type { LocationVerification, LocationVerificationPayload } from '@/types/location';
 
 export type MilestoneStatus = 'completed' | 'in_progress' | 'pending';
 export type PaymentStatus = 'released' | 'locked';
@@ -39,6 +40,8 @@ export interface BuilderUploadResponse {
   timestamp: string;
   audit_hash: string;
   message: string;
+  flagged: boolean;
+  reverse_geocoded_address: string | null;
 }
 
 export interface PaymentTriggerPayload {
@@ -55,3 +58,6 @@ export interface PaymentResponse {
   audit_hash: string;
   message: string;
 }
+
+// Re-export location types for convenience
+export type { LocationVerification, LocationVerificationPayload };

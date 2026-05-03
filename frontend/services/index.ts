@@ -6,5 +6,5 @@ export { login, register, getMe, persistToken, clearToken, getToken } from './au
 export { uploadTender, checkIntegrity, getTenderStatus } from './tenderService';
 export { getEvaluationResults, getYellowQueue, postOfficerDecision } from './evaluationService';
 export { runCollusionScan, getCollusionReport } from './collusionService';
-export { uploadBuilderPhoto, getMilestones, triggerPayment } from './builderService';
+export { uploadBuilderPhoto, getMilestones, triggerPayment, verifyLocation } from './builderService';
 export { getAuditTrail, getAllAuditEntries, healthCheck } from './auditService';

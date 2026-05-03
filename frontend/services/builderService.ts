@@ -1,5 +1,5 @@
 /**
- * Builder API service — GPS upload, milestones, payment.
+ * Builder API service — GPS upload, milestones, payment, location verification.
  */
 import { apiFetch, apiUpload } from './apiClient';
 import type { ApiResponse } from '@/types/api';
@@ -10,6 +10,7 @@ import type {
   PaymentTriggerPayload,
   PaymentResponse,
 } from '@/types/builder';
+import type { LocationVerification, LocationVerificationPayload } from '@/types/location';
 
 export async function uploadBuilderPhoto(
   payload: GPSUploadPayload
@@ -37,4 +38,17 @@ export async function triggerPayment(
     method: 'POST',
     body: JSON.stringify(payload),
   });
+}
+
+/**
+ * Verify builder location against the registered site.
+ * Returns full verification with reverse-geocoded address and flag status.
+ */
+export async function verifyLocation(
+  payload: LocationVerificationPayload
+): Promise<ApiResponse<LocationVerification>> {
+  return apiFetch<LocationVerification>(
+    `/api/builder/verify-location?latitude=${payload.latitude}&longitude=${payload.longitude}`,
+    { method: 'POST' },
+  );
 }
