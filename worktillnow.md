@@ -234,3 +234,13 @@ nyayadarsi/
     *   **Frontend — Builder Dashboard Refactor:** Replaced simulated GPS state with real `LocationContext`-driven data. GPS badge now shows live distance. Added reverse-geocoded address bar. Integrated `MapView` section between upload form and milestone tracker. Added "flagged" visual state (yellow badge) for 500m threshold.
     *   **Frontend — TypeScript Strict Types:** Created `types/location.ts` with `GeoCoordinates`, `LocationState`, `LocationVerification`, `MapEventHandlers` interfaces. All map event handlers strictly typed.
     *   **Bug Fixes (Pre-existing):** Fixed `useAudit.ts` import error (namespace vs named imports), fixed `ApiResponse` unwrapping in audit hook, added optional fields to `TenderCriterion` and `IntegrityAlertResponse` types for gov.tsx compatibility, fixed `MilestoneStatus` casing comparison.
+
+**Antigravity AI (May 3, 2026 — "Classified Intelligence Terminal" Landing Page):**
+*   **Unique Landing Page Concept (`pages/index.tsx`):** Replaced generic SaaS-style landing page with a one-of-a-kind "Classified Oversight Terminal" experience — the page loads like accessing a national security surveillance system, not a marketing page:
+    *   **Boot Sequence Animation:** On first visit, a full-screen terminal emulator plays a classified-system boot sequence (9 lines, monospaced green-on-black) with a blinking cursor — loading AI engines, arming collusion detection, verifying audit chains. Uses `sessionStorage` to skip on subsequent visits.
+    *   **Live Corruption Network Graph:** Animated SVG visualization of an 8-node, 9-edge bidder network with red-pulsing flagged nodes (Bidder A, Shell Co., Director X), animated edge scanning, and "3 FLAGGED" threat indicator. Edges highlight sequentially to simulate real-time analysis.
+    *   **Real-Time Intelligence Feed:** Auto-scrolling monospaced data feed showing intercepted events (bid clusters, GPS verifications, SHA-256 hashes, document fingerprint matches) with color-coded severity dots (red/green/blue/yellow) and timestamps.
+    *   **System Status Bar:** Fixed bottom bar with live clock (IST), system operational indicator, clearance level, encryption status, and running threat/tender counters.
+    *   **CRT Scan-Line Overlay:** Subtle repeating-gradient scan lines across the entire page for an authentic terminal/surveillance monitor feel.
+    *   **Dashboard-Style Grid Layout:** Single-screen layout with 4 panels (Hero + Network Graph top row, Stats + Live Feed bottom row) — no scrolling needed, everything visible at once like a command center.
+*   **Tailwind Config Enhancement (`tailwind.config.js`):** Extended the color palette with `emerald-600`, `purple-500/700`, `amber-600`, and `red-600` tokens.
