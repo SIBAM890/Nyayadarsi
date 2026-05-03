@@ -133,38 +133,39 @@ export default function MapView({
           border: none !important;
         }
         .leaflet-container {
-          background: #0d1421 !important;
+          background: #e8e4d8 !important;
           font-family: 'Inter', system-ui, sans-serif;
         }
         .leaflet-popup-content-wrapper {
-          background: #111a2b !important;
-          color: #e2e8f0 !important;
-          border: 1px solid rgba(255,255,255,0.06) !important;
-          border-radius: 12px !important;
-          box-shadow: 0 20px 60px rgba(0,0,0,0.5) !important;
+          background: #ffffff !important;
+          color: #202124 !important;
+          border: none !important;
+          border-radius: 8px !important;
+          box-shadow: 0 2px 7px 1px rgba(0,0,0,0.3) !important;
         }
         .leaflet-popup-tip {
-          background: #111a2b !important;
-          border: 1px solid rgba(255,255,255,0.06) !important;
+          background: #ffffff !important;
+          border: none !important;
         }
         .leaflet-popup-close-button {
-          color: #94a3b8 !important;
+          color: #5f6368 !important;
         }
         .leaflet-control-zoom a {
-          background: #111a2b !important;
-          color: #e2e8f0 !important;
-          border-color: rgba(255,255,255,0.06) !important;
+          background: #ffffff !important;
+          color: #666666 !important;
+          border-color: #e0e0e0 !important;
         }
         .leaflet-control-zoom a:hover {
-          background: #152136 !important;
+          background: #f5f5f5 !important;
+          color: #333333 !important;
         }
         .leaflet-control-attribution {
-          background: rgba(13,20,33,0.8) !important;
-          color: #475569 !important;
+          background: rgba(255,255,255,0.8) !important;
+          color: #666666 !important;
           font-size: 10px !important;
         }
         .leaflet-control-attribution a {
-          color: #3b82f6 !important;
+          color: #1a73e8 !important;
         }
       `}</style>
 
@@ -175,10 +176,11 @@ export default function MapView({
         zoomControl={true}
         scrollWheelZoom={true}
       >
-        {/* Dark-themed tile layer */}
+        {/* Google Maps-style tile layer */}
         <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
+          url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+          attribution='&copy; Google Maps'
+          maxZoom={20}
         />
 
         {/* Auto-fit bounds */}
@@ -201,13 +203,13 @@ export default function MapView({
         <Marker position={center} icon={siteIcon}>
           <Popup>
             <div style={{ padding: '4px 0' }}>
-              <p style={{ fontWeight: 600, fontSize: '13px', marginBottom: '4px', color: '#f1f5f9' }}>
+              <p style={{ fontWeight: 600, fontSize: '13px', marginBottom: '4px', color: '#202124' }}>
                 Registered Project Site
               </p>
-              <p style={{ fontSize: '11px', color: '#94a3b8', fontFamily: 'JetBrains Mono, monospace' }}>
+              <p style={{ fontSize: '11px', color: '#5f6368', fontFamily: 'JetBrains Mono, monospace' }}>
                 {sitePosition.lat.toFixed(4)}°N, {sitePosition.lng.toFixed(4)}°E
               </p>
-              <p style={{ fontSize: '10px', color: '#475569', marginTop: '4px' }}>
+              <p style={{ fontSize: '10px', color: '#80868b', marginTop: '4px' }}>
                 Geofence: {flagThreshold}m radius
               </p>
             </div>
@@ -219,19 +221,19 @@ export default function MapView({
           <Marker position={[builderPosition.lat, builderPosition.lng]} icon={builderIcon}>
             <Popup>
               <div style={{ padding: '4px 0', minWidth: '180px' }}>
-                <p style={{ fontWeight: 600, fontSize: '13px', marginBottom: '6px', color: '#f1f5f9' }}>
+                <p style={{ fontWeight: 600, fontSize: '13px', marginBottom: '6px', color: '#202124' }}>
                   Builder Position
                 </p>
-                <p style={{ fontSize: '11px', color: '#94a3b8', fontFamily: 'JetBrains Mono, monospace' }}>
+                <p style={{ fontSize: '11px', color: '#5f6368', fontFamily: 'JetBrains Mono, monospace' }}>
                   {builderPosition.lat.toFixed(4)}°N, {builderPosition.lng.toFixed(4)}°E
                 </p>
                 {accuracy !== null && (
-                  <p style={{ fontSize: '10px', color: '#475569', marginTop: '2px' }}>
+                  <p style={{ fontSize: '10px', color: '#80868b', marginTop: '2px' }}>
                     Accuracy: ±{accuracy.toFixed(0)}m
                   </p>
                 )}
                 {address && (
-                  <p style={{ fontSize: '11px', color: '#cbd5e1', marginTop: '6px', lineHeight: '1.4' }}>
+                  <p style={{ fontSize: '11px', color: '#3c4043', marginTop: '6px', lineHeight: '1.4' }}>
                     {address}
                   </p>
                 )}
