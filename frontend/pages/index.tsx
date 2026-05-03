@@ -140,13 +140,17 @@ const feedData = [
 ];
 
 const LiveFeed = () => {
-  const [items, setItems] = useState(feedData.slice(0, 3));
+  const idRef = useRef(0);
+  const [items, setItems] = useState(() =>
+    feedData.slice(0, 3).map(d => ({ ...d, id: ++idRef.current }))
+  );
   const feedRef = useRef(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
       feedRef.current = (feedRef.current + 1) % feedData.length;
-      setItems(prev => [feedData[feedRef.current], ...prev].slice(0, 8));
+      const newItem = { ...feedData[feedRef.current], id: ++idRef.current };
+      setItems(prev => [newItem, ...prev].slice(0, 8));
     }, 2500);
     return () => clearInterval(timer);
   }, []);
@@ -155,23 +159,20 @@ const LiveFeed = () => {
   const dots: Record<string, string> = { red: 'bg-red-400', green: 'bg-emerald-400', blue: 'bg-blue-400', yellow: 'bg-yellow-400' };
 
   return (
-    <div className="space-y-2 font-mono text-[11px]">
-      <AnimatePresence>
-        {items.map((item, i) => (
-          <motion.div
-            key={item.time + item.msg + i}
-            initial={{ opacity: 0, x: -10, height: 0 }}
-            animate={{ opacity: i === 0 ? 1 : 0.5, x: 0, height: 'auto' }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="flex items-start gap-2"
-          >
-            <span className="text-white/20 shrink-0">{item.time}</span>
-            <span className={`w-1.5 h-1.5 rounded-full mt-1 shrink-0 ${dots[item.type]}`} />
-            <span className={colors[item.type]}>{item.msg}</span>
-          </motion.div>
-        ))}
-      </AnimatePresence>
+    <div className="space-y-2 font-mono text-[11px] overflow-hidden">
+      {items.map((item, i) => (
+        <motion.div
+          key={item.id}
+          initial={i === 0 ? { opacity: 0, x: -10 } : false}
+          animate={{ opacity: i === 0 ? 1 : 0.4, x: 0 }}
+          transition={{ duration: 0.3 }}
+          className="flex items-start gap-2"
+        >
+          <span className="text-white/20 shrink-0">{item.time}</span>
+          <span className={`w-1.5 h-1.5 rounded-full mt-1 shrink-0 ${dots[item.type]}`} />
+          <span className={colors[item.type]}>{item.msg}</span>
+        </motion.div>
+      ))}
     </div>
   );
 };
@@ -366,7 +367,7 @@ export default function LandingPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.25 }}
-                  className="grid grid-cols-4 gap-3"
+                  className="grid grid-cols-2 gap-3"
                 >
                   {[
                     { value: '₹37,370 Cr', label: 'Pending Bills', color: 'text-red-400', border: 'border-red-400/10' },
@@ -379,7 +380,7 @@ export default function LandingPage() {
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.4 + i * 0.08 }}
-                      className={`bg-[#0a0f1a] ${stat.border} border rounded-xl p-5 text-center`}
+                      className={`bg-[#0a0f1a] ${stat.border} border rounded-xl p-5 text-center flex flex-col items-center justify-center`}
                     >
                       <div className={`text-2xl font-bold tracking-tight mb-1 ${stat.color}`}>{stat.value}</div>
                       <div className="font-mono text-[9px] text-white/25 tracking-widest uppercase">{stat.label}</div>
