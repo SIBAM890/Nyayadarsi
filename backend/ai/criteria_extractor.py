@@ -1,11 +1,14 @@
 """
 Criteria Extractor for Nyayadarsi
 Core AI pipeline: Takes raw text from tender PDF → Returns structured criteria JSON.
-Uses Gemini with fallback to Groq.
+Uses Gemini with fallback to OpenRouter.
 """
 import json
+import logging
 import re
 from backend.ai import gemini_client, openrouter_client
+
+logger = logging.getLogger(__name__)
 
 
 EXTRACTION_PROMPT = """You are an expert in Indian government procurement law under GFR 2017.
@@ -66,19 +69,38 @@ async def extract(tender_text: str) -> list:
     raw_response = None
     model_used = None
 
-    try:
-        raw_response = await gemini_client.generate(prompt, max_tokens=4000)
-        model_used = "gemini-1.5-flash"
-    except Exception as e:
-        print(f"⚠️ Gemini failed: {e}. Falling back to OpenRouter...")
+    # Check if Gemini is configured
+    if gemini_client.is_configured():
+        try:
+            raw_response = await gemini_client.generate(prompt, max_tokens=4000)
+            model_used = gemini_client.DEFAULT_MODEL
+            logger.info(f"Successfully extracted criteria using {model_used}")
+        except ValueError as e:
+            # API key issue - log and skip to fallback
+            logger.warning(f"Gemini configuration error: {e}. Trying OpenRouter fallback...")
+        except RuntimeError as e:
+            logger.warning(f"Gemini API failed: {e}. Falling back to OpenRouter...")
+    else:
+        logger.info("Gemini not configured. Using OpenRouter directly.")
+
+    # Fallback to OpenRouter if Gemini failed or not configured
+    if raw_response is None and openrouter_client.is_configured():
         try:
             raw_response = await openrouter_client.generate(prompt, max_tokens=4000)
-            model_used = "openrouter-deepseek"
-        except Exception as e2:
-            print(f"❌ Both AI providers failed: {e2}")
-            return []
+            model_used = f"openrouter/{openrouter_client.DEFAULT_MODEL}"
+            logger.info(f"Successfully extracted criteria using {model_used}")
+        except ValueError as e:
+            logger.error(f"OpenRouter configuration error: {e}")
+        except RuntimeError as e:
+            logger.error(f"OpenRouter API failed: {e}")
+
+    # Both failed
+    if raw_response is None:
+        logger.error("Both Gemini and OpenRouter failed. Check API keys and network.")
+        return []
 
     if not raw_response:
+        logger.warning("AI returned empty response")
         return []
 
     # Parse JSON
@@ -112,6 +134,6 @@ async def extract(tender_text: str) -> list:
         return validated
 
     except json.JSONDecodeError as e:
-        print(f"❌ JSON parse error: {e}")
-        print(f"Raw response: {raw_response[:500]}")
+        logger.error(f"JSON parse error: {e}")
+        logger.debug(f"Raw response (first 500 chars): {raw_response[:500]}")
         return []
