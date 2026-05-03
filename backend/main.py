@@ -36,9 +36,9 @@ async def lifespan(app: FastAPI):
     """Application startup and shutdown lifecycle."""
     # Startup
     init_db()
-    print("🏛️  Nyayadarsi API started — न्यायदर्शी")
+    print(f"🏛️  Nyayadarsi API started — न्यायदर्शी")
     print(f"   Version: {settings.APP_VERSION}")
-    print(f"   Docs: http://localhost:8000/docs")
+    print(f"   Documentation available at: /docs")
     yield
     # Shutdown
     print("🏛️  Nyayadarsi API shutting down")
@@ -101,15 +101,28 @@ app.include_router(payment.router)
 app.include_router(audit.router)
 
 
-# ── Health Check (Public — No Auth) ──────────────────────────────────────────
+# ── System Endpoints (Public) ──────────────────────────────────────────────
+@app.get("/", tags=["system"])
+async def root() -> dict:
+    """Root endpoint — identity and status."""
+    return {
+        "status": "online",
+        "app": "Nyayadarsi",
+        "version": settings.APP_VERSION,
+        "docs": "/docs",
+        "tagline": "AI that sees justice — न्यायदर्शी"
+    }
+
+
+@app.get("/health", tags=["system"])
 @app.get("/api/health", tags=["system"])
 async def health_check() -> dict:
-    """Health check endpoint — no authentication required."""
+    """Health check endpoint — ensures service is operational."""
     return {
-        "status": "ok",
+        "status": "healthy",
         "version": settings.APP_VERSION,
-        "name": "Nyayadarsi",
-        "tagline": "AI that sees justice — न्यायदर्शी",
+        "environment": settings.ENVIRONMENT if hasattr(settings, "ENVIRONMENT") else "production",
+        "uptime": "ready"
     }
 
 
