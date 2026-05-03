@@ -2,8 +2,11 @@
 Nyayadarsi Configuration
 Pydantic BaseSettings — loads from .env with full type safety.
 """
+import logging
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
@@ -36,6 +39,18 @@ class Settings(BaseSettings):
         if self.JWT_SECRET_KEY.startswith("nyayadarsi-dev-secret") and os.getenv("RAILWAY_ENVIRONMENT"):
             raise RuntimeError("❌ JWT_SECRET_KEY must be set to a strong random value in production! Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\"")
 
+        # Warn if AI keys are missing (non-blocking, allows app to start)
+        if not self.GEMINI_API_KEY and not self.OPENROUTER_API_KEY:
+            logger.warning(
+                "⚠️ No AI API keys configured. Set GEMINI_API_KEY and/or OPENROUTER_API_KEY "
+                "in your .env file or Render environment variables. "
+                "AI extraction features will not work without at least one key."
+            )
+        elif not self.GEMINI_API_KEY:
+            logger.info("GEMINI_API_KEY not set. Using OpenRouter as primary AI provider.")
+        elif not self.OPENROUTER_API_KEY:
+            logger.info("OPENROUTER_API_KEY not set. No fallback available if Gemini fails.")
+
     # ── GPS Configuration ────────────────────────────────────────────────
     REGISTERED_SITE_LAT: float = 20.2961
     REGISTERED_SITE_LON: float = 85.8245
@@ -60,6 +75,10 @@ class Settings(BaseSettings):
     @property
     def DB_PATH(self) -> Path:
         return Path(__file__).resolve().parent.parent / "nyayadarsi.db"
+
+    def has_ai_provider(self) -> bool:
+        """Check if at least one AI provider is configured."""
+        return bool(self.GEMINI_API_KEY or self.OPENROUTER_API_KEY)
 
 
 settings = Settings()

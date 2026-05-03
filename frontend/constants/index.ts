@@ -50,6 +50,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/gov', label: 'Create Tender', icon: 'FileText', description: 'Government Officer Dashboard' },
   { href: '/evaluation', label: 'Evaluate Bids', icon: 'Shield', description: 'Evaluation Officer Dashboard' },
   { href: '/builder', label: 'Builder Progress', icon: 'Building', description: 'Builder Monitoring Dashboard' },
+  { href: '/ai-processor', label: 'AI Processor', icon: 'Cpu', description: 'Generic Document Processing' },
   { href: '/audit', label: 'Audit Trail', icon: 'Activity', description: 'Cryptographic Logs' },
 ] as const;
 

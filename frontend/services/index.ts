@@ -8,3 +8,4 @@ export { getEvaluationResults, getYellowQueue, postOfficerDecision } from './eva
 export { runCollusionScan, getCollusionReport } from './collusionService';
 export { uploadBuilderPhoto, getMilestones, triggerPayment, verifyLocation } from './builderService';
 export { getAuditTrail, getAllAuditEntries, healthCheck } from './auditService';
+export { uploadAndProcess } from './uploadService';

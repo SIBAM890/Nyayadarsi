@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef, ChangeEvent } from 'react';
 import Head from 'next/head';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -56,6 +56,7 @@ function BuilderDashboardInner() {
   const [paymentMsg, setPaymentMsg] = useState<string | null>(null);
   const [photos, setPhotos] = useState<string[]>([]);
   const [submitState, setSubmitState] = useState<'idle' | 'uploading' | 'verifying' | 'accepted' | 'rejected'>('idle');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Start GPS tracking on mount
   useEffect(() => {
@@ -80,8 +81,28 @@ function BuilderDashboardInner() {
   })();
 
   const handlePhotoUpload = () => {
-    if (photos.length < 3) {
-      setPhotos([...photos, `photo_${photos.length + 1}.jpg`]);
+    if (photos.length < 3 && submitState === 'idle') {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Basic validation
+      if (!file.type.startsWith('image/')) {
+        alert("Please upload an image file.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotos(prev => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+      
+      // Reset input value to allow selecting same file again
+      e.target.value = '';
     }
   };
 
@@ -207,22 +228,40 @@ function BuilderDashboardInner() {
                 )}
 
                 <div className="flex gap-4 mb-6">
+                  {/* Hidden real file input */}
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    accept="image/*"
+                    capture="environment"
+                    className="hidden"
+                  />
+
                   {/* Photo Slots */}
                   {[0, 1, 2].map((i) => (
-                    <button 
+                    <div 
                       key={i}
                       onClick={handlePhotoUpload}
-                      disabled={photos.length > i || submitState !== 'idle'}
-                      className={`h-24 flex-1 rounded-lg border-2 border-dashed flex flex-col items-center justify-center transition-all ${
+                      className={`h-24 flex-1 rounded-lg border-2 border-dashed flex flex-col items-center justify-center transition-all relative overflow-hidden group ${
                         photos.length > i 
                           ? 'border-verdict-green/30 bg-verdict-green/5' 
-                          : 'border-white/[0.1] hover:border-nyaya-500/50 bg-surface-2 hover:bg-surface-3 cursor-pointer'
+                          : submitState === 'idle'
+                            ? 'border-white/[0.1] hover:border-nyaya-500/50 bg-surface-2 hover:bg-surface-3 cursor-pointer'
+                            : 'border-white/[0.05] bg-surface-2 opacity-50 cursor-not-allowed'
                       }`}
                     >
                       {photos.length > i ? (
                         <>
-                          <CheckCircle2 className="w-6 h-6 text-verdict-green mb-1" />
-                          <span className="text-[10px] text-verdict-green uppercase tracking-widest font-bold">Captured</span>
+                          <img 
+                            src={photos[i]} 
+                            alt={`Site Evidence ${i + 1}`} 
+                            className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" 
+                          />
+                          <div className="relative z-10 flex flex-col items-center">
+                            <CheckCircle2 className="w-6 h-6 text-verdict-green mb-1 drop-shadow-lg" />
+                            <span className="text-[10px] text-white uppercase tracking-widest font-bold drop-shadow-md">Captured</span>
+                          </div>
                         </>
                       ) : (
                         <>
@@ -230,7 +269,7 @@ function BuilderDashboardInner() {
                           <span className="text-[10px] text-nyaya-500 uppercase tracking-widest">Tap to Photo</span>
                         </>
                       )}
-                    </button>
+                    </div>
                   ))}
                   <button disabled={submitState !== 'idle'} className="h-24 flex-1 rounded-lg border border-white/[0.06] bg-nyaya-600/10 hover:bg-nyaya-600/20 flex flex-col items-center justify-center transition-all text-nyaya-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed">
                     <Video className="w-6 h-6 mb-1" />
