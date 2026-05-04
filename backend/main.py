@@ -108,24 +108,6 @@ from sqlalchemy.orm import Session
 from backend.services import audit_service
 from backend.audit.pdf_exporter import generate_audit_pdf
 
-@app.get("/api/v1/audit/export-pdf", summary="Export full audit PDF")
-async def export_full_audit_pdf(db: Session = Depends(get_db)):
-    """Export the entire global audit trail to a PDF report."""
-    trail_data = audit_service.get_all_audit_entries(db)
-    pdf_bytes = generate_audit_pdf(
-        entity_id="GLOBAL_SYSTEM_AUDIT",
-        audit_trail=trail_data["trail"],
-        tender_info={"Report Type": "Full System Audit Trail Export"}
-    )
-    return Response(
-        content=pdf_bytes,
-        media_type="application/pdf",
-        headers={
-            "Content-Disposition": "attachment; filename=nyayadarsi_full_audit.pdf"
-        },
-    )
-
-
 # ── System Endpoints (Public) ──────────────────────────────────────────────
 @app.get("/", tags=["system"])
 async def root() -> dict:

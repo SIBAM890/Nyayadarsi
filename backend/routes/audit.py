@@ -1,12 +1,13 @@
 """
 Audit Routes for Nyayadarsi
-Provides access to the immutable audit trail, AI evidence upload, and court-admissible PDF export.
-Thin route layer — delegates to audit_service.
+Provides access to the immutable audit trail and court-admissible PDF export.
+Now integrated with AI evidence processing.
 """
 import hashlib
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
+from typing import Any
 
 from backend.core.database import get_db
 from backend.core.dependencies import get_current_user
@@ -17,7 +18,7 @@ from backend.ai import gemini_client, openrouter_client
 from backend.utils.pdf_reader import extract_text
 from backend.audit.sha256_logger import log as audit_log
 
-router = APIRouter(prefix="/api/audit", tags=["audit"])
+router = APIRouter(prefix="/api/v1/audit", tags=["audit"])
 
 
 @router.get(
@@ -45,28 +46,6 @@ async def get_all_audit_entries(
 ) -> AuditTrailResponse:
     """Get all audit entries (limited to 1000)."""
     return audit_service.get_all_audit_entries(db)
-
-
-@router.get(
-    "/{entity_id}/export-pdf",
-    summary="Export audit PDF",
-    responses={200: {"content": {"application/pdf": {}}}},
-)
-async def export_audit_pdf(
-    entity_id: str,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-) -> Response:
-    """Generate and download court-admissible PDF audit report."""
-    pdf_bytes = audit_service.export_audit_pdf(db, entity_id)
-
-    return Response(
-        content=pdf_bytes,
-        media_type="application/pdf",
-        headers={
-            "Content-Disposition": f"attachment; filename=nyayadarsi_audit_{entity_id}.pdf"
-        },
-    )
 
 
 @router.post(
@@ -197,3 +176,51 @@ DOCUMENT TEXT:
             "timestamp": audit_result["timestamp"],
         },
     }
+
+
+@router.get(
+    "/export-pdf",
+    summary="Export full global audit PDF",
+    responses={200: {"content": {"application/pdf": {}}}},
+)
+async def export_full_audit_pdf(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Response:
+    """Export the entire global audit trail to a PDF report."""
+    trail_data = audit_service.get_all_audit_entries(db)
+    from backend.audit.pdf_exporter import generate_audit_pdf
+    pdf_bytes = generate_audit_pdf(
+        entity_id="GLOBAL_SYSTEM_AUDIT",
+        audit_trail=trail_data["trail"],
+        tender_info={"Report Type": "Full System Audit Trail Export"}
+    )
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": "attachment; filename=nyayadarsi_full_audit.pdf"
+        },
+    )
+
+
+@router.get(
+    "/{entity_id}/export-pdf",
+    summary="Export audit PDF",
+    responses={200: {"content": {"application/pdf": {}}}},
+)
+async def export_audit_pdf(
+    entity_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Response:
+    """Generate and download court-admissible PDF audit report."""
+    pdf_bytes = audit_service.export_audit_pdf(db, entity_id)
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"attachment; filename=nyayadarsi_audit_{entity_id}.pdf"
+        },
+    )

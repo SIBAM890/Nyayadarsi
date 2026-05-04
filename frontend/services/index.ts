@@ -7,5 +7,4 @@ export { uploadTender, checkIntegrity, getTenderStatus } from './tenderService';
 export { getEvaluationResults, getYellowQueue, postOfficerDecision } from './evaluationService';
 export { runCollusionScan, getCollusionReport } from './collusionService';
 export { uploadBuilderPhoto, getMilestones, triggerPayment, verifyLocation } from './builderService';
-export { getAuditTrail, getAllAuditEntries, healthCheck } from './auditService';
-export { uploadAndProcess } from './uploadService';
+export { getAuditTrail, getAllAuditEntries, healthCheck, uploadEvidence } from './auditService';

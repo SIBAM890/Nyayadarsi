@@ -4,7 +4,7 @@
 import React, { type ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { Scale, FileText, ShieldCheck, HardHat, Activity, Cpu } from 'lucide-react';
+import { Scale, FileText, ShieldCheck, HardHat, Activity } from 'lucide-react';
 import { APP_NAME, NAV_ITEMS } from '@/constants';
 
 interface LayoutProps {
@@ -16,7 +16,6 @@ const NAV_ICONS: Record<string, React.ReactNode> = {
   '/gov': <FileText className="w-4 h-4" />,
   '/evaluation': <ShieldCheck className="w-4 h-4" />,
   '/builder': <HardHat className="w-4 h-4" />,
-  '/ai-processor': <Cpu className="w-4 h-4" />,
   '/audit': <Activity className="w-4 h-4" />,
 };
 
