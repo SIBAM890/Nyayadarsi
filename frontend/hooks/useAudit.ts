@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { getAuditTrail, getAllAuditEntries } from '@/services/auditService';
 import type { AuditTrailResponse } from '@/types/audit';
 
-export function useAudit(entityId?: string) {
+export function useAudit(entityId?: string, isAuthenticated?: boolean) {
   const [data, setData] = useState<AuditTrailResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -11,7 +11,7 @@ export function useAudit(entityId?: string) {
     setLoading(true);
     setError(null);
     try {
-      const { data, error: apiErr } = await (entityId 
+      const { data, error: apiErr } = await (entityId
         ? getAuditTrail(entityId)
         : getAllAuditEntries());
       if (apiErr) {
@@ -27,8 +27,11 @@ export function useAudit(entityId?: string) {
   }, [entityId]);
 
   useEffect(() => {
+    // Wait until auth is resolved before firing — prevents 401 race condition
+    if (isAuthenticated === false) return;
     fetchAudit();
-  }, [fetchAudit]);
+  }, [fetchAudit, isAuthenticated]);
 
   return { data, loading, error, refresh: fetchAudit };
 }
+

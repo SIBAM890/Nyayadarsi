@@ -36,12 +36,42 @@ async def lifespan(app: FastAPI):
     """Application startup and shutdown lifecycle."""
     # Startup
     init_db()
-    print(f"🏛️  Nyayadarsi API started — न्यायदर्शी")
-    print(f"   Version: {settings.APP_VERSION}")
-    print(f"   Documentation available at: /docs")
+    _seed_demo_user()
+    logger.info("🏛️  Nyayadarsi API started — न्यायदर्शी")
+    logger.info("   Version: %s", settings.APP_VERSION)
+    logger.info("   Documentation available at: /docs")
     yield
     # Shutdown
-    print("🏛️  Nyayadarsi API shutting down")
+    logger.info("🏛️  Nyayadarsi API shutting down")
+
+
+def _seed_demo_user() -> None:
+    """Create the demo officer account if it doesn't already exist."""
+    from backend.core.database import SessionLocal
+    from backend.models.user import User
+    from backend.core.security import hash_password
+
+    DEMO_EMAIL = "demo@nyayadarsi.gov.in"
+    DEMO_PASSWORD = "nyayadarsi_demo_2026"
+
+    try:
+        with SessionLocal() as db:
+            existing = db.query(User).filter(User.email == DEMO_EMAIL).first()
+            if not existing:
+                demo_user = User(
+                    email=DEMO_EMAIL,
+                    hashed_password=hash_password(DEMO_PASSWORD),
+                    full_name="Demo Officer (IAS)",
+                    role="gov_officer",
+                    is_active=True,
+                )
+                db.add(demo_user)
+                db.commit()
+                logger.info("   Demo user created: %s", DEMO_EMAIL)
+            else:
+                logger.info("   Demo user already exists: %s", DEMO_EMAIL)
+    except Exception as e:
+        logger.warning("   Could not seed demo user: %s", e)
 
 
 # ── App Factory ──────────────────────────────────────────────────────────────

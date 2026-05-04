@@ -4,7 +4,9 @@ import Layout from '@/components/layout/Layout';
 import { AuditTimeline } from '@/components/audit/AuditTimeline';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useAudit } from '@/hooks/useAudit';
+import { useAuth } from '@/hooks/useAuth';
 import { uploadEvidence } from '@/services/auditService';
+import { getToken } from '@/services/authService';
 import { 
   UploadCloud, Cpu, CheckCircle2, AlertCircle, 
   Loader2, FileText, Fingerprint, Shield 
@@ -12,7 +14,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AuditDashboard() {
-  const { data, loading, error, refresh } = useAudit();
+  const { isAuthenticated } = useAuth();
+  const { data, loading, error, refresh } = useAudit(undefined, isAuthenticated);
   
   // AI Evidence State
   const [file, setFile] = useState<File | null>(null);
@@ -75,11 +78,14 @@ export default function AuditDashboard() {
                 onClick={async () => {
                   try {
                     const API = process.env.NEXT_PUBLIC_API_URL || '';
-                    const response = await fetch(`${API}/api/v1/audit/export-pdf`);
-                    if (!response.ok) throw new Error("Failed to fetch PDF");
+                    const token = getToken();
+                    const response = await fetch(`${API}/api/v1/audit/export-pdf`, {
+                      headers: token ? { Authorization: `Bearer ${token}` } : {},
+                    });
+                    if (!response.ok) throw new Error('Failed to fetch PDF');
                     const blob = await response.blob();
                     const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement("a");
+                    const a = document.createElement('a');
                     a.href = url;
                     a.download = `nyayadarsi_full_audit_${new Date().toISOString().split('T')[0]}.pdf`;
                     document.body.appendChild(a);
@@ -87,7 +93,7 @@ export default function AuditDashboard() {
                     document.body.removeChild(a);
                     window.URL.revokeObjectURL(url);
                   } catch (error) {
-                    alert("Failed to export audit report.");
+                    alert('Failed to export audit report.');
                   }
                 }}
               >

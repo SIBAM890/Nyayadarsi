@@ -67,26 +67,48 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+// Demo credentials — auto-login for demo mode (no real user needed)
+const DEMO_CREDENTIALS = { email: 'demo@nyayadarsi.gov.in', password: 'nyayadarsi_demo_2026' };
+
 export function AuthProvider({ children }: AuthProviderProps) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  // On mount, check for existing token and restore session
+  // On mount: restore existing session OR silently auto-login with demo account
   useEffect(() => {
     const token = getToken();
-    if (!token) {
-      dispatch({ type: 'SET_LOADING', isLoading: false });
-      return;
-    }
 
-    getMe().then(({ data }) => {
-      if (data) {
-        dispatch({ type: 'SET_USER', user: data, token });
-      } else {
-        clearToken();
-        dispatch({ type: 'LOGOUT' });
+    if (token) {
+      // Existing session — verify it's still valid
+      getMe().then(({ data }) => {
+        if (data) {
+          dispatch({ type: 'SET_USER', user: data, token });
+        } else {
+          // Token expired — attempt demo auto-login
+          clearToken();
+          autoLoginDemo();
+        }
+      });
+    } else {
+      // No token at all — attempt demo auto-login silently
+      autoLoginDemo();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function autoLoginDemo() {
+    try {
+      const { data } = await loginService(DEMO_CREDENTIALS);
+      if (data?.access_token) {
+        persistToken(data.access_token);
+        dispatch({ type: 'SET_USER', user: data.user, token: data.access_token });
+        return;
       }
-    });
-  }, []);
+    } catch {
+      // Backend offline — fall through to unauthenticated state
+      // apiClient mock fallbacks will handle data display
+    }
+    // Backend unreachable — mark as not loading so UI renders with mock data
+    dispatch({ type: 'SET_LOADING', isLoading: false });
+  }
 
   const login = useCallback(async (payload: LoginRequest): Promise<string | null> => {
     const { data, error } = await loginService(payload);

@@ -79,7 +79,9 @@ def _check_threshold_extremity(criterion: dict, category: str = "construction") 
     baseline = CATEGORY_BASELINES.get(category, CATEGORY_BASELINES["construction"])
     threshold = criterion.get("threshold")
 
-    if threshold is None:
+    try:
+        threshold_val = float(threshold)
+    except (ValueError, TypeError):
         return {"triggered": False}
 
     criterion_type = criterion.get("type", "")
@@ -97,11 +99,11 @@ def _check_threshold_extremity(criterion: dict, category: str = "construction") 
         else:
             baseline_value = baseline.get("similar_projects")
 
-    if baseline_value and threshold > baseline_value * 3:
-        multiplier = threshold / baseline_value
+    if baseline_value and threshold_val > baseline_value * 3:
+        multiplier = threshold_val / baseline_value
         return {
             "triggered": True,
-            "reason": f"Threshold ({threshold:,.0f}) is {multiplier:.1f}x the category baseline ({baseline_value:,.0f}). This level of requirement may restrict eligible vendors to fewer than 3.",
+            "reason": f"Threshold ({threshold_val:,.0f}) is {multiplier:.1f}x the category baseline ({baseline_value:,.0f}). This level of requirement may restrict eligible vendors to fewer than 3.",
             "multiplier": multiplier,
         }
 

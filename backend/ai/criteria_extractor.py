@@ -17,18 +17,20 @@ Extract ALL eligibility criteria from the tender text below.
 Return ONLY valid JSON array. No explanation. No markdown. No backticks.
 
 Each criterion must have:
-{{
-  "criterion_id": "FIN_001",
-  "type": "financial" | "technical" | "compliance",
-  "description": "exact description from tender",
-  "threshold": 50000000,
-  "threshold_unit": "INR" | "years" | "projects" | "boolean",
-  "mandatory": true | false,
-  "blocker": true | false,
-  "language_signal": "shall" | "must" | "preferred" | "may",
-  "specificity_alert": true | false,
-  "acceptable_documents": ["CA_certificate", "audited_balance_sheet"]
-}}
+[
+  {{
+    "criterion_id": "FIN_001",
+    "type": "financial", // Choose one: "financial", "technical", "compliance"
+    "description": "exact description from tender",
+    "threshold": 50000000,
+    "threshold_unit": "INR", // Choose one: "INR", "years", "projects", "boolean"
+    "mandatory": true,
+    "blocker": false,
+    "language_signal": "shall", // e.g., "shall", "must", "preferred", "may"
+    "specificity_alert": false,
+    "acceptable_documents": ["CA_certificate", "audited_balance_sheet"]
+  }}
+]
 
 MANDATORY RULES:
 - mandatory=true when text uses: shall, must, mandatory, essential, required
@@ -52,6 +54,59 @@ def _clean_json_response(text: str) -> str:
     if start != -1 and end != -1:
         return text[start:end + 1]
     return text
+
+
+def _repair_json(text: str) -> str:
+    """
+    Attempt to repair malformed JSON from LLM responses.
+    Covers all common Gemini/DeepSeek JSON quirks.
+    """
+    # First try as-is
+    try:
+        json.loads(text)
+        return text
+    except json.JSONDecodeError:
+        pass
+
+    # ── Normalisation pass ───────────────────────────────────────────────────
+    repaired = text
+
+    # 1. Strip JavaScript-style single-line comments  // ...
+    repaired = re.sub(r'//[^\n]*', '', repaired)
+    # 2. Strip JavaScript-style block comments  /* ... */
+    repaired = re.sub(r'/\*.*?\*/', '', repaired, flags=re.DOTALL)
+    # 3. Replace JS/Python non-JSON literals with null
+    repaired = re.sub(r'\bundefined\b', 'null', repaired)
+    repaired = re.sub(r'\bNone\b', 'null', repaired)
+    repaired = re.sub(r'\bNaN\b', 'null', repaired)
+    repaired = re.sub(r'\bInfinity\b', 'null', repaired)
+    repaired = re.sub(r'\b-Infinity\b', 'null', repaired)
+    # 4. Replace Python booleans True/False → true/false
+    repaired = re.sub(r'\bTrue\b', 'true', repaired)
+    repaired = re.sub(r'\bFalse\b', 'false', repaired)
+    # 5. Remove trailing commas before } or ]  (e.g. {"a":1,})
+    repaired = re.sub(r',\s*([}\]])', r'\1', repaired)
+
+    try:
+        json.loads(repaired)
+        return repaired
+    except json.JSONDecodeError:
+        pass
+
+    # ── Truncation strategies (response got cut off mid-object) ──────────────
+    # Strategy A: truncate at last complete object '}' and close the array
+    last_close = repaired.rfind('}')
+    if last_close != -1:
+        candidate = repaired[:last_close + 1] + ']'
+        candidate = re.sub(r',\s*([}\]])', r'\1', candidate)
+        try:
+            json.loads(candidate)
+            return candidate
+        except json.JSONDecodeError:
+            pass
+
+    # Give up — return whatever we have (caller will log the error)
+    return repaired
 
 
 async def extract(tender_text: str) -> list:
@@ -103,9 +158,10 @@ async def extract(tender_text: str) -> list:
         logger.warning("AI returned empty response")
         return []
 
-    # Parse JSON
+    # Parse JSON — attempt repair if Gemini returned slightly malformed output
     try:
         cleaned = _clean_json_response(raw_response)
+        cleaned = _repair_json(cleaned)  # Recover truncated/trailing-comma JSON
         criteria = json.loads(cleaned)
 
         if not isinstance(criteria, list):
@@ -135,5 +191,6 @@ async def extract(tender_text: str) -> list:
 
     except json.JSONDecodeError as e:
         logger.error(f"JSON parse error: {e}")
-        logger.debug(f"Raw response (first 500 chars): {raw_response[:500]}")
+        logger.error(f"Failed to parse JSON. Raw response:\n{raw_response}")
+        logger.error(f"Cleaned string attempted:\n{cleaned}")
         return []

@@ -14,11 +14,11 @@ THRESHOLD: {threshold} {threshold_unit}
 Extract the EXACT value from the document that satisfies or fails this criterion.
 Return ONLY valid JSON:
 {{
-  "extracted_value": <number or string>,
+  "extracted_value": 1500000,
   "source_quote": "exact text from document",
-  "page_number": <int>,
-  "confidence": <float 0-1>,
-  "meets_threshold": <bool>
+  "page_number": 4,
+  "confidence": 0.95,
+  "meets_threshold": true
 }}
 
 No explanation. No markdown. No backticks.

@@ -279,3 +279,20 @@ nyayadarsi/
 *   **Fix — `backend/ai/value_extractor.py`:** Removed dead `from backend.ai import gemini_client` import that was never called (Phase 2 stub). Prevents unnecessary module loading and import errors if SDK changes.
 *   **Cleanup — `backend/=2.4.0`:** Identified a stray pip install output file accidentally committed to the `backend/` directory. Marked for deletion (`del backend/=2.4.0`).
 *   **Documentation:** Updated `worktillnow.md` to reflect all conflict findings and resolutions.
+
+**Antigravity AI (May 4, 2026 — T4: Defect Resolution)**
+
+*   **Fix — `ImportError: cannot import name 'genai' from 'google'`:** The new `google-genai` SDK was not installed in the venv. The old `google-generativeai` package was still active. Resolution: run `pip install "google-genai>=0.4.0" "protobuf>=4.25.3" --upgrade` and `pip uninstall google-generativeai -y`.
+
+*   **Fix — 401 Unauthorized on all API calls (missing JWT):** The frontend had no stored token because no user was ever logged in. Two-part fix: (1) `backend/main.py` now auto-creates a demo officer account (`demo@nyayadarsi.gov.in`) on every startup using idempotent get-or-create logic. (2) `frontend/store/AuthContext.tsx` now performs a **silent auto-login** with demo credentials on app load — if the backend is reachable, the JWT is acquired and stored; if offline, mock fallback data is served.
+
+*   **Fix — Auth race condition (401 on `/api/v1/audit/all`):** `useAudit` hook was firing its API call on component mount before the auto-login `useEffect` promise had resolved, causing a guaranteed 401 on first render. Fix: `useAudit` now accepts an optional `isAuthenticated` boolean guard and skips the fetch until it's `true`. `audit.tsx` passes `isAuthenticated` from `useAuth()`.
+
+*   **Fix — PDF Export 401:** The manual `fetch()` call for audit PDF export had no `Authorization` header (unlike `apiFetch` which adds it automatically). Fixed by importing `getToken` from `authService` and adding `Authorization: Bearer <token>` to the export fetch.
+
+*   **Fix — SVG `<circle> attribute r: Expected length, "undefined"`:** Framer Motion cannot animate SVG presentation attributes (`r`, `cx`, `cy`) directly — it interpolates them as `undefined`. Fixed in `pages/index.tsx` by replacing `animate={{ r: [...] }}` with `animate={{ scale: [1, 1.6] }}` + `style={{ transformOrigin }}`, which uses CSS transforms and works reliably.
+
+*   **Fix — Gemini JSON parse error (malformed response):** Gemini occasionally returns a JSON array with a trailing comma or a truncated final object, causing `json.JSONDecodeError`. Added `_repair_json()` to `backend/ai/criteria_extractor.py` with 3 recovery strategies: (1) parse as-is, (2) truncate at last `}` and close the array, (3) strip trailing commas before `]`. This rescues partial-but-mostly-valid AI responses instead of silently returning `[]`.
+*   **Fix — `KeyError` in LLM Prompt Formatting (500 Error):** During the JSON parsing fix, the AI prompt's JSON example was updated to use strict JSON. However, the single curly braces `{}` in the prompt string caused Python's `.format()` to crash with a `KeyError` when injecting the `tender_text`, resulting in a `500 Internal Server Error` on upload. Escaped the literal braces using double braces `{{ }}` in both `criteria_extractor.py` and `value_extractor.py`.
+*   **Fix — `TypeError` in `integrity_alert.py`:** If the AI returned a string (e.g. `"N/A"`) instead of a number for a threshold, the extremity check crashed when comparing the string to the baseline multiplier. Added safe float conversion and fallback to prevent crashes.
+

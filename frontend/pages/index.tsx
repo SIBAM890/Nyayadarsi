@@ -103,8 +103,9 @@ const NetworkGraph = () => {
       {nodes.map((n, i) => (
         <g key={i}>
           {n.flagged && (
-            <motion.circle cx={n.x} cy={n.y} r={n.r + 8} fill="none" stroke="#ef4444" strokeWidth={1} opacity={0.3}
-              animate={{ r: [n.r + 8, n.r + 16], opacity: [0.3, 0] }}
+            <motion.circle cx={n.x} cy={n.y} r={n.r + 12} fill="none" stroke="#ef4444" strokeWidth={1}
+              style={{ transformOrigin: `${n.x}px ${n.y}px` }}
+              animate={{ scale: [1, 1.6], opacity: [0.4, 0] }}
               transition={{ duration: 2, repeat: Infinity }} />
           )}
           <motion.circle
