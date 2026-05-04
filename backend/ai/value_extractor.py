@@ -1,9 +1,9 @@
 """
 Value Extractor for Nyayadarsi
 Extracts specific values from bidder documents to match against tender criteria.
-Phase 1: Returns mock data for demo. Phase 2: Real Gemini extraction.
+Phase 1: Returns mock data for demo. Phase 2: Real AI extraction.
 """
-from backend.ai import gemini_client
+# gemini_client imported in Phase 2 when live extraction is wired up
 
 
 EXTRACTION_PROMPT = """You are verifying a bidder document against a tender criterion.

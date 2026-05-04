@@ -1,7 +1,9 @@
 """
 Seed Demo Data for Nyayadarsi
-Loads all JSON files from demo/mock_data/ into SQLite.
+Loads all JSON files from demo/mock_data/ into the database (PostgreSQL or SQLite).
 Run once after setup to populate the database for demo.
+
+NOTE: Uses PostgreSQL-compatible UPSERT syntax (INSERT ... ON CONFLICT DO UPDATE).
 """
 import sys
 import json
@@ -17,16 +19,19 @@ from sqlalchemy import text
 MOCK_DIR = Path(__file__).resolve().parent.parent / "demo" / "mock_data"
 
 def seed():
-    print("🌱 Seeding demo data...")
+    print("🌱 Seeding demo data into database...")
 
-    # Initialize database
+    # Initialize database (creates tables if not exist)
     init_db()
 
-    # 1. Create demo tender
+    # 1. Create demo tender — PostgreSQL-compatible upsert
     with SessionLocal() as db:
         db.execute(text("""
-            INSERT OR REPLACE INTO tender (id, title, description, department, category, estimated_value, status, created_at)
+            INSERT INTO tender (id, title, description, department, category, estimated_value, status, created_at)
             VALUES (:p1, :p2, :p3, :p4, :p5, :p6, :p7, :p8)
+            ON CONFLICT (id) DO UPDATE SET
+                title = EXCLUDED.title,
+                status = EXCLUDED.status
         """), {
             "p1": "CRPF-2025-CONST-001",
             "p2": "Construction of Barracks — CRPF Camp Bhubaneswar",
@@ -40,7 +45,7 @@ def seed():
         db.commit()
     print("  ✅ Tender created")
 
-    # 2. Seed evaluation results
+    # 2. Seed evaluation results — PostgreSQL-compatible upsert
     eval_path = MOCK_DIR / "evaluation_results.json"
     if eval_path.exists():
         with open(eval_path, "r", encoding="utf-8") as f:
@@ -49,9 +54,13 @@ def seed():
         with SessionLocal() as db:
             for bidder in eval_data.get("bidders", []):
                 db.execute(text("""
-                    INSERT OR REPLACE INTO bidder_evaluation 
+                    INSERT INTO bidder_evaluation
                     (tender_id, bidder_id, company_name, overall_verdict, verdicts_json, evaluated_at)
                     VALUES (:p1, :p2, :p3, :p4, :p5, :p6)
+                    ON CONFLICT (tender_id, bidder_id) DO UPDATE SET
+                        overall_verdict = EXCLUDED.overall_verdict,
+                        verdicts_json   = EXCLUDED.verdicts_json,
+                        evaluated_at    = EXCLUDED.evaluated_at
                 """), {
                     "p1": eval_data["tender_id"],
                     "p2": bidder["bidder_id"],
@@ -63,7 +72,7 @@ def seed():
             db.commit()
         print(f"  ✅ {len(eval_data.get('bidders', []))} bidder evaluations seeded")
 
-    # 3. Seed milestones
+    # 3. Seed milestones — PostgreSQL-compatible upsert
     ms_path = MOCK_DIR / "milestones.json"
     if ms_path.exists():
         with open(ms_path, "r", encoding="utf-8") as f:
@@ -72,10 +81,14 @@ def seed():
         with SessionLocal() as db:
             for ms in ms_data.get("milestones", []):
                 db.execute(text("""
-                    INSERT OR REPLACE INTO milestone 
+                    INSERT INTO milestone
                     (id, contract_id, title, description, target_percent, current_percent,
                      status, payment_amount, payment_status, ai_verified, officer_confirmed, created_at)
                     VALUES (:p1, :p2, :p3, :p4, :p5, :p6, :p7, :p8, :p9, :p10, :p11, :p12)
+                    ON CONFLICT (id) DO UPDATE SET
+                        status          = EXCLUDED.status,
+                        current_percent = EXCLUDED.current_percent,
+                        payment_status  = EXCLUDED.payment_status
                 """), {
                     "p1": ms["id"],
                     "p2": ms_data["contract_id"],
@@ -93,7 +106,7 @@ def seed():
             db.commit()
         print(f"  ✅ {len(ms_data.get('milestones', []))} milestones seeded")
 
-    # 4. Seed audit trail
+    # 4. Seed audit trail — INSERT only (no upsert needed, each entry is unique)
     audit_path = MOCK_DIR / "audit_trail.json"
     if audit_path.exists():
         with open(audit_path, "r", encoding="utf-8") as f:
@@ -102,10 +115,11 @@ def seed():
         with SessionLocal() as db:
             for entry in audit_data:
                 db.execute(text("""
-                    INSERT INTO audit_log 
+                    INSERT INTO audit_log
                     (timestamp, entity_type, entity_id, action, sha256_input, sha256_output,
                      model_version, officer_id, confidence, verdict)
                     VALUES (:p1, :p2, :p3, :p4, :p5, :p6, :p7, :p8, :p9, :p10)
+                    ON CONFLICT DO NOTHING
                 """), {
                     "p1": entry["timestamp"],
                     "p2": entry["entity_type"],
@@ -131,6 +145,9 @@ def seed():
             db.execute(text("""
                 INSERT INTO collusion_report (tender_id, flags_json, generated_at)
                 VALUES (:p1, :p2, :p3)
+                ON CONFLICT (tender_id) DO UPDATE SET
+                    flags_json   = EXCLUDED.flags_json,
+                    generated_at = EXCLUDED.generated_at
             """), {
                 "p1": coll_data["tender_id"],
                 "p2": json.dumps(coll_data["flags"]),
@@ -139,8 +156,8 @@ def seed():
             db.commit()
         print("  ✅ Collusion report seeded")
 
-    print("\n🎉 Demo data seeded successfully!")
-    print("   Run: cd backend && python -m uvicorn main:app --reload")
+    print("\n🎉 Demo data seeded successfully into PostgreSQL!")
+    print("   Backend: python -m uvicorn backend.main:app --reload")
 
 
 if __name__ == "__main__":

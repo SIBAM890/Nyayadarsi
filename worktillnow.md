@@ -2,9 +2,9 @@
 
 **Project:** Nyayadarsi  
 **Development Team:** Satya Sarthak Manohari, Sibam Prasad Sahoo, Suryansh Anand, Pritam  
-**Last Updated:** May 2, 2026, 3:45 PM IST  
+**Last Updated:** May 4, 2026, 4:42 PM IST  
 **Grand Finale:** May 16, 2026 — Taj Yeshwantpur, Bengaluru  
-**Timeline Status:** 14 Days Remaining  
+**Timeline Status:** 12 Days Remaining  
 
 ---
 
@@ -13,12 +13,13 @@
 ### 1.1 Backend — FastAPI & Core Infrastructure (Production Ready)
 | Item | Component | Description | Status |
 |---|---|---|---|
-| 1 | `backend/main.py` | FastAPI application, CORS, router mounting, health check | Complete |
-| 2 | `backend/core/config.py` | Environment management via Pydantic `BaseSettings` | Complete |
-| 3 | `backend/core/database.py` | SQLAlchemy ORM, session management, connection pooling | Complete |
+| 1 | `backend/main.py` | FastAPI application, structured logging, tightened CORS, fixed exception handler | Complete |
+| 2 | `backend/core/config.py` | **Updated** — `OPENROUTER_API_KEY` added, `has_ai_provider()` method, JWT fail-fast on Railway | Complete |
+| 3 | `backend/core/database.py` | **Updated** — Now targets **Neon PostgreSQL** via `DATABASE_URL` env var (SQLite fallback for local) | Complete |
 | 4 | `backend/core/security.py` | Cryptographic operations and JWT lifecycle management | Complete |
 | 5 | `backend/core/dependencies.py` | Authentication dependency injection pipelines | Complete |
-| 6 | `alembic/` | Database migration tracking framework | Complete |
+| 6 | `backend/config.py` | **New** — Legacy compatibility shim re-exporting `core.config.settings` for AI/util modules | Complete |
+| 7 | `alembic/` | Database migration tracking framework | Complete |
 
 ### 1.2 Data Models, Schemas & Services
 | Item | Component | Description | Status |
@@ -30,13 +31,15 @@
 ### 1.3 Artificial Intelligence Modules
 | Item | Component | Description | Status |
 |---|---|---|---|
-| 10 | `backend/ai/gemini_client.py` | Gemini 1.5 Flash client with rate-limit retries | Complete |
-| 11 | `backend/ai/groq_client.py` | Groq Llama 3 fallback mechanism | Complete |
-| 12 | `backend/ai/criteria_extractor.py` | Tender text to structured criteria JSON parser | Complete |
+| 10 | `backend/ai/gemini_client.py` | **Upgraded** — New `google-genai` SDK (`google.genai.Client`), `gemini-2.5-flash`, async via `run_in_executor`, rate-limit/safety/timeout handling | Complete |
+| 11 | `backend/ai/openrouter_client.py` | **New** — DeepSeek via OpenRouter (`openai` SDK), fully async, primary fallback when Gemini fails | Complete |
+| 12 | `backend/ai/criteria_extractor.py` | **Updated** — Gemini → OpenRouter dual-provider waterfall with `is_configured()` checks | Complete |
 | 13 | `backend/ai/integrity_alert.py` | Rule-based analysis for anomalies and threshold extremity | Complete |
 | 14 | `backend/ai/value_extractor.py` | Document value extraction methodology (Phase 2 stub) | Complete |
 | 15 | `backend/ai/financial_ontology.py` | Synonym mapping for financial terminology | Complete |
 | 16 | `backend/ai/consistency_checker.py` | Cross-document financial consistency analysis | Complete |
+
+> **Note:** `groq_client.py` has been **replaced** by `openrouter_client.py`. Groq is no longer used. The AI waterfall is now: **Gemini 2.5 Flash → DeepSeek (via OpenRouter)**.
 
 ### 1.4 Collusion Detection Engine
 | Item | Component | Description | Status |
@@ -69,6 +72,7 @@
 | 30 | `backend/utils/pdf_reader.py` | pdfplumber with PyMuPDF fallback mechanism | Complete |
 | 31 | `backend/utils/gps_verifier.py` | Haversine distance calculation (100m tolerance) | Complete |
 | 32 | `backend/utils/file_handler.py` | Upload validation and SHA-256 hash generation | Complete |
+| 33 | `backend/services/location_service.py` | **New** — Geopy/Nominatim reverse geocoding, 2-tier distance verification (100m reject / 500m flag) | Complete |
 
 ### 1.8 Frontend — Next.js + TypeScript (Professional UI Overhaul)
 | Item | Component | Description | Status |
@@ -168,16 +172,17 @@ nyayadarsi/
 
 | Subsystem | Completed Modules | Outstanding Modules | Completion Rate |
 |---|---|---|---|
-| Backend Core & Infrastructure | 6/6 | 0 | 100% |
+| Backend Core & Infrastructure | 7/7 | 0 | 100% |
 | Data Models & Schemas | 10/10 | 0 | 100% |
-| AI Processing & Collusion Engines | 12/12 | 0 | 100% |
+| AI Processing (Gemini + OpenRouter) | 7/7 | 0 | 100% |
+| Collusion Detection Engine | 5/5 | 0 | 100% |
 | Application Programming Interfaces | 6/6 | 0 | 100% |
 | Frontend Architecture (TypeScript) | 8/8 | 0 | 100% |
 | User Interface Components | 10/10 | 0 | 100% |
 | Demonstration Assets | 5/5 | 0 | 100% |
 | Mobile Architecture | 0/8 | 8 | 0% |
-| Infrastructure Deployment | 2/2 | 0 | 100% |
-| **System Total** | **~62/70+** | **~8** | **~88%** |
+| Infrastructure Deployment (HF + Vercel) | 2/2 | 0 | 100% |
+| **System Total** | **~60/68** | **~8** | **~88%** |
 
 ---
 
@@ -193,10 +198,12 @@ nyayadarsi/
 - [x] Frontend TypeScript migration & API layer integration
 - [x] Professional UI/UX overhaul (Slate-Indigo palette, lucide-react)
 - [x] API credential configuration and connectivity validation
-- [x] AI Model Upgrades (Migrated to `gemini-2.5-flash` and `llama-3.1-8b-instant`)
+- [x] AI Model Upgrades — `gemini-2.5-flash` (primary) + `deepseek/deepseek-chat` via OpenRouter (fallback)
 - [x] Visualization component integration
 - [x] Audit trail generation during administrative actions
 - [x] Comprehensive document processing workflow validation
+- [x] Database migrated to **Neon PostgreSQL** (cloud-hosted, production-grade)
+- [x] `psycopg2-binary` + `geopy` added to `requirements.txt`
 - [ ] Collusion analysis execution validation
 - [ ] Geospatial coordinate verification tests
 - [ ] Mobile client application compilation
@@ -257,3 +264,18 @@ nyayadarsi/
 *   **DeepSeek Integration (Puter.js):** Integrated the Puter.js library to provide free, unlimited access to DeepSeek language models, enabling high-performance reasoning tasks without external API costs.
 *   **Codebase Maintenance & Synchronization:** Resolved complex Git rebase conflicts and "diverged history" issues across local and remote branches, ensuring a clean and synchronous development environment.
 *   **Component Engineering — UI Polish:** Refined the notification system with a sleek, enterprise-grade `Toast.tsx` component and updated the `.env` configuration to support multi-provider AI deployments.
+
+**Satya Sarthak Manohari (May 4, 2026 — OpenRouter Integration & PostgreSQL Migration):**
+*   **AI Provider Overhaul:** Replaced the deprecated `google-generativeai` SDK with the new `google-genai` SDK (`google.genai.Client`). Added `backend/ai/openrouter_client.py` — a fully async client using the `openai` library pointed at OpenRouter, defaulting to `deepseek/deepseek-chat` as the primary fallback AI when Gemini is unavailable.
+*   **Dual-Provider Waterfall:** Updated `criteria_extractor.py` to use `is_configured()` guards on both providers. The extraction pipeline now runs: **Gemini 2.5 Flash → DeepSeek (OpenRouter)** with graceful degradation. `groq_client.py` is fully retired.
+*   **Database Upgrade:** Migrated from local SQLite to **Neon PostgreSQL** (cloud-hosted serverless Postgres). `DATABASE_URL` in `.env` now points to the Neon pooler connection string. Added `psycopg2-binary>=2.9.9` to `requirements.txt` for the PostgreSQL driver.
+*   **Config Modernization:** Added `OPENROUTER_API_KEY` to `core/config.py` and `has_ai_provider()` helper. Created `backend/config.py` shim for backward-compatibility with all AI/util modules that import from `backend.config`.
+*   **Requirements Update:** Swapped `google-generativeai==0.5.4` → `google-genai>=0.4.0` + `protobuf>=4.25.3`, added `openai>=1.0.0`, `geopy>=2.4.0`, `psycopg2-binary>=2.9.9`.
+*   **Security Hardening (Antigravity AI, May 3):** Fixed `time.sleep` → `asyncio.sleep` in Gemini client, tightened CORS to explicit origin list + `allow_origin_regex`, fixed global exception handler to not swallow `HTTPException`, added PDF magic-byte validation and 10 MB size cap to tender upload, JWT fail-fast guard for Railway deployment.
+
+**Antigravity AI (May 4, 2026 — Conflict Resolution & PostgreSQL Hardening):**
+*   **CRITICAL FIX — `scripts/seed_demo.py`:** Replaced SQLite-only `INSERT OR REPLACE INTO` syntax with PostgreSQL-standard `INSERT ... ON CONFLICT (id) DO UPDATE SET` (UPSERT) for all 5 seeded tables (tender, bidder_evaluation, milestone, audit_log, collusion_report). The old syntax would cause `ProgrammingError` crashes against the Neon PostgreSQL database.
+*   **Fix — `backend/core/database.py`:** Added `pool_pre_ping=True` to the SQLAlchemy engine configuration. This prevents `OperationalError: SSL connection has been closed unexpectedly` crashes on Neon's serverless PostgreSQL, which aggressively closes idle connections. Cleaned up the SQLite/PostgreSQL branching logic into a cleaner `_is_sqlite` flag.
+*   **Fix — `backend/ai/value_extractor.py`:** Removed dead `from backend.ai import gemini_client` import that was never called (Phase 2 stub). Prevents unnecessary module loading and import errors if SDK changes.
+*   **Cleanup — `backend/=2.4.0`:** Identified a stray pip install output file accidentally committed to the `backend/` directory. Marked for deletion (`del backend/=2.4.0`).
+*   **Documentation:** Updated `worktillnow.md` to reflect all conflict findings and resolutions.

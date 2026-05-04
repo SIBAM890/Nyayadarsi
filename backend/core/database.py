@@ -1,6 +1,6 @@
 """
 Nyayadarsi Database Layer
-SQLAlchemy ORM with SQLite WAL mode.
+SQLAlchemy ORM — supports both PostgreSQL (Neon, production) and SQLite (local dev).
 Provides engine, session factory, Base, and FastAPI dependency.
 """
 from sqlalchemy import create_engine, event
@@ -10,7 +10,7 @@ from typing import Generator
 from backend.core.config import settings
 
 
-# ── SQLite-specific pragmas ──────────────────────────────────────────────────
+# ── SQLite-specific pragmas (skipped for PostgreSQL) ─────────────────────────
 def _set_sqlite_pragmas(dbapi_conn, connection_record) -> None:  # type: ignore[no-untyped-def]
     """Enable WAL mode and foreign keys for every SQLite connection."""
     cursor = dbapi_conn.cursor()
@@ -20,15 +20,19 @@ def _set_sqlite_pragmas(dbapi_conn, connection_record) -> None:  # type: ignore[
 
 
 # ── Engine ───────────────────────────────────────────────────────────────────
-connect_args = {"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {}
+_is_sqlite = "sqlite" in settings.DATABASE_URL
+connect_args = {"check_same_thread": False} if _is_sqlite else {}
+
 engine = create_engine(
     settings.DATABASE_URL,
     connect_args=connect_args,
     echo=False,
+    # pool_pre_ping keeps Neon serverless connections alive and recovers dropped ones
+    pool_pre_ping=True,
 )
 
-# Attach SQLite pragmas
-if "sqlite" in settings.DATABASE_URL:
+# Attach SQLite pragmas only when running locally with SQLite
+if _is_sqlite:
     event.listen(engine, "connect", _set_sqlite_pragmas)
 
 
