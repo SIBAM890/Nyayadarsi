@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Head from 'next/head';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  FileText, Plus, UploadCloud, CheckCircle2, AlertTriangle, 
-  Clock, Hash, ShieldCheck, FileWarning, Search, Zap 
+  FileText, Plus, UploadCloud, CheckCircle2, AlertTriangle, AlertCircle,
+  Clock, Hash, ShieldCheck, FileWarning, Search, Zap, Activity 
 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
 import { useTenderUpload } from '@/hooks/useTender';
@@ -18,9 +18,13 @@ export default function GovDashboard() {
   const [loadingStep, setLoadingStep] = useState(0);
   const loadingSteps = ['Extract', 'Classify', 'Validate', 'Alert Check'];
 
-  // Override modal state
   const [overrideModal, setOverrideModal] = useState<{ isOpen: boolean, criterionId: string | null }>({ isOpen: false, criterionId: null });
   const [justification, setJustification] = useState('');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const updateTime = () => {
@@ -154,6 +158,13 @@ export default function GovDashboard() {
                       <input type="file" className="hidden" accept=".pdf" onChange={handleFileSelect} />
                     </label>
                   </div>
+                  
+                  {error && (
+                    <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      {error}
+                    </div>
+                  )}
 
                   <div className="mt-8 flex items-center gap-4">
                     <div className="h-px bg-white/[0.06] flex-1" />
@@ -182,7 +193,12 @@ export default function GovDashboard() {
                     <div className="absolute inset-0 rounded-full border-4 border-nyaya-600/20 border-t-nyaya-500 animate-spin" />
                     <Zap className="w-8 h-8 text-nyaya-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
                   </div>
-                  <h3 className="text-xl font-display font-light mb-8">Gemini AI reading tender...</h3>
+                  <h3 className="text-xl font-display font-light mb-2">Gemini AI reading tender...</h3>
+                  
+                  {/* Live active step status */}
+                  <p className="text-sm text-nyaya-400 mb-8 animate-pulse">
+                    ⚡ {loadingSteps[loadingStep] ?? 'Processing'} — Analyzing tender with AI...
+                  </p>
                   
                   <div className="w-64 space-y-4">
                     {loadingSteps.map((step, index) => {
@@ -214,6 +230,27 @@ export default function GovDashboard() {
                       </div>
                     </div>
                   </div>
+
+                  {/* AI Confidence Warning Banner */}
+                  {result.extraction_warning && (
+                    <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-start gap-3">
+                      <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-sm font-medium text-amber-300">AI Extraction Notice</p>
+                          <span className="text-[10px] font-mono bg-amber-500/20 text-amber-500 px-2 py-0.5 rounded uppercase tracking-tighter">
+                            {result.extraction_warning.type.replace(/_/g, ' ')}
+                          </span>
+                        </div>
+                        <p className="text-xs text-amber-400/80 leading-relaxed">
+                          {result.extraction_warning.message}
+                        </p>
+                        <p className="text-xs text-nyaya-500 mt-2 italic">
+                          The model returned low-confidence output, so we safely fallback to an empty criteria set.
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="space-y-4">
                     {result.criteria?.map((c, i) => (
@@ -308,7 +345,9 @@ export default function GovDashboard() {
                       <div className="absolute top-0 -left-1 w-2 h-2 rounded-full bg-nyaya-600" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-[10px] text-nyaya-500 mb-0.5">{new Date(entry.timestamp + 'Z').toLocaleTimeString()}</p>
+                      <p className="text-[10px] text-nyaya-500 mb-0.5">
+                        {mounted ? new Date(entry.timestamp + 'Z').toLocaleTimeString() : '--:--'}
+                      </p>
                       <p className="text-xs text-nyaya-200">{entry.action.replace(/_/g, ' ')}</p>
                       <p className="text-[10px] font-mono text-nyaya-500 mt-1 flex items-center gap-1">
                         <Hash className="w-2.5 h-2.5" /> {entry.sha256_output.substring(0, 12)}...
@@ -365,9 +404,3 @@ export default function GovDashboard() {
     </>
   );
 }
-
-const Activity = ({ className }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-  </svg>
-);

@@ -54,6 +54,11 @@ export interface TenderUploadResponse {
   total_criteria: number;
   mandatory_count: number;
   discretionary_count: number;
+  /** null = success; structured object if AI returned no criteria */
+  extraction_warning: {
+    message: string;
+    type: string;
+  } | null;
   pdf_info: PdfInfo;
   audit: AuditRecord;
 }

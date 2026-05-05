@@ -80,6 +80,18 @@ export async function apiFetch<T>(
     }
 
     if (!response.ok) {
+      if (response.status === 401 && typeof window !== 'undefined') {
+        // Guard against infinite reload: only retry once
+        if (!sessionStorage.getItem('nyayadarsi_auth_retry')) {
+          sessionStorage.setItem('nyayadarsi_auth_retry', 'true');
+          sessionStorage.removeItem('nyayadarsi_token');
+          window.location.reload();
+        } else {
+          // Second 401 after retry — do NOT reload again, just clear state
+          console.error('[Auth] Auth failed after retry. Backend may be unavailable.');
+          sessionStorage.removeItem('nyayadarsi_auth_retry');
+        }
+      }
       return {
         data: null,
         error: extractErrorMessage(data, `Request failed (${response.status})`),

@@ -64,7 +64,9 @@ async def process_tender_upload(
         )
 
     # Extract criteria using AI
-    criteria = await extract(pdf_result["text"])
+    extraction_result = await extract(pdf_result["text"])
+    criteria = extraction_result["criteria"]
+    extraction_warning = extraction_result["warning"]
 
     # Run integrity checks on each criterion
     alerts: list[dict[str, Any]] = []
@@ -110,6 +112,8 @@ async def process_tender_upload(
         "total_criteria": len(criteria),
         "mandatory_count": mandatory_count,
         "discretionary_count": discretionary_count,
+        # Surface AI confidence warning to frontend (None = success)
+        "extraction_warning": extraction_warning,
         "pdf_info": {
             "pages": pdf_result["pages"],
             "method": pdf_result["method"],

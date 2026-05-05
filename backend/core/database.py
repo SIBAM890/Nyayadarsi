@@ -21,7 +21,7 @@ def _set_sqlite_pragmas(dbapi_conn, connection_record) -> None:  # type: ignore[
 
 # ── Engine ───────────────────────────────────────────────────────────────────
 _is_sqlite = "sqlite" in settings.DATABASE_URL
-connect_args = {"check_same_thread": False} if _is_sqlite else {}
+connect_args = {"check_same_thread": False} if _is_sqlite else {"connect_timeout": 10}
 
 engine = create_engine(
     settings.DATABASE_URL,
@@ -29,6 +29,8 @@ engine = create_engine(
     echo=False,
     # pool_pre_ping keeps Neon serverless connections alive and recovers dropped ones
     pool_pre_ping=True,
+    # pool_recycle forces reconnect before Neon's idle timeout
+    pool_recycle=300 if not _is_sqlite else -1,
 )
 
 # Attach SQLite pragmas only when running locally with SQLite

@@ -36,6 +36,17 @@ async def lifespan(app: FastAPI):
     """Application startup and shutdown lifecycle."""
     # Startup
     init_db()
+    
+    # Warm DB (wakes up Neon Postgres from cold start)
+    from sqlalchemy import text
+    from backend.core.database import engine
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        logger.info("   DB Connection Warmed")
+    except Exception as e:
+        logger.warning("   DB Warm failed: %s", e)
+
     _seed_demo_user()
     logger.info("🏛️  Nyayadarsi API started — न्यायदर्शी")
     logger.info("   Version: %s", settings.APP_VERSION)
@@ -96,8 +107,8 @@ app.add_middleware(
     allow_origins=_ALLOWED_ORIGINS,
     allow_origin_regex=r"https://.*\.vercel\.app",  # Any Vercel domain
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type", "Accept"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 

@@ -109,36 +109,75 @@ def _repair_json(text: str) -> str:
     return repaired
 
 
-async def extract(tender_text: str) -> list:
+def _validate_criteria_schema(data: object) -> list:
+    """
+    Ensure the parsed AI output is a list of criterion dicts.
+    Handles cases where Gemini wraps the array in a dict:
+      - {"criteria": [...]}   → unwrap and return the list
+      - [{...}, {...}]        → return as-is
+      - anything else         → return empty list (fail-safe)
+    """
+    if isinstance(data, list):
+        return data
+    if isinstance(data, dict):
+        # Common wrapper: {"criteria": [...]} or {"eligibility_criteria": [...]}
+        for key in ("criteria", "eligibility_criteria", "items", "results"):
+            if key in data and isinstance(data[key], list):
+                logger.warning(f"AI wrapped response in dict key '{key}' — unwrapping.")
+                return data[key]
+    logger.error(f"AI returned invalid top-level structure: {type(data)}. Expected list.")
+    return []
+
+
+
+async def extract(tender_text: str) -> dict:
     """
     Extract eligibility criteria from tender text using AI.
-    Returns validated list of criterion dicts.
-    Never crashes — returns empty list on failure.
+
+    Returns:
+        {
+            "criteria": list[dict],   # validated criterion objects
+            "warning": {              # structured warning if criteria is empty
+                "message": str,
+                "type": str
+            } | None
+        }
+    Never crashes — returns a warning dict on every failure path.
     """
+
+    def _empty(message: str, error_type: str = "GENERIC_ERROR") -> dict:
+        """Consistent empty result with a structured warning."""
+        logger.warning(f"[{error_type}] {message}")
+        return {
+            "criteria": [], 
+            "warning": {
+                "message": message,
+                "type": error_type
+            }
+        }
+
+    # ── Guard: document too short ─────────────────────────────────────────────
     if not tender_text or len(tender_text.strip()) < 50:
-        return []
+        return _empty("Document text is too short or empty for AI extraction.", "EMPTY_DOC")
 
-    prompt = EXTRACTION_PROMPT.format(tender_text=tender_text[:15000])  # Cap context
+    prompt = EXTRACTION_PROMPT.format(tender_text=tender_text[:15000])
 
-    # Try Gemini first, fallback to OpenRouter
+    # ── Try Gemini first, fallback to OpenRouter ──────────────────────────────
     raw_response = None
     model_used = None
 
-    # Check if Gemini is configured
     if gemini_client.is_configured():
         try:
             raw_response = await gemini_client.generate(prompt, max_tokens=4000)
             model_used = gemini_client.DEFAULT_MODEL
             logger.info(f"Successfully extracted criteria using {model_used}")
         except ValueError as e:
-            # API key issue - log and skip to fallback
             logger.warning(f"Gemini configuration error: {e}. Trying OpenRouter fallback...")
         except RuntimeError as e:
             logger.warning(f"Gemini API failed: {e}. Falling back to OpenRouter...")
     else:
         logger.info("Gemini not configured. Using OpenRouter directly.")
 
-    # Fallback to OpenRouter if Gemini failed or not configured
     if raw_response is None and openrouter_client.is_configured():
         try:
             raw_response = await openrouter_client.generate(prompt, max_tokens=4000)
@@ -149,48 +188,61 @@ async def extract(tender_text: str) -> list:
         except RuntimeError as e:
             logger.error(f"OpenRouter API failed: {e}")
 
-    # Both failed
+    # ── Both AI providers failed ──────────────────────────────────────────────
     if raw_response is None:
-        logger.error("Both Gemini and OpenRouter failed. Check API keys and network.")
-        return []
+        return _empty(
+            "Both Gemini and OpenRouter are unavailable. Check API keys and network connectivity.",
+            "SERVICE_UNAVAILABLE"
+        )
 
-    if not raw_response:
-        logger.warning("AI returned empty response")
-        return []
+    if not raw_response.strip():
+        return _empty("AI returned an empty response. The model may be overloaded — please retry.", "EMPTY_RESPONSE")
 
-    # Parse JSON — attempt repair if Gemini returned slightly malformed output
+    # ── Parse JSON (with repair) ──────────────────────────────────────────────
     try:
         cleaned = _clean_json_response(raw_response)
-        cleaned = _repair_json(cleaned)  # Recover truncated/trailing-comma JSON
-        criteria = json.loads(cleaned)
-
-        if not isinstance(criteria, list):
-            print(f"⚠️ AI returned non-list: {type(criteria)}")
-            return []
-
-        # Validate each criterion has required fields
-        validated = []
-        for i, c in enumerate(criteria):
-            validated_criterion = {
-                "criterion_id": c.get("criterion_id", f"CRIT_{i+1:03d}"),
-                "type": c.get("type", "compliance"),
-                "description": c.get("description", ""),
-                "threshold": c.get("threshold"),
-                "threshold_unit": c.get("threshold_unit"),
-                "mandatory": bool(c.get("mandatory", False)),
-                "blocker": bool(c.get("blocker", False)),
-                "language_signal": c.get("language_signal"),
-                "specificity_alert": bool(c.get("specificity_alert", False)),
-                "acceptable_documents": c.get("acceptable_documents", []),
-                "model_used": model_used,
-            }
-            if validated_criterion["description"]:
-                validated.append(validated_criterion)
-
-        return validated
-
+        cleaned = _repair_json(cleaned)
+        parsed = json.loads(cleaned)
     except json.JSONDecodeError as e:
         logger.error(f"JSON parse error: {e}")
-        logger.error(f"Failed to parse JSON. Raw response:\n{raw_response}")
+        logger.error(f"Raw response:\n{raw_response}")
         logger.error(f"Cleaned string attempted:\n{cleaned}")
-        return []
+        return _empty(
+            "AI returned malformed JSON that could not be repaired.",
+            "PARSE_ERROR"
+        )
+
+    # ── Validate schema ───────────────────────────────────────────────────────
+    criteria_list = _validate_criteria_schema(parsed)
+    if not criteria_list:
+        return _empty(
+            "AI returned valid JSON but in an unexpected structure.",
+            "SCHEMA_MISMATCH"
+        )
+
+    # ── Field-level validation ────────────────────────────────────────────────
+    validated = []
+    for i, c in enumerate(criteria_list):
+        validated_criterion = {
+            "criterion_id": c.get("criterion_id", f"CRIT_{i+1:03d}"),
+            "type": c.get("type", "compliance"),
+            "description": c.get("description", ""),
+            "threshold": c.get("threshold"),
+            "threshold_unit": c.get("threshold_unit"),
+            "mandatory": bool(c.get("mandatory", False)),
+            "blocker": bool(c.get("blocker", False)),
+            "language_signal": c.get("language_signal"),
+            "specificity_alert": bool(c.get("specificity_alert", False)),
+            "acceptable_documents": c.get("acceptable_documents", []),
+            "model_used": model_used,
+        }
+        if validated_criterion["description"]:
+            validated.append(validated_criterion)
+
+    if not validated:
+        return _empty(
+            "AI could not confidently extract any eligibility criteria from this document.",
+            "NO_CRITERIA_FOUND"
+        )
+
+    return {"criteria": validated, "warning": None}
