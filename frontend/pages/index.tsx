@@ -351,7 +351,7 @@ export default function LandingPage() {
                 </div>
                 <h3 style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 700, fontSize: 18, color: '#1A1A1A', marginBottom: 8 }}>AI Evaluation</h3>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: 14, color: '#666', lineHeight: 1.62, position: 'relative', zIndex: 2 }}>
-                  Gemini analyses every bid against parsed criteria, flags anomalies, and surfaces collusion signals with a GREEN / YELLOW / RED confidence score.
+                  Nyayadarsi AI analyses every bid against parsed criteria, flags anomalies, and surfaces collusion signals with a GREEN / YELLOW / RED confidence score.
                 </p>
                 <div style={{ marginTop: 14, display: 'flex', gap: 6 }}>
                   <span style={{ padding: '3px 9px', borderRadius: 10, background: '#dcfce7', color: '#166534', fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: 10, letterSpacing: '0.04em' }}>GREEN 85–100%</span>

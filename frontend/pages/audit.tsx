@@ -163,7 +163,7 @@ export default function AuditDashboard() {
                   </div>
                   <div>
                     <div className="text-sm font-bold text-theme-text-heading">Evidence Intelligence Report</div>
-                    <div className="text-[10px] text-theme-text-muted uppercase tracking-tighter">Powered by Gemini 1.5 Pro • GFR 2017 Trained</div>
+                    <div className="text-[10px] text-theme-text-muted uppercase tracking-tighter">Powered by Nyayadarsi AI • GFR 2017 Trained</div>
                   </div>
                 </div>
                 {docHash && (

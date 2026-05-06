@@ -178,7 +178,7 @@ export default function GovDashboard() {
                     <div className="absolute inset-0 rounded-full border-4 border-nyaya-600/20 border-t-nyaya-500 animate-spin" />
                     <Zap className="w-8 h-8 text-nyaya-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
                   </div>
-                  <h3 className="text-xl font-display font-light mb-2">Gemini AI reading tender...</h3>
+                  <h3 className="text-xl font-display font-light mb-2">Nyayadarsi AI reading tender...</h3>
                   
                   {/* Live active step status */}
                   <p className="text-sm text-nyaya-400 mb-8 animate-pulse">

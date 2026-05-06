@@ -66,7 +66,7 @@ function UploadZoneInner({ onUpload, isLoading }: UploadZoneProps) {
             className="text-sm font-semibold text-[#1A1A1A]"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
-            Processing with Gemini AI...
+            Processing with Nyayadarsi AI...
           </p>
           <p className="text-xs text-[#9A9A9A]">
             Extracting eligibility criteria from tender document
@@ -91,7 +91,7 @@ function UploadZoneInner({ onUpload, isLoading }: UploadZoneProps) {
               Drop tender PDF here or click to upload
             </p>
             <p className="text-xs text-[#9A9A9A] mt-1.5">
-              Gemini AI will extract all eligibility criteria automatically
+              Nyayadarsi AI will extract all eligibility criteria automatically
             </p>
           </div>
         </div>
