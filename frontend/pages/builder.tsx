@@ -10,8 +10,9 @@ import {
 import Layout from '@/components/layout/Layout';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useMilestones } from '@/hooks/useBuilder';
-import { useLocation } from '@/hooks/useLocation';
-import { LocationProvider } from '@/store/LocationContext';
+import { useLocationStore } from '@/store/LocationStore';
+import { verifyLocation, uploadBuilderPhoto } from '@/services/builderService';
+import CameraView from '@/components/builder/CameraView';
 import { CONTRACT_ID } from '@/constants';
 import type { MapViewProps } from '@/components/builder/MapView';
 
@@ -50,9 +51,11 @@ function BuilderDashboardInner() {
     location,
     startTracking,
     stopTracking,
-    triggerVerification,
-  } = useLocation();
+    setVerification,
+    updatePosition,
+  } = useLocationStore();
 
+  const [showCamera, setShowCamera] = useState(false);
   const [paymentMsg, setPaymentMsg] = useState<string | null>(null);
   const [photos, setPhotos] = useState<string[]>([]);
   const [submitState, setSubmitState] = useState<'idle' | 'uploading' | 'verifying' | 'accepted' | 'rejected'>('idle');
@@ -64,13 +67,28 @@ function BuilderDashboardInner() {
     return () => stopTracking();
   }, [startTracking, stopTracking]);
 
-  // If geolocation is denied or unavailable, use demo coordinates
+  // Auto-verify position when it changes
+  useEffect(() => {
+    if (!location.coordinates) return;
+    
+    const verify = async () => {
+      const { data } = await verifyLocation({ 
+        latitude: location.coordinates!.lat, 
+        longitude: location.coordinates!.lng 
+      });
+      if (data) setVerification(data);
+    };
+
+    const timer = setTimeout(verify, 2000);
+    return () => clearTimeout(timer);
+  }, [location.coordinates, setVerification]);
+
+  // If geolocation is denied or unavailable, use demo coordinates (matching site exactly)
   useEffect(() => {
     if (location.error) {
-      // Fallback: simulate a position near the registered site for demo
-      triggerVerification(20.2965, 85.8240);
+      updatePosition(20.2961, 85.8245, 10);
     }
-  }, [location.error, triggerVerification]);
+  }, [location.error, updatePosition]);
 
   // Derive GPS state from location context
   const gpsState: 'verifying' | 'verified' | 'offsite' | 'flagged' = (() => {
@@ -82,8 +100,13 @@ function BuilderDashboardInner() {
 
   const handlePhotoUpload = () => {
     if (photos.length < 3 && submitState === 'idle') {
-      fileInputRef.current?.click();
+      setShowCamera(true);
     }
+  };
+
+  const handleCapture = (imageData: string) => {
+    setPhotos(prev => [...prev, imageData]);
+    setShowCamera(false);
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -106,14 +129,43 @@ function BuilderDashboardInner() {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (!location.coordinates) {
+      alert("GPS coordinates not acquired yet.");
+      return;
+    }
+
     setSubmitState('uploading');
-    setTimeout(() => {
-      setSubmitState('verifying');
-      setTimeout(() => {
-        setSubmitState('accepted');
-      }, 1500);
-    }, 1000);
+    try {
+      // Convert base64 photos to Blobs for upload
+      const photoBlobs = await Promise.all(
+        photos.map(async (p) => {
+          const res = await fetch(p);
+          return res.blob();
+        })
+      );
+
+      const response = await uploadBuilderPhoto({
+        contract_id: CONTRACT_ID,
+        latitude: location.coordinates.lat,
+        longitude: location.coordinates.lng,
+        photos: photoBlobs.map((b, i) => new File([b], `site_photo_${i}.jpg`, { type: 'image/jpeg' })),
+      });
+
+      if (response.error) {
+        setSubmitState('rejected');
+        alert(response.message || "Upload failed verification.");
+      } else {
+        setSubmitState('verifying');
+        setTimeout(() => {
+          setSubmitState('accepted');
+        }, 1000);
+      }
+    } catch (err) {
+      console.error("Submission error:", err);
+      setSubmitState('rejected');
+      alert("An error occurred during submission.");
+    }
   };
 
   const onTriggerPayment = useCallback(
@@ -144,6 +196,14 @@ function BuilderDashboardInner() {
         <title>Builder Dashboard — Nyayadarsi</title>
       </Head>
       <Layout title="Contractor — Live Monitoring">
+        <AnimatePresence>
+          {showCamera && (
+            <CameraView 
+              onCapture={handleCapture} 
+              onClose={() => setShowCamera(false)} 
+            />
+          )}
+        </AnimatePresence>
         <div className="flex h-screen overflow-hidden">
 
           {/* LEFT SIDEBAR (320px) */}
@@ -454,8 +514,6 @@ function BuilderDashboardInner() {
 // ── Page Export — wraps with LocationProvider ───────────────────────────────
 export default function BuilderDashboard() {
   return (
-    <LocationProvider>
-      <BuilderDashboardInner />
-    </LocationProvider>
+    <BuilderDashboardInner />
   );
 }

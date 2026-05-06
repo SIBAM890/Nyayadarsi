@@ -9,9 +9,10 @@ import { uploadEvidence } from '@/services/auditService';
 import { getToken } from '@/services/authService';
 import { 
   UploadCloud, Cpu, CheckCircle2, AlertCircle, 
-  Loader2, FileText, Fingerprint, Shield 
+  Loader2, FileText, Fingerprint, Shield, Bookmark 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { IntelligenceReport } from '@/components/audit/IntelligenceReport';
 
 export default function AuditDashboard() {
   const { isAuthenticated } = useAuth();
@@ -153,49 +154,58 @@ export default function AuditDashboard() {
               )}
             </div>
 
-            {/* Analysis Output Terminal */}
-            <div className="glass-card flex flex-col bg-theme-bg-card border-theme-border overflow-hidden min-h-[300px]">
-              <div className="px-5 py-3 bg-theme-bg-card border-b border-theme-border flex items-center justify-between">
-                <div className="text-sm font-semibold text-theme-text-heading">Evidence Intelligence</div>
+            {/* Analysis Output Dashboard */}
+            <div className="glass-card flex flex-col bg-white border-theme-border overflow-hidden h-[600px] shadow-xl">
+              <div className="px-6 py-4 bg-theme-bg-footer/30 border-b border-theme-border flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-theme-brand/10 flex items-center justify-center">
+                    <Cpu className="w-4 h-4 text-theme-brand" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-theme-text-heading">Evidence Intelligence Report</div>
+                    <div className="text-[10px] text-theme-text-muted uppercase tracking-tighter">Powered by Gemini 1.5 Pro • GFR 2017 Trained</div>
+                  </div>
+                </div>
                 {docHash && (
-                  <div className="flex items-center gap-1.5 font-mono text-[10px] text-theme-status-green-text">
-                    <Fingerprint className="w-3.5 h-3.5" />
-                    {docHash.substring(0, 16)}...
+                  <div className="flex items-center gap-2 px-3 py-1 bg-theme-status-green-bg border border-theme-status-green-text/20 rounded-full">
+                    <Fingerprint className="w-3.5 h-3.5 text-theme-status-green-text" />
+                    <span className="font-mono text-[10px] font-semibold text-theme-status-green-text tracking-wider">{docHash.substring(0, 12)}</span>
                   </div>
                 )}
               </div>
               
-              <div className="flex-1 p-5 relative overflow-y-auto">
+              <div className="flex-1 p-8 relative overflow-y-auto bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-fixed opacity-[0.98]">
                 <AnimatePresence mode="wait">
                   {uploading ? (
                     <motion.div 
                       key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                      className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-theme-bg-card"
+                      className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-white/80 backdrop-blur-sm z-10"
                     >
-                      <Loader2 className="w-6 h-6 text-theme-text-muted animate-spin" />
-                      <p className="text-xs text-theme-text-muted uppercase tracking-widest animate-pulse">Running analysis...</p>
+                      <div className="relative">
+                        <div className="w-12 h-12 border-4 border-theme-brand/10 border-t-theme-brand rounded-full animate-spin" />
+                        <Cpu className="w-5 h-5 text-theme-brand absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-xs font-bold text-theme-text-heading uppercase tracking-widest">Scanning Document</p>
+                        <p className="text-[10px] text-theme-text-muted mt-1 uppercase tracking-tighter">Extracting GFR Compliance Markers...</p>
+                      </div>
                     </motion.div>
                   ) : analysis ? (
                     <motion.div 
-                      key="result" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                      className="font-mono text-xs leading-relaxed text-theme-text-muted whitespace-pre-wrap"
+                      key="result" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                      className="max-w-3xl mx-auto"
                     >
-                      {analysis}
+                      <IntelligenceReport content={analysis} />
                     </motion.div>
                   ) : (
-                    <div className="h-full flex flex-col gap-5 pt-2">
-                      <div className="flex items-center gap-3 text-theme-text-muted">
-                        <Shield className="w-5 h-5 opacity-60" />
-                        <p className="text-sm font-medium">Awaiting evidence submission</p>
+                    <div className="h-full flex flex-col items-center justify-center text-center max-w-sm mx-auto pt-10">
+                      <div className="w-20 h-20 bg-theme-bg-footer rounded-full flex items-center justify-center mb-6">
+                        <Shield className="w-10 h-10 text-theme-text-muted/30" />
                       </div>
-                      <div className="space-y-3 opacity-[0.15]">
-                        <div className="h-3 bg-theme-border rounded w-3/4"></div>
-                        <div className="h-3 bg-theme-border rounded w-full"></div>
-                        <div className="h-3 bg-theme-border rounded w-5/6"></div>
-                        <div className="h-3 bg-theme-border rounded w-2/3"></div>
-                        <div className="h-3 bg-theme-border rounded w-full mt-6"></div>
-                        <div className="h-3 bg-theme-border rounded w-4/5"></div>
-                      </div>
+                      <h4 className="text-base font-semibold text-theme-text-heading mb-2">Awaiting Evidence Submission</h4>
+                      <p className="text-xs text-theme-text-muted leading-relaxed mb-8">
+                        Upload a procurement document or tender notice to run our GFR 2017 AI Validation protocol.
+                      </p>
                     </div>
                   )}
                 </AnimatePresence>

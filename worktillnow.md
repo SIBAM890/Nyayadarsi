@@ -1,3 +1,14 @@
+# Nyayadarsi — Project Progress Log
+
+## [2026-05-06] - Builder Verification System & Geospatial Refactor
+- **Implemented Professional GPS Tracking**: Refactored frontend state to a robust `LocationStore` (useSyncExternalStore) for real-time tracking.
+- **Secure Camera Capture**: Created a custom `CameraView` component using `getUserMedia` for integrated site evidence collection, replacing basic file inputs.
+- **Geospatial Backend**: Integrated Haversine distance formula and Reverse Geocoding (Geopy) to store human-readable addresses for all work updates.
+- **Distance Flagging**: Implemented two-tier verification (100m hard reject / 500m soft flag) to prevent off-site work updates.
+- **Map Visualization**: Enhanced the Live Tracker with geofence circles and real-time builder-to-site connection lines.
+
+---
+
 # Nyayadarsi — Project Status Report
 
 **Project:** Nyayadarsi  

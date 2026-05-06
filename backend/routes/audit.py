@@ -100,15 +100,32 @@ async def upload_evidence(
         )
 
     # ── 2. AI Processing ──────────────────────────────────────────────────
-    prompt = f"""You are an expert in Indian government procurement law under GFR 2017.
+    prompt = f"""You are a Senior Forensic Auditor briefing a high-ranking official on a potential procurement integrity risk. 
 
-Analyze the following evidence document and provide a structured summary:
-1. Key facts and claims
-2. Relevant clauses or references
-3. Potential compliance issues
-4. Risk assessment
+Write your report in a professional, advisory tone, as if you are explaining your findings directly to me. Use phrases like "I observed", "It is important to note", and "The reason this matters is...".
 
-Return a clear, professional summary suitable for audit records.
+Perform a DEEP-DIVE forensic analysis of the provided document. Your goal is to uncover hidden risks, restrictive practices, and compliance failures.
+
+STRUCTURE YOUR REPORT AS FOLLOWS (DO NOT provide meta-descriptions of sections, directly output the analysis):
+
+1. EXECUTIVE SUMMARY & FORENSIC NARRATIVE: Provide a high-level overview. Start by explaining the situation in plain language. "I have reviewed the document and here is what I found..."
+
+2. EXHAUSTIVE FACT EXTRACTION: List every significant date, monetary value, and claim found in the text. Present them as "Key findings I extracted from the document."
+
+3. LEGAL & REGULATORY CROSS-EXAMINATION: Map specific text segments to GFR 2017 rules (especially GFR 160, 170, 171). Explain EXACTLY why a certain clause is problematic.
+
+4. RED FLAG & COLLUSION ANALYSIS: 
+   - Identify "Tailor-made" specifications or "Restrictive Eligibility".
+   - "I noticed a red flag in the eligibility criteria where..."
+
+5. RISK IMPACT ASSESSMENT: Explain the SITUATION (what is happening) and the CAUSE (why it matters). Use a helpful, advisory tone to explain the potential fallout. Assign severity: CRITICAL, HIGH, or MEDIUM.
+
+IMPORTANT FORMATTING RULES:
+- Use Markdown headers (##, ###) ONLY for the section titles above.
+- DO NOT use bolding (**text**) for every sentence. Use it sparingly ONLY for critical monetary values, dates, or rule names.
+- Write in clean, professional paragraphs. Avoid overly long bullet points.
+- Maintain a sophisticated, uniform narrative style throughout.
+- Speak to me like a professional peer, not a chatbot.
 
 DOCUMENT TEXT:
 {text_content[:15000]}"""
