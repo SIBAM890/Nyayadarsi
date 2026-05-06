@@ -6,6 +6,7 @@ const nextConfig = {
   // Disable image optimization if not needed (reduces build time)
   images: {
     unoptimized: true,
+    domains: ['images.unsplash.com'],
   },
   // API rewrites - proxies /api/* to backend
   async rewrites() {

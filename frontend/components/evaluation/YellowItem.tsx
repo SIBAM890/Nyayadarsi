@@ -58,10 +58,13 @@ function YellowItemInner({ item, officerId, onDecision }: YellowItemProps) {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <VerdictBadge verdict="YELLOW" />
-            {item.blocker && <span className="badge-red text-[10px]">BLOCKER</span>}
-            {item.mandatory && <span className="badge-red text-[10px]">MANDATORY</span>}
+            {item.blocker ? (
+              <span className="text-[10px] font-black tracking-widest uppercase bg-verdict-red text-white px-2 py-0.5 rounded shadow-sm">BLOCKER</span>
+            ) : item.mandatory ? (
+              <span className="badge-red text-[10px]">MANDATORY</span>
+            ) : null}
           </div>
-          <p className="text-sm font-medium text-white">{item.company_name}</p>
+          <p className="text-sm font-medium text-nyaya-100">{item.company_name}</p>
           <p className="text-xs text-nyaya-500 mt-0.5">
             {item.criterion_id} — {item.criterion || item.flag_reason}
           </p>
@@ -103,6 +106,8 @@ function YellowItemInner({ item, officerId, onDecision }: YellowItemProps) {
 
       <div className="space-y-2">
         <textarea
+          id={`reason-${item.bidder_id}-${item.criterion_id}`}
+          name={`reason-${item.bidder_id}-${item.criterion_id}`}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           placeholder="Mandatory: Document your reasoning (min 10 characters)..."

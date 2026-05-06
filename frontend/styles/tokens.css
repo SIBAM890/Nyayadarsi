@@ -1,0 +1,28 @@
+:root {
+  --color-bg-primary: #F5F0EB;       /* warm off-white — main page backgrounds */
+  --color-bg-section: #FDE8E8;       /* soft rose — section/panel backgrounds */
+  --color-bg-card: #FFFFFF;          /* pure white — card surfaces */
+  --color-bg-active: #FEF0EE;        /* light rose — hover & selected states */
+  --color-bg-footer: #F7F2EE;        /* warm light — footer & sidebar bg */
+
+  --color-brand: #C0321F;            /* crimson red — logo, primary buttons, icon fills */
+  --color-brand-hover: #A52A18;      /* darker crimson — button hover states */
+
+  --color-text-heading: #1A1A1A;     /* near-black — all headings */
+  --color-text-body: #4A4A4A;        /* dark gray — body paragraphs */
+  --color-text-muted: #6B6B6B;       /* medium gray — labels, subtitles, captions */
+  --color-text-placeholder: #A0A0A0; /* light gray — input placeholders */
+
+  --color-border: #E8E0D8;           /* warm light — card borders, dividers */
+  --color-border-active: #C0321F;    /* crimson — selected card left-border accent */
+
+  --color-status-green-bg: #F0FDF4;  /* light green tint — GREEN badge background */
+  --color-status-green-text: #16A34A;
+  --color-status-yellow-bg: #FFFBEB; /* light amber tint — YELLOW badge background */
+  --color-status-yellow-text: #B45309;
+  --color-status-red-bg: #FEF2F2;    /* light red tint — RED badge background */
+  --color-status-red-text: #C0321F;
+
+  --color-alert-banner-bg: #FEE2E2;  /* rose — manual review / warning banners */
+  --color-alert-banner-border: #FECACA;
+}

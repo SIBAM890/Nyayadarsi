@@ -28,31 +28,6 @@ import { useAuth } from '@/hooks/useAuth';
 function AuthWrapper({ children }: { children: React.ReactNode }) {
   const { isLoading } = useAuth();
   
-  if (isLoading) {
-    return (
-      <div style={{
-        height: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#0a0f1e",
-        color: "#3b82f6",
-        fontFamily: "monospace",
-        letterSpacing: "0.2em",
-        textTransform: "uppercase",
-        fontSize: "12px"
-      }}>
-        <div className="flex flex-col items-center gap-4">
-          <svg className="w-8 h-8 animate-spin text-nyaya-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <circle cx="12" cy="12" r="10" strokeWidth="2" strokeOpacity="0.2" />
-            <path d="M12 2a10 10 0 0 1 10 10" strokeWidth="2" />
-          </svg>
-          न्यायदर्शी — Initializing
-        </div>
-      </div>
-    );
-  }
-  
   return <>{children}</>;
 }
 

@@ -13,34 +13,34 @@ logger = logging.getLogger(__name__)
 
 EXTRACTION_PROMPT = """You are an expert in Indian government procurement law under GFR 2017.
 
-Extract ALL eligibility criteria from the tender text below.
-Return ONLY valid JSON array. No explanation. No markdown. No backticks.
+Extract ALL eligibility criteria from the tender text below. 
+Be COMPREHENSIVE. Do not skip or truncate any technical, financial, or compliance requirements.
+Return ONLY a valid JSON array. No explanation. No markdown. No backticks.
 
-Each criterion must have:
+Expected Format:
 [
-  {{
+  {
     "criterion_id": "FIN_001",
-    "type": "financial", // Choose one: "financial", "technical", "compliance"
+    "type": "financial",
     "description": "exact description from tender",
     "threshold": 50000000,
-    "threshold_unit": "INR", // Choose one: "INR", "years", "projects", "boolean"
+    "threshold_unit": "INR",
     "mandatory": true,
     "blocker": false,
-    "language_signal": "shall", // e.g., "shall", "must", "preferred", "may"
+    "language_signal": "shall",
     "specificity_alert": false,
-    "acceptable_documents": ["CA_certificate", "audited_balance_sheet"]
-  }}
+    "acceptable_documents": ["CA_certificate"]
+  }
 ]
 
-MANDATORY RULES:
-- mandatory=true when text uses: shall, must, mandatory, essential, required
-- mandatory=false when text uses: preferred, desirable, advantageous, may
-- blocker=true only when mandatory=true AND failure means disqualification
-- threshold must be a NUMBER not a string. Rs 5 Crore = 50000000
-- specificity_alert=true when criterion mentions specific brand, model number, or year range narrower than 5 years
+RULES:
+- mandatory=true for: shall, must, mandatory, essential, required.
+- threshold must be a NUMBER (e.g., 50000000).
+- If the document is long, ensure the JSON array is complete and closed.
 
 TENDER TEXT:
 {tender_text}"""
+
 
 
 def _clean_json_response(text: str) -> str:
@@ -93,7 +93,6 @@ def _repair_json(text: str) -> str:
     except json.JSONDecodeError:
         pass
 
-    # ── Truncation strategies (response got cut off mid-object) ──────────────
     # Strategy A: truncate at last complete object '}' and close the array
     last_close = repaired.rfind('}')
     if last_close != -1:
@@ -104,6 +103,27 @@ def _repair_json(text: str) -> str:
             return candidate
         except json.JSONDecodeError:
             pass
+
+    # Strategy B: "Force Close" — append missing closing markers
+    # 1. Close string if open
+    if repaired.count('"') % 2 != 0:
+        repaired += '"'
+    
+    # 2. Add closing braces/brackets based on count
+    open_braces = repaired.count('{') - repaired.count('}')
+    open_brackets = repaired.count('[') - repaired.count(']')
+    
+    repaired += ('}' * max(0, open_braces))
+    repaired += (']' * max(0, open_brackets))
+    
+    # 3. Final cleanup of trailing commas before closing
+    repaired = re.sub(r',\s*([}\]])', r'\1', repaired)
+
+    try:
+        json.loads(repaired)
+        return repaired
+    except json.JSONDecodeError:
+        pass
 
     # Give up — return whatever we have (caller will log the error)
     return repaired
@@ -160,57 +180,63 @@ async def extract(tender_text: str) -> dict:
     if not tender_text or len(tender_text.strip()) < 50:
         return _empty("Document text is too short or empty for AI extraction.", "EMPTY_DOC")
 
-    prompt = EXTRACTION_PROMPT.format(tender_text=tender_text[:15000])
+    # ── Safe Prompt Generation ──────────────────────────────────────────────
+    # We use replacement instead of .format() to avoid KeyError if tender_text contains { }
+    prompt = EXTRACTION_PROMPT.replace("{tender_text}", tender_text[:20000])
 
-    # ── Try Gemini first, fallback to OpenRouter ──────────────────────────────
-    raw_response = None
-    model_used = None
+    # ── Try Extraction with Retry (Robust Loop) ──────────────────────────────
+    # We retry the whole AI process if JSON parsing fails even after repair.
+    for attempt in range(3):
+        raw_response = None
+        model_used = None
 
-    if gemini_client.is_configured():
+        # ── Call AI Providers ──
+        if gemini_client.is_configured():
+            try:
+                # Call Gemini (without schema to avoid limiting output size)
+                raw_response = await gemini_client.generate(prompt, max_tokens=4000)
+                model_used = gemini_client.DEFAULT_MODEL
+            except Exception as e:
+                logger.warning(f"Gemini API failed (attempt {attempt+1}): {e}")
+
+        if raw_response is None and openrouter_client.is_configured():
+            try:
+                raw_response = await openrouter_client.generate(prompt, max_tokens=4000)
+                model_used = f"openrouter/{openrouter_client.DEFAULT_MODEL}"
+            except Exception as e:
+                logger.warning(f"OpenRouter API failed (attempt {attempt+1}): {e}")
+
+        if raw_response is None:
+            if attempt < 2: continue
+            return _empty("AI providers unavailable. Check API keys.", "SERVICE_UNAVAILABLE")
+
+        if not raw_response.strip():
+            if attempt < 2: continue
+            return _empty("AI returned empty response.", "EMPTY_RESPONSE")
+
+        # ── Parse and Validate JSON ──
         try:
-            raw_response = await gemini_client.generate(prompt, max_tokens=4000)
-            model_used = gemini_client.DEFAULT_MODEL
-            logger.info(f"Successfully extracted criteria using {model_used}")
-        except ValueError as e:
-            logger.warning(f"Gemini configuration error: {e}. Trying OpenRouter fallback...")
-        except RuntimeError as e:
-            logger.warning(f"Gemini API failed: {e}. Falling back to OpenRouter...")
+            cleaned = _clean_json_response(raw_response)
+            repaired = _repair_json(cleaned)
+            parsed = json.loads(repaired)
+            
+            # Successfully parsed! Break the retry loop
+            criteria_list = _validate_criteria_schema(parsed)
+            break
+            
+        except json.JSONDecodeError as e:
+            if attempt < 2:
+                logger.warning(f"JSON Parse Error (attempt {attempt+1}). Model may have truncated. Retrying...")
+                continue
+            
+            logger.error(f"JSON parse error after final attempt: {e}")
+            logger.error(f"Raw response snippets: {raw_response[:200]}...{raw_response[-200:]}")
+            return _empty(
+                "AI consistently returned malformed JSON that could not be repaired.",
+                "PARSE_ERROR"
+            )
     else:
-        logger.info("Gemini not configured. Using OpenRouter directly.")
-
-    if raw_response is None and openrouter_client.is_configured():
-        try:
-            raw_response = await openrouter_client.generate(prompt, max_tokens=4000)
-            model_used = f"openrouter/{openrouter_client.DEFAULT_MODEL}"
-            logger.info(f"Successfully extracted criteria using {model_used}")
-        except ValueError as e:
-            logger.error(f"OpenRouter configuration error: {e}")
-        except RuntimeError as e:
-            logger.error(f"OpenRouter API failed: {e}")
-
-    # ── Both AI providers failed ──────────────────────────────────────────────
-    if raw_response is None:
-        return _empty(
-            "Both Gemini and OpenRouter are unavailable. Check API keys and network connectivity.",
-            "SERVICE_UNAVAILABLE"
-        )
-
-    if not raw_response.strip():
-        return _empty("AI returned an empty response. The model may be overloaded — please retry.", "EMPTY_RESPONSE")
-
-    # ── Parse JSON (with repair) ──────────────────────────────────────────────
-    try:
-        cleaned = _clean_json_response(raw_response)
-        cleaned = _repair_json(cleaned)
-        parsed = json.loads(cleaned)
-    except json.JSONDecodeError as e:
-        logger.error(f"JSON parse error: {e}")
-        logger.error(f"Raw response:\n{raw_response}")
-        logger.error(f"Cleaned string attempted:\n{cleaned}")
-        return _empty(
-            "AI returned malformed JSON that could not be repaired.",
-            "PARSE_ERROR"
-        )
+        return _empty("AI extraction failed after multiple retries.", "MAX_RETRIES_EXCEEDED")
 
     # ── Validate schema ───────────────────────────────────────────────────────
     criteria_list = _validate_criteria_schema(parsed)

@@ -68,7 +68,7 @@ function CollusionPanelInner({ data, onClose }: CollusionPanelProps) {
               )}
 
               {flag.cv_percent != null && (
-                <div className="mb-4 bg-surface-0/50 p-3 rounded-lg border border-white/[0.04]">
+                <div className="mb-4 bg-surface-0/50 p-3 rounded-lg border border-[#E8E8E8]">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex flex-col">
                       <span className="text-xs text-nyaya-400">Coefficient of Variation</span>
@@ -76,7 +76,7 @@ function CollusionPanelInner({ data, onClose }: CollusionPanelProps) {
                     </div>
                     <div className="relative w-12 h-12">
                       <svg className="w-12 h-12 transform -rotate-90">
-                        <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-white/[0.06]" />
+                        <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-nyaya-400" />
                         <circle
                           cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" fill="transparent"
                           strokeDasharray={2 * Math.PI * 20}
@@ -90,7 +90,7 @@ function CollusionPanelInner({ data, onClose }: CollusionPanelProps) {
               )}
 
               {flag.similarity_score != null && (
-                <div className="mb-4 bg-surface-0/50 p-3 rounded-lg border border-white/[0.04] flex justify-between items-center">
+                <div className="mb-4 bg-surface-0/50 p-3 rounded-lg border border-[#E8E8E8] flex justify-between items-center">
                   <span className="text-xs text-nyaya-400">Formatting Similarity</span>
                   <span className="font-semibold text-sm text-verdict-red">{Math.round(flag.similarity_score * 100)}%</span>
                 </div>

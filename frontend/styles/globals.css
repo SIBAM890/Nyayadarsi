@@ -1,17 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@import './tokens.css';
+
 @layer base {
   body {
-    @apply bg-surface-0 text-white font-sans antialiased;
+    @apply bg-theme-bg-primary text-theme-text-body font-sans antialiased;
     min-height: 100vh;
   }
 
   ::selection {
-    @apply bg-nyaya-500/30 text-white;
+    @apply bg-theme-brand/20 text-theme-text-heading;
   }
 
   /* Scrollbar styling */
@@ -23,97 +23,103 @@
     @apply bg-transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-nyaya-700/40 rounded-full;
+    @apply bg-nyaya-300/40 rounded-full;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-nyaya-600/50;
+    @apply bg-nyaya-400/50;
   }
 }
 
 @layer components {
   /* Card system */
   .glass-card {
-    @apply bg-surface-2 border border-white/[0.06] rounded-xl;
+    @apply bg-theme-bg-card border border-theme-border rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.06)];
   }
 
   .glass-card-hover {
     @apply glass-card transition-all duration-200;
   }
   .glass-card-hover:hover {
-    @apply bg-surface-3 border-white/[0.1];
+    @apply border-theme-border shadow-[0_16px_48px_rgba(0,0,0,0.10),0_2px_8px_rgba(0,0,0,0.04)];
     transform: translateY(-1px);
   }
 
   /* Buttons */
   .btn-primary {
-    @apply px-5 py-2.5 bg-nyaya-600 text-white text-sm font-medium rounded-lg
-           transition-all duration-200 hover:bg-nyaya-500
+    @apply px-5 py-2.5 bg-theme-brand text-white text-sm font-semibold tracking-[0.02em] rounded-lg
+           transition-all duration-200 hover:bg-theme-brand-hover
            active:scale-[0.98];
   }
 
   .btn-saffron {
-    @apply px-5 py-2.5 bg-accent-500 text-white text-sm font-medium rounded-lg
-           transition-all duration-200 hover:bg-accent-600
+    @apply px-5 py-2.5 bg-theme-brand text-white text-sm font-semibold tracking-[0.02em] rounded-lg
+           transition-all duration-200 hover:bg-theme-brand-hover
+           active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply px-5 py-2.5 bg-theme-bg-card text-theme-text-heading border border-theme-brand text-theme-brand text-sm font-semibold tracking-[0.02em] rounded-lg
+           transition-all duration-200 hover:bg-theme-bg-active
            active:scale-[0.98];
   }
 
   .btn-ghost {
-    @apply px-3 py-1.5 text-nyaya-300 hover:text-white hover:bg-white/[0.06] rounded-lg
-           transition-all duration-150 text-sm;
+    @apply px-3 py-1.5 text-theme-text-muted hover:text-theme-text-heading hover:bg-theme-bg-active rounded-lg
+           transition-all duration-150 text-sm font-medium;
   }
 
   /* Inputs */
   .input-field {
-    @apply w-full px-4 py-2.5 bg-surface-1 border border-white/[0.08] rounded-lg text-white text-sm
-           placeholder:text-nyaya-400/40 focus:outline-none focus:border-nyaya-500/50
-           focus:ring-1 focus:ring-nyaya-500/20 transition-all duration-150;
+    @apply w-full px-4 py-2.5 bg-theme-bg-card border border-theme-border rounded-lg text-theme-text-heading text-sm
+           placeholder:text-theme-text-placeholder focus:outline-none focus:border-theme-brand/40
+           focus:ring-2 focus:ring-theme-brand/10 transition-all duration-150;
   }
 
   /* Badges */
   .badge-green {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold
-           bg-verdict-green/15 text-verdict-green border border-verdict-green/20;
+           bg-theme-status-green-bg text-theme-status-green-text border border-[#C8E6C9];
   }
   .badge-yellow {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold
-           bg-verdict-yellow/15 text-verdict-yellow border border-verdict-yellow/20;
+           bg-theme-status-yellow-bg text-theme-status-yellow-text border border-[#FFECB3];
   }
   .badge-red {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold
-           bg-verdict-red/15 text-verdict-red border border-verdict-red/20;
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-[10px] uppercase font-bold tracking-[0.08em]
+           bg-theme-status-red-bg text-theme-status-red-text border border-theme-status-red-text/20;
   }
 
   /* Verdict dots */
   .verdict-dot {
     @apply w-2.5 h-2.5 rounded-full;
   }
-  .verdict-dot-green { @apply bg-verdict-green; }
-  .verdict-dot-yellow { @apply bg-verdict-yellow; }
-  .verdict-dot-red { @apply bg-verdict-red; }
+  .verdict-dot-green { @apply bg-theme-status-green-text; }
+  .verdict-dot-yellow { @apply bg-theme-status-yellow-text; }
+  .verdict-dot-red { @apply bg-theme-status-red-text; }
 
   /* Typography */
   .section-title {
-    @apply text-base font-display font-semibold text-white tracking-tight;
+    @apply text-base font-display font-semibold text-theme-text-heading tracking-tight;
   }
   .section-subtitle {
-    @apply text-sm text-nyaya-400;
+    @apply text-sm text-theme-text-muted;
   }
 
   .stat-value {
-    @apply text-2xl font-display font-bold text-white;
+    @apply text-2xl font-display font-bold text-theme-text-heading;
   }
 
   .gradient-text {
-    @apply text-white;
+    @apply text-theme-text-heading;
   }
 
   .divider {
-    @apply border-t border-white/[0.06] my-4;
+    @apply border-t border-theme-border my-4;
   }
 
   /* Accent line for active elements */
   .accent-line {
-    @apply w-1 h-full bg-nyaya-500 rounded-full;
+    @apply w-1 h-full bg-nyaya-600 rounded-full;
   }
 }
 

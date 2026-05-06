@@ -59,22 +59,22 @@ export default function AuditDashboard() {
         <title>Audit Trail — Nyayadarsi</title>
       </Head>
       <Layout title="Cryptographic Audit Trail">
-        <div className="max-w-5xl mx-auto space-y-8">
+        <div className="max-w-5xl mx-auto space-y-8 p-8 min-h-screen">
           
           {/* Top Bar */}
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-xl font-display font-bold text-white">System Integrity Ledger</h3>
-              <p className="text-xs text-nyaya-500 mt-1 uppercase tracking-widest font-mono">
-                SHA-256 Immutable Chain • Court Admissible Evidence
+              <h2 className="text-2xl font-display font-semibold text-theme-text-heading">System Integrity Ledger</h2>
+              <p className="text-sm text-theme-text-muted mt-1">
+                SHA-256 immutable chain • Court admissible evidence
               </p>
             </div>
-            <div className="flex gap-3">
-              <button onClick={refresh} className="btn-secondary text-xs px-4" disabled={loading}>
-                {loading ? 'Syncing...' : 'Sync Ledger'}
+            <div className="flex items-center gap-5">
+              <button onClick={refresh} className="text-xs font-semibold text-theme-brand border border-theme-brand px-4 py-2 rounded bg-transparent hover:bg-theme-bg-active transition-colors" disabled={loading}>
+                {loading ? 'Syncing...' : 'Sync ledger'}
               </button>
               <button 
-                className="btn-primary text-xs px-4" 
+                className="bg-theme-brand hover:bg-theme-brand-hover text-white text-sm px-5 py-2.5 rounded-lg shadow-sm font-semibold transition-all" 
                 onClick={async () => {
                   try {
                     const API = process.env.NEXT_PUBLIC_API_URL || '';
@@ -105,31 +105,31 @@ export default function AuditDashboard() {
           {/* Integrated AI Evidence Processor */}
           <section className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6">
             {/* Upload Zone */}
-            <div className="glass-card p-6 border-nyaya-600/20 flex flex-col gap-4">
+            <div className="glass-card p-6 border-theme-border flex flex-col gap-4">
               <div className="flex items-center gap-2 mb-2">
-                <Shield className="w-4 h-4 text-nyaya-400" />
-                <span className="text-xs font-bold uppercase tracking-wider text-white/80">Submit Evidence</span>
+                <Shield className="w-4 h-4 text-theme-text-muted" />
+                <span className="text-xs font-bold uppercase tracking-wider text-theme-text-muted">Submit Evidence</span>
               </div>
               
               <div 
                 className={`flex-1 min-h-[140px] border-2 border-dashed rounded-xl flex flex-col items-center justify-center gap-3 transition-all cursor-pointer ${
-                  file ? 'border-nyaya-400/40 bg-nyaya-400/5' : 'border-white/10 hover:border-white/20 bg-white/[0.02]'
+                  file ? 'border-theme-brand/40 bg-theme-brand/5' : 'border-theme-border hover:border-theme-brand/50 bg-theme-bg-footer'
                 }`}
                 onClick={() => document.getElementById('evidence-upload')?.click()}
               >
                 <input type="file" id="evidence-upload" className="hidden" onChange={handleFileChange} accept=".pdf,.txt" />
                 {file ? (
                   <>
-                    <FileText className="w-8 h-8 text-nyaya-400" />
+                    <FileText className="w-8 h-8 text-theme-brand" />
                     <div className="text-center px-4">
-                      <p className="text-xs font-medium text-white truncate max-w-[200px]">{file.name}</p>
-                      <p className="text-[10px] text-nyaya-500 mt-1 uppercase font-mono">{(file.size / 1024).toFixed(1)} KB</p>
+                      <p className="text-xs font-medium text-theme-text-heading truncate max-w-[200px]">{file.name}</p>
+                      <p className="text-[10px] text-theme-text-muted mt-1 uppercase font-mono">{(file.size / 1024).toFixed(1)} KB</p>
                     </div>
                   </>
                 ) : (
                   <>
-                    <UploadCloud className="w-8 h-8 text-white/20" />
-                    <p className="text-[10px] text-nyaya-500 uppercase tracking-widest">Select Evidence PDF/TXT</p>
+                    <UploadCloud className="w-8 h-8 text-theme-text-muted" />
+                    <p className="text-[10px] text-theme-text-muted uppercase tracking-widest">Select Evidence PDF/TXT</p>
                   </>
                 )}
               </div>
@@ -137,8 +137,10 @@ export default function AuditDashboard() {
               <button
                 onClick={handleUpload}
                 disabled={!file || uploading}
-                className="w-full py-2.5 rounded-lg bg-nyaya-600 hover:bg-nyaya-500 text-white text-[10px] font-bold uppercase tracking-[0.2em] transition-all disabled:opacity-30 flex items-center justify-center gap-2"
+                title={!file ? "Upload evidence file to enable analysis" : ""}
+                className="w-full py-2.5 rounded-lg bg-theme-brand/5 hover:bg-theme-brand/10 text-theme-brand text-xs font-semibold uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
+                {!file && !uploading && <Shield className="w-3.5 h-3.5 opacity-50" />}
                 {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Cpu className="w-3.5 h-3.5" />}
                 {uploading ? 'Analyzing...' : 'Run AI Analysis'}
               </button>
@@ -152,57 +154,58 @@ export default function AuditDashboard() {
             </div>
 
             {/* Analysis Output Terminal */}
-            <div className="glass-card flex flex-col bg-surface-1 border-white/[0.06] overflow-hidden min-h-[300px]">
-              <div className="px-4 py-2 bg-white/[0.03] border-b border-white/[0.06] flex items-center justify-between">
-                <div className="flex gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-verdict-red/40" />
-                  <div className="w-2 h-2 rounded-full bg-verdict-yellow/40" />
-                  <div className="w-2 h-2 rounded-full bg-verdict-green/40" />
-                </div>
-                <div className="font-mono text-[9px] text-nyaya-500 tracking-[0.3em] uppercase">Evidence Intelligence</div>
+            <div className="glass-card flex flex-col bg-theme-bg-card border-theme-border overflow-hidden min-h-[300px]">
+              <div className="px-5 py-3 bg-theme-bg-card border-b border-theme-border flex items-center justify-between">
+                <div className="text-sm font-semibold text-theme-text-heading">Evidence Intelligence</div>
                 {docHash && (
-                  <div className="flex items-center gap-1.5 font-mono text-[9px] text-verdict-green">
-                    <Fingerprint className="w-3 h-3" />
+                  <div className="flex items-center gap-1.5 font-mono text-[10px] text-theme-status-green-text">
+                    <Fingerprint className="w-3.5 h-3.5" />
                     {docHash.substring(0, 16)}...
                   </div>
                 )}
               </div>
               
-              <div className="flex-1 p-6 relative">
+              <div className="flex-1 p-5 relative overflow-y-auto">
                 <AnimatePresence mode="wait">
                   {uploading ? (
                     <motion.div 
                       key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                      className="absolute inset-0 flex flex-col items-center justify-center gap-4"
+                      className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-theme-bg-card"
                     >
-                      <Loader2 className="w-8 h-8 text-nyaya-500 animate-spin" />
-                      <p className="text-[10px] text-nyaya-500 tracking-[0.2em] uppercase animate-pulse">Running Forensic AI Analysis</p>
+                      <Loader2 className="w-6 h-6 text-theme-text-muted animate-spin" />
+                      <p className="text-xs text-theme-text-muted uppercase tracking-widest animate-pulse">Running analysis...</p>
                     </motion.div>
                   ) : analysis ? (
                     <motion.div 
                       key="result" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                      className="font-mono text-[13px] leading-relaxed text-white/80 whitespace-pre-wrap"
+                      className="font-mono text-xs leading-relaxed text-theme-text-muted whitespace-pre-wrap"
                     >
                       {analysis}
                     </motion.div>
                   ) : (
-                    <div className="h-full flex flex-col items-center justify-center gap-3 text-white/10 opacity-40">
-                      <Shield className="w-12 h-12 stroke-[1]" />
-                      <p className="text-[10px] tracking-[0.2em] uppercase">Await Evidence Submission</p>
+                    <div className="h-full flex flex-col gap-5 pt-2">
+                      <div className="flex items-center gap-3 text-theme-text-muted">
+                        <Shield className="w-5 h-5 opacity-60" />
+                        <p className="text-sm font-medium">Awaiting evidence submission</p>
+                      </div>
+                      <div className="space-y-3 opacity-[0.15]">
+                        <div className="h-3 bg-theme-border rounded w-3/4"></div>
+                        <div className="h-3 bg-theme-border rounded w-full"></div>
+                        <div className="h-3 bg-theme-border rounded w-5/6"></div>
+                        <div className="h-3 bg-theme-border rounded w-2/3"></div>
+                        <div className="h-3 bg-theme-border rounded w-full mt-6"></div>
+                        <div className="h-3 bg-theme-border rounded w-4/5"></div>
+                      </div>
                     </div>
                   )}
                 </AnimatePresence>
-                
-                {/* Scanline overlay */}
-                <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-10"
-                  style={{ background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.1) 2px, rgba(255,255,255,0.1) 4px)' }} />
               </div>
             </div>
           </section>
 
           {/* Audit Timeline */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-semibold text-nyaya-300 uppercase tracking-widest flex items-center gap-2">
+          <div className="space-y-4 mt-8">
+            <h4 className="text-sm font-semibold text-theme-text-muted uppercase tracking-widest flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4" /> Verified Transaction History
             </h4>
             

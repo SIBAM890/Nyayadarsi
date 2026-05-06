@@ -1,0 +1,60 @@
+{
+  "tender_id": "CRPF-2025-CONST-001",
+  "flags": [
+    {
+      "flag": "BID_CLUSTERING",
+      "triggered": true,
+      "cv_percent": 1.2,
+      "mean_bid": 4880000,
+      "bid_spread": 60000,
+      "probability_by_chance": "0.3%",
+      "evidence": {
+        "bids": [
+          {"bidder": "BuildFast Pvt Ltd", "amount": 4850000},
+          {"bidder": "Construct Co. Pvt Ltd", "amount": 4910000},
+          {"bidder": "Rapid Build Ltd", "amount": 4880000}
+        ],
+        "interpretation": "Three bids cluster within 1.2% of each other. In genuine competition this occurs 0.3% of the time by chance."
+      }
+    },
+    {
+      "flag": "CA_FINGERPRINT",
+      "triggered": true,
+      "similarity_score": 0.91,
+      "evidence": {
+        "bidders": ["BuildFast Pvt Ltd", "Rapid Build Ltd"],
+        "matching_features": [
+          "Identical font sizes (11pt body, 14pt headers)",
+          "Same decimal rounding pattern (2 decimal places, comma-separated lakhs)",
+          "Identical section header formatting ('FINANCIAL SUMMARY' in all caps, centered)",
+          "Same CA firm address format (3-line block, right-aligned)"
+        ],
+        "interpretation": "Financial documents from BuildFast Pvt Ltd and Rapid Build Ltd show 91% formatting similarity. This strongly suggests the same CA firm prepared both documents."
+      }
+    },
+    {
+      "flag": "SHARED_ADDRESS",
+      "triggered": false,
+      "clusters": [],
+      "evidence": {
+        "interpretation": "No shared addresses detected among bidders."
+      }
+    },
+    {
+      "flag": "OWNERSHIP_NETWORK",
+      "triggered": false,
+      "reason": "MCA API integration requires NIC coordination — Phase 2 implementation",
+      "evidence": {
+        "interpretation": "Ownership network analysis requires access to MCA21 database."
+      }
+    },
+    {
+      "flag": "DOC_QUALITY_ASYMMETRY",
+      "triggered": false,
+      "flagged_documents": [],
+      "evidence": {
+        "interpretation": "All documents show consistent quality levels."
+      }
+    }
+  ]
+}

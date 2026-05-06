@@ -1,0 +1,25 @@
+{
+  "total_yellow": 2,
+  "items": [
+    {
+      "bidder_id": "ACME_001",
+      "criterion_id": "CRIT_002",
+      "criterion_description": "Minimum turnover of ₹50 Lakhs for the last 3 financial years",
+      "is_mandatory": true,
+      "ambiguity_reason": "Turnover matches but certificate seems to be issued by non-empanelled CA.",
+      "source_text": "CA Certificate ref: 12456",
+      "source_page": 4,
+      "confidence": 0.65
+    },
+    {
+      "bidder_id": "ACME_001",
+      "criterion_id": "CRIT_004",
+      "criterion_description": "Valid ISO 9001:2015 Certification",
+      "is_mandatory": false,
+      "ambiguity_reason": "Certificate is blurred, date is unreadable.",
+      "source_text": "ISO 9001:2015 Valid till [unreadable]",
+      "source_page": 8,
+      "confidence": 0.45
+    }
+  ]
+}

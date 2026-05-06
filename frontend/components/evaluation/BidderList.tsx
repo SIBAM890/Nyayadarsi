@@ -25,7 +25,7 @@ const BidderButton = memo(function BidderButton({ bidder, isSelected, onSelect }
       className={`w-full text-left glass-card-hover p-4 ${isSelected ? 'border-nyaya-500/40 bg-nyaya-600/10' : ''}`}
     >
       <div className="flex items-center justify-between mb-1">
-        <span className="text-sm font-medium text-white">{bidder.company_name}</span>
+        <span className="text-sm font-medium text-nyaya-100">{bidder.company_name}</span>
         <VerdictBadge verdict={bidder.overall_verdict} />
       </div>
       <p className="text-xs text-nyaya-400/40">{bidder.bidder_id} • {bidder.verdicts?.length || 0} criteria</p>

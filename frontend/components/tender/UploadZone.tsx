@@ -1,5 +1,6 @@
 /**
  * UploadZone — drag-and-drop PDF upload area with processing state.
+ * Theme: Civic Light — Baby red + off-white + black text.
  */
 import React, { useState, useCallback, memo } from 'react';
 import { Upload, Loader2 } from 'lucide-react';
@@ -42,8 +43,10 @@ function UploadZoneInner({ onUpload, isLoading }: UploadZoneProps) {
       }}
       onDragLeave={() => setDragActive(false)}
       onDrop={handleDrop}
-      className={`relative glass-card p-10 text-center transition-all duration-200 cursor-pointer group ${
-        dragActive ? 'border-nyaya-500/40 bg-nyaya-600/10' : 'hover:border-white/[0.12]'
+      className={`relative bg-white border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300 cursor-pointer group ${
+        dragActive
+          ? 'border-[#D94040] bg-[#F5E6E6]/30 shadow-[0_0_0_4px_rgba(217,64,64,0.08)]'
+          : 'border-[#D0D0D0] hover:border-[#D94040]/50 hover:shadow-[0_16px_48px_rgba(0,0,0,0.10),0_2px_8px_rgba(0,0,0,0.04)]'
       } ${isLoading ? 'pointer-events-none opacity-60' : ''}`}
       onClick={handleClick}
       role="button"
@@ -52,28 +55,42 @@ function UploadZoneInner({ onUpload, isLoading }: UploadZoneProps) {
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') handleClick();
       }}
+      style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
       {isLoading ? (
-        <div className="space-y-3">
-          <div className="w-12 h-12 mx-auto rounded-xl bg-nyaya-600/15 flex items-center justify-center">
-            <Loader2 className="w-6 h-6 text-nyaya-400 animate-spin" />
+        <div className="space-y-4">
+          <div className="w-14 h-14 mx-auto rounded-xl bg-[#F5E6E6] flex items-center justify-center">
+            <Loader2 className="w-7 h-7 text-[#D94040] animate-spin" />
           </div>
-          <p className="text-sm text-nyaya-300">Processing with Gemini AI...</p>
-          <p className="text-xs text-nyaya-500">Extracting eligibility criteria from tender document</p>
-          <div className="w-48 mx-auto h-1 bg-surface-3 rounded-full overflow-hidden">
-            <div className="h-full bg-nyaya-500 rounded-full animate-pulse" style={{ width: '60%' }} />
+          <p
+            className="text-sm font-semibold text-[#1A1A1A]"
+            style={{ fontFamily: "'Poppins', sans-serif" }}
+          >
+            Processing with Gemini AI...
+          </p>
+          <p className="text-xs text-[#9A9A9A]">
+            Extracting eligibility criteria from tender document
+          </p>
+          <div className="w-48 mx-auto h-1.5 bg-[#F5F0E8] rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#D94040] rounded-full animate-pulse"
+              style={{ width: '60%' }}
+            />
           </div>
         </div>
       ) : (
-        <div className="space-y-3">
-          <div className="w-12 h-12 mx-auto rounded-xl bg-surface-3 flex items-center justify-center group-hover:bg-nyaya-600/15 transition-colors">
-            <Upload className="w-5 h-5 text-nyaya-400" />
+        <div className="space-y-4">
+          <div className="w-14 h-14 mx-auto rounded-xl bg-[#FAF9F6] border border-[#E8E8E8] flex items-center justify-center group-hover:bg-[#F5E6E6] group-hover:border-[#D94040]/20 transition-all duration-300">
+            <Upload className="w-6 h-6 text-[#D94040]" />
           </div>
           <div>
-            <p className="text-sm font-medium text-nyaya-200">
+            <p
+              className="text-base font-semibold text-[#1A1A1A]"
+              style={{ fontFamily: "'Poppins', sans-serif" }}
+            >
               Drop tender PDF here or click to upload
             </p>
-            <p className="text-xs text-nyaya-500 mt-1">
+            <p className="text-xs text-[#9A9A9A] mt-1.5">
               Gemini AI will extract all eligibility criteria automatically
             </p>
           </div>

@@ -39,7 +39,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             <div className="w-16 h-16 mx-auto rounded-2xl bg-red-500/20 flex items-center justify-center mb-4">
               <span className="text-3xl">⚠️</span>
             </div>
-            <h2 className="text-xl font-display font-bold text-white mb-2">
+            <h2 className="text-xl font-display font-bold text-nyaya-100 mb-2">
               Something went wrong
             </h2>
             <p className="text-sm text-nyaya-300/60 mb-6">

@@ -14,13 +14,13 @@ function BidderComparisonTableInner({ bidders }: BidderComparisonTableProps) {
   const criteriaList = bidders[0].verdicts?.map(v => v.criterion_id) || [];
 
   return (
-    <div className="overflow-x-auto border border-white/[0.06] rounded-xl bg-surface-1">
+    <div className="overflow-x-auto border border-[#E8E8E8] rounded-xl bg-surface-1">
       <table className="w-full text-left text-sm">
-        <thead className="bg-surface-0 border-b border-white/[0.06]">
+        <thead className="bg-surface-0 border-b border-[#E8E8E8]">
           <tr>
             <th className="p-4 font-medium text-nyaya-400 min-w-[200px]">Criteria</th>
             {bidders.map(bidder => (
-              <th key={bidder.bidder_id} className="p-4 font-medium text-white min-w-[150px]">
+              <th key={bidder.bidder_id} className="p-4 font-medium text-nyaya-100 min-w-[150px]">
                 <div className="flex flex-col gap-2">
                   <span>{bidder.company_name}</span>
                   <VerdictBadge verdict={bidder.overall_verdict} />
@@ -32,7 +32,7 @@ function BidderComparisonTableInner({ bidders }: BidderComparisonTableProps) {
         </thead>
         <tbody className="divide-y divide-white/[0.06]">
           {criteriaList.map((criterionId, idx) => (
-            <tr key={criterionId} className="hover:bg-white/[0.02] transition-colors">
+            <tr key={criterionId} className="hover:bg-surface-1 transition-colors">
               <td className="p-4 text-nyaya-300">
                 Criterion {idx + 1}
               </td>

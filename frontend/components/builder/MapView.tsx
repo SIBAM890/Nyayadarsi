@@ -122,7 +122,7 @@ export default function MapView({
   const center: [number, number] = [sitePosition.lat, sitePosition.lng];
 
   return (
-    <div className="relative w-full h-full rounded-xl overflow-hidden border border-white/[0.06]">
+    <div className="relative w-full h-full rounded-xl overflow-hidden border border-[#E8E8E8]">
       {/* CSS for marker animations */}
       <style jsx global>{`
         @keyframes ping {
@@ -274,19 +274,18 @@ export default function MapView({
       {/* Distance overlay badge */}
       {distanceMeters !== null && (
         <div
-          className="absolute top-3 right-3 z-[1000] px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide uppercase"
+          className="absolute top-4 right-4 z-[1000] px-4 py-2.5 rounded-xl text-sm font-black tracking-widest uppercase shadow-xl"
           style={{
             background: isFlagged
-              ? 'rgba(239,68,68,0.15)'
+              ? '#ef4444'
               : isOnsite
-              ? 'rgba(16,185,129,0.15)'
-              : 'rgba(59,130,246,0.15)',
-            color: isFlagged ? '#ef4444' : isOnsite ? '#10b981' : '#3b82f6',
-            border: `1px solid ${isFlagged ? 'rgba(239,68,68,0.25)' : isOnsite ? 'rgba(16,185,129,0.25)' : 'rgba(59,130,246,0.25)'}`,
-            backdropFilter: 'blur(8px)',
+              ? '#10b981'
+              : '#3b82f6',
+            color: '#ffffff',
+            border: '2px solid rgba(255, 255, 255, 0.3)',
           }}
         >
-          {distanceMeters.toFixed(0)}m {isFlagged ? '⚠ Flagged' : isOnsite ? '✓ Onsite' : '— Checking'}
+          {distanceMeters.toFixed(0)}m {isFlagged ? '⚠ FLAGGED' : isOnsite ? '✓ ONSITE' : '— CHECKING'}
         </div>
       )}
     </div>

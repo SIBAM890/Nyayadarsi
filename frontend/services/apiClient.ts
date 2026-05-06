@@ -113,23 +113,23 @@ export async function apiFetch<T>(
     // Simple mock data router
     try {
       if (url.includes('/evaluation/') && url.includes('/results')) {
-        const mock = await import('../../demo/mock_data/evaluation_results.json');
+        const mock = await import('../demo/mock_data/evaluation_results.json');
         return { data: mock.default as any as T, error: null };
       }
       if (url.includes('/evaluation/') && url.includes('/yellow-queue')) {
-        const mock = await import('../../demo/mock_data/yellow_queue.json');
+        const mock = await import('../demo/mock_data/yellow_queue.json');
         return { data: mock.default as any as T, error: null };
       }
       if (url.includes('/collusion/run') || url.includes('/collusion/report')) {
-        const mock = await import('../../demo/mock_data/collusion_results.json');
+        const mock = await import('../demo/mock_data/collusion_results.json');
         return { data: mock.default as any as T, error: null };
       }
       if (url.includes('/builder/') && url.includes('/milestones')) {
-        const mock = await import('../../demo/mock_data/milestones.json');
+        const mock = await import('../demo/mock_data/milestones.json');
         return { data: mock.default as any as T, error: null };
       }
       if (url.includes('/audit/trail')) {
-        const mock = await import('../../demo/mock_data/audit_trail.json');
+        const mock = await import('../demo/mock_data/audit_trail.json');
         return { data: mock.default as any as T, error: null };
       }
       return { data: null, error: message };
