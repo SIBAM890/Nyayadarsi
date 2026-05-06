@@ -56,34 +56,34 @@ module.exports = {
         },
         theme: {
           bg: {
-            primary: '#F5F0EB',
-            section: '#FDE8E8',
+            primary: '#F5F0E8',
+            section: '#FDF3F1',
             card: '#FFFFFF',
-            active: '#FEF0EE',
-            footer: '#F7F2EE',
+            active: '#FCECEC',
+            footer: '#FDF3F1',
           },
           brand: {
-            DEFAULT: '#C0321F',
-            hover: '#A52A18',
+            DEFAULT: '#D94040',
+            hover: '#B83030',
           },
           text: {
             heading: '#1A1A1A',
-            body: '#4A4A4A',
-            muted: '#6B6B6B',
+            body: '#555555',
+            muted: '#666666',
             placeholder: '#A3A3A3',
           },
           border: {
-            DEFAULT: '#E8E0D8',
+            DEFAULT: '#EED8D8',
             active: '#D94040',
           },
           status: {
             green: { bg: '#E8F5E9', text: '#2E7D32' },
             yellow: { bg: '#FFF8E1', text: '#F57F17' },
-            red: { bg: '#FDE8E8', text: '#D94040' },
+            red: { bg: '#FDF3F1', text: '#D94040' },
           },
           alert: {
-            bg: '#FFF3CD',
-            border: '#FFEEBA',
+            bg: '#FDF3F1',
+            border: '#EED8D8',
           }
         },
       },

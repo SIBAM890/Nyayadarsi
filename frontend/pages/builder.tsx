@@ -233,8 +233,8 @@ function BuilderDashboardInner() {
                 <div className="grid grid-cols-3 gap-4 mb-6">
                   {/* Hidden real file input */}
                   <input
-                    id="site-evidence-upload"
-                    name="site-evidence-upload"
+                    id="site-photo-upload"
+                    name="site-photo-upload"
                     type="file"
                     ref={fileInputRef}
                     onChange={handleFileChange}

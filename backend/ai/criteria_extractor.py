@@ -6,6 +6,7 @@ Uses Gemini with fallback to OpenRouter.
 import json
 import logging
 import re
+from typing import Any
 from backend.ai import gemini_client, openrouter_client
 
 logger = logging.getLogger(__name__)
@@ -14,7 +15,6 @@ logger = logging.getLogger(__name__)
 EXTRACTION_PROMPT = """You are an expert in Indian government procurement law under GFR 2017.
 
 Extract ALL eligibility criteria from the tender text below. 
-Be COMPREHENSIVE. Do not skip or truncate any technical, financial, or compliance requirements.
 Return ONLY a valid JSON array. No explanation. No markdown. No backticks.
 
 Expected Format:
@@ -34,13 +34,21 @@ Expected Format:
 ]
 
 RULES:
-- mandatory=true for: shall, must, mandatory, essential, required.
-- threshold must be a NUMBER (e.g., 50000000).
-- If the document is long, ensure the JSON array is complete and closed.
+- mandatory=true if the requirement is essential or uses: shall, must, mandatory.
+- threshold must be a NUMBER.
+- Ensure the JSON array is complete.
 
 TENDER TEXT:
 {tender_text}"""
 
+
+
+def _to_bool(val: Any) -> bool:
+    """Safe boolean conversion for AI outputs."""
+    if isinstance(val, bool): return val
+    if isinstance(val, str): return val.lower().strip() in ("true", "1", "yes", "y", "mandatory")
+    if isinstance(val, (int, float)): return bool(val)
+    return False
 
 
 def _clean_json_response(text: str) -> str:
@@ -255,13 +263,28 @@ async def extract(tender_text: str) -> dict:
             "description": c.get("description", ""),
             "threshold": c.get("threshold"),
             "threshold_unit": c.get("threshold_unit"),
-            "mandatory": bool(c.get("mandatory", False)),
-            "blocker": bool(c.get("blocker", False)),
+            "mandatory": _to_bool(c.get("mandatory", False)),
+            "blocker": _to_bool(c.get("blocker", False)),
             "language_signal": c.get("language_signal"),
-            "specificity_alert": bool(c.get("specificity_alert", False)),
+            "specificity_alert": _to_bool(c.get("specificity_alert", False)),
             "acceptable_documents": c.get("acceptable_documents", []),
             "model_used": model_used,
         }
+
+        # Essential aliases for UI compatibility
+        validated_criterion["category"] = validated_criterion["type"]
+        validated_criterion["is_mandatory"] = validated_criterion["mandatory"]
+        
+        if validated_criterion["threshold"]:
+            try:
+                val = f"{int(validated_criterion['threshold']):,}"
+                unit = validated_criterion.get("threshold_unit", "")
+                validated_criterion["threshold_value"] = f"{val} {unit}".strip()
+            except:
+                validated_criterion["threshold_value"] = str(validated_criterion["threshold"])
+        else:
+            validated_criterion["threshold_value"] = None
+
         if validated_criterion["description"]:
             validated.append(validated_criterion)
 

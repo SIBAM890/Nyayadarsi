@@ -421,7 +421,7 @@ export default function LandingPage() {
         ══════════════════════════════════════ */}
         <section id="why-it-matters" style={{ padding: '80px 0 88px', background: '#F5F0E8' }}>
           <div style={{ maxWidth: 1152, margin: '0 auto', padding: '0 48px' }}>
-            <div className="why-grid" style={{ display: 'grid', gap: 72, alignItems: 'start' }}>
+            <div className="why-grid" style={{ display: 'grid', gap: 72, alignItems: 'stretch' }}>
 
               {/* LEFT - Text */}
               <motion.div
@@ -429,8 +429,9 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.55 }}
+                style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
               >
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: 'rgba(217,64,64,0.07)', border: '1px solid rgba(217,64,64,0.15)', borderRadius: 20, marginBottom: 22 }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: 'rgba(217,64,64,0.07)', border: '1px solid rgba(217,64,64,0.15)', borderRadius: 20, marginBottom: 22, alignSelf: 'flex-start' }}>
                   <div style={{ width: 6, height: 6, background: '#D94040', borderRadius: '50%' }} />
                   <span style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: 11, color: '#D94040', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
                     Why It Matters
@@ -464,7 +465,7 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.55 }}
-                style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}
+                style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridAutoRows: '1fr', gap: 14 }}
               >
                 {[
                   { icon: FileText, title: 'AI-Parsed Criteria', desc: 'Evaluation parameters extracted automatically, preserving table structure via LayoutLMv3.' },

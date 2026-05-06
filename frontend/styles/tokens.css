@@ -1,28 +1,28 @@
 :root {
-  --color-bg-primary: #F5F0EB;       /* warm off-white — main page backgrounds */
-  --color-bg-section: #FDE8E8;       /* soft rose — section/panel backgrounds */
-  --color-bg-card: #FFFFFF;          /* pure white — card surfaces */
-  --color-bg-active: #FEF0EE;        /* light rose — hover & selected states */
-  --color-bg-footer: #F7F2EE;        /* warm light — footer & sidebar bg */
+  --color-bg-primary: #F5F0E8;       
+  --color-bg-section: #FDF3F1;       
+  --color-bg-card: #FFFFFF;          
+  --color-bg-active: #FCECEC;        
+  --color-bg-footer: #FDF3F1;        
 
-  --color-brand: #C0321F;            /* crimson red — logo, primary buttons, icon fills */
-  --color-brand-hover: #A52A18;      /* darker crimson — button hover states */
+  --color-brand: #D94040;            
+  --color-brand-hover: #B83030;      
 
-  --color-text-heading: #1A1A1A;     /* near-black — all headings */
-  --color-text-body: #4A4A4A;        /* dark gray — body paragraphs */
-  --color-text-muted: #6B6B6B;       /* medium gray — labels, subtitles, captions */
-  --color-text-placeholder: #A0A0A0; /* light gray — input placeholders */
+  --color-text-heading: #1A1A1A;     
+  --color-text-body: #555555;        
+  --color-text-muted: #666666;       
+  --color-text-placeholder: #A3A3A3; 
 
-  --color-border: #E8E0D8;           /* warm light — card borders, dividers */
-  --color-border-active: #C0321F;    /* crimson — selected card left-border accent */
+  --color-border: #EED8D8;           
+  --color-border-active: #D94040;    
 
-  --color-status-green-bg: #F0FDF4;  /* light green tint — GREEN badge background */
-  --color-status-green-text: #16A34A;
-  --color-status-yellow-bg: #FFFBEB; /* light amber tint — YELLOW badge background */
-  --color-status-yellow-text: #B45309;
-  --color-status-red-bg: #FEF2F2;    /* light red tint — RED badge background */
-  --color-status-red-text: #C0321F;
+  --color-status-green-bg: #E8F5E9;  
+  --color-status-green-text: #2E7D32;
+  --color-status-yellow-bg: #FFF8E1; 
+  --color-status-yellow-text: #F57F17;
+  --color-status-red-bg: #FDF3F1;    
+  --color-status-red-text: #D94040;
 
-  --color-alert-banner-bg: #FEE2E2;  /* rose — manual review / warning banners */
-  --color-alert-banner-border: #FECACA;
+  --color-alert-banner-bg: #FDF3F1;  
+  --color-alert-banner-border: #EED8D8;
 }

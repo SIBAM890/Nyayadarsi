@@ -106,8 +106,6 @@ function YellowItemInner({ item, officerId, onDecision }: YellowItemProps) {
 
       <div className="space-y-2">
         <textarea
-          id={`reason-${item.bidder_id}-${item.criterion_id}`}
-          name={`reason-${item.bidder_id}-${item.criterion_id}`}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           placeholder="Mandatory: Document your reasoning (min 10 characters)..."
