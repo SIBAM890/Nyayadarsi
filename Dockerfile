@@ -3,9 +3,9 @@ FROM python:3.11-slim
 # Set working directory
 WORKDIR /app
 
-# Set Hugging Face Spaces port requirement
-ENV PORT=7860
-EXPOSE 7860
+# Set port requirement (Render uses $PORT, default to 10000)
+ENV PORT=10000
+EXPOSE 10000
 
 # Ensure Python output is not buffered
 ENV PYTHONUNBUFFERED=1
@@ -27,5 +27,5 @@ COPY backend /app/backend
 # Set PYTHONPATH so Python can resolve 'from backend.core...' imports
 ENV PYTHONPATH=/app
 
-# Start Uvicorn bound to 0.0.0.0 and port 7860
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "7860"]
+# Start Uvicorn bound to 0.0.0.0 and dynamic port
+CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-10000}"]
