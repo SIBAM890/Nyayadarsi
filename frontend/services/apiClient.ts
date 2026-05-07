@@ -81,6 +81,11 @@ export async function apiFetch<T>(
     }
 
     if (!response.ok) {
+      // If we get a 404 in production/demo, we want to try our local mocks instead
+      if (response.status === 404) {
+        throw new Error('404_FALLBACK');
+      }
+
       if (response.status === 401 && typeof window !== 'undefined') {
         // Guard against infinite reload: only retry once
         if (!sessionStorage.getItem('nyayadarsi_auth_retry')) {
@@ -109,9 +114,12 @@ export async function apiFetch<T>(
     return { data: data as unknown as T, error: null };
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Network error';
-    console.warn(`API unavailable for ${url}. Falling back to mock data...`);
+    const isDev = process.env.NODE_ENV === 'development';
     
-    // Simple mock data router
+    // Fallback to mock data if the network is down OR if we specifically want to see demo data
+    // regardless of backend status.
+    console.warn(`API unavailable for ${url}. Attempting demo data fallback...`);
+    
     try {
       if (url.includes('/evaluation/') && url.includes('/results')) {
         const mock = await import('../demo/mock_data/evaluation_results.json');
@@ -132,6 +140,11 @@ export async function apiFetch<T>(
       if (url.includes('/audit/trail')) {
         const mock = await import('../demo/mock_data/audit_trail.json');
         return { data: mock.default as any as T, error: null };
+      }
+      
+      // If no mock exists and it's production, show the error
+      if (!isDev) {
+        return { data: null, error: `Connection Error: ${message}` };
       }
       return { data: null, error: message };
     } catch (mockErr) {

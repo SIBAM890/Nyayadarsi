@@ -15,7 +15,7 @@ const nextConfig = {
     // 2. Localhost if in development mode
     // 3. Render URL as a production fallback
     const isDev = process.env.NODE_ENV === 'development';
-    const defaultUrl = isDev ? 'http://localhost:8000' : 'https://nyayadarsi.onrender.com';
+    const defaultUrl = isDev ? 'http://localhost:8000' : 'https://nyayadarsi-szxl.onrender.com';
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || defaultUrl;
     
     // Ensure protocol exists for internal networking (Render uses 'service-name:port')
