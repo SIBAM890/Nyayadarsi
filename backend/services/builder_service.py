@@ -121,14 +121,13 @@ def get_milestones(contract_id: str) -> dict[str, Any]:
 
 
 def verify_gps_standalone(latitude: float, longitude: float) -> dict[str, Any]:
-    """Standalone GPS verification endpoint (legacy, uses old threshold)."""
-    from backend.utils.gps_verifier import verify_upload
-    return verify_upload(
+    """Standalone GPS verification endpoint."""
+    return verify_distance(
         upload_lat=latitude,
         upload_lon=longitude,
-        registered_lat=settings.REGISTERED_SITE_LAT,
-        registered_lon=settings.REGISTERED_SITE_LON,
-        threshold_m=settings.GPS_THRESHOLD_METERS,
+        site_lat=settings.REGISTERED_SITE_LAT,
+        site_lon=settings.REGISTERED_SITE_LON,
+        hard_threshold_m=settings.GPS_THRESHOLD_METERS,
     )
 
 

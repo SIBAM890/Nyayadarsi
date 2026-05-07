@@ -22,12 +22,14 @@ interface LocationStore {
   subscribe: (listener: Listener) => () => void;
   /** Get current snapshot. */
   getSnapshot: () => LocationState;
+  /** Notify listeners of state changes. */
+  emitChange: () => void;
   
   // Actions
   startTracking: () => void;
   stopTracking: () => void;
   updatePosition: (lat: number, lng: number, accuracy: number) => void;
-  setVerification: (v: LocationVerification) => void;
+  setVerification: (v: LocationVerification, requestId?: number) => void;
   setError: (msg: string) => void;
 }
 
@@ -135,7 +137,13 @@ const store: LocationStore = {
     this.emitChange();
   },
 
-  setVerification(v: LocationVerification) {
+  setVerification(v: LocationVerification, requestId?: number) {
+    // Prevent race condition: only update if this is the response for the LATEST request
+    if (requestId !== undefined && requestId < lastVerificationRequestId) {
+      console.warn('[LocationStore] Ignoring stale verification response');
+      return;
+    }
+
     currentState = {
       ...currentState,
       distanceMeters: v.distance_meters,
@@ -153,6 +161,12 @@ const store: LocationStore = {
     this.emitChange();
   }
 };
+
+/** Track request IDs to prevent race conditions. */
+let lastVerificationRequestId = 0;
+
+/** Generate a new unique request ID. */
+export const getNextLocationRequestId = () => ++lastVerificationRequestId;
 
 // ── Hook ───────────────────────────────────────────────────────────────────
 

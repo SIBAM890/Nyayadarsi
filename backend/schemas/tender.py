@@ -69,11 +69,12 @@ class TenderUploadResponse(BaseModel):
     discretionary_count: int
     pdf_info: PdfInfo
     audit: AuditRecord
+    extraction_warning: Optional[dict[str, str]] = None
 
 
 class IntegrityCheckRequest(BaseModel):
     """Request to check a single criterion text."""
-    criterion_text: str = Field(..., min_length=10)
+    criterion_text: str = Field(..., min_length=10, max_length=50000)
     category: str = "construction"
 
 

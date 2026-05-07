@@ -19,10 +19,10 @@ class Tender(Base):
     criteria_json: str | None = Column(Text, nullable=True)
     alerts_json: str | None = Column(Text, nullable=True)
     doc_hash: str | None = Column(String, nullable=True)
-    status: str = Column(String, default="draft")
+    status: str = Column(String, default="draft", index=True)
     created_at: datetime = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     published_at: datetime | None = Column(DateTime(timezone=True), nullable=True)
-    created_by: str | None = Column(String, nullable=True)
+    created_by: str | None = Column(String, nullable=True, index=True)
 
     def __repr__(self) -> str:
         return f"<Tender {self.id}: {self.title}>"

@@ -45,8 +45,20 @@ def log(
     Returns:
         {"input_hash": str, "output_hash": str, "timestamp": str, "audit_id": int}
     """
-    input_str = json.dumps(input_data, sort_keys=True, default=str)
-    output_str = json.dumps(output_data, sort_keys=True, default=str)
+    # Redact sensitive location data before logging to database
+    # (The hash remains based on the original data if we hash BEFORE redacting)
+    # However, to be safe and simple, we'll redact first for storage.
+    
+    clean_input = input_data.copy()
+    clean_output = output_data.copy()
+    
+    sensitive_keys = ["lat", "lon", "latitude", "longitude", "password", "token"]
+    for key in sensitive_keys:
+        if key in clean_input: clean_input[key] = "[REDACTED]"
+        if key in clean_output: clean_output[key] = "[REDACTED]"
+
+    input_str = json.dumps(clean_input, sort_keys=True, default=str)
+    output_str = json.dumps(clean_output, sort_keys=True, default=str)
 
     input_hash = hashlib.sha256(input_str.encode()).hexdigest()
     output_hash = hashlib.sha256(output_str.encode()).hexdigest()
@@ -83,23 +95,26 @@ def log(
     }
 
 
-def get_trail(db: Session, entity_id: str) -> list[dict[str, Any]]:
-    """Get all audit entries for an entity, chronologically ordered."""
+def get_trail(db: Session, entity_id: str, limit: int = 100, offset: int = 0) -> list[dict[str, Any]]:
+    """Get audit entries for an entity with pagination, chronologically ordered."""
     entries = (
         db.query(AuditLog)
         .filter(AuditLog.entity_id == entity_id)
-        .order_by(AuditLog.timestamp.asc())
+        .order_by(AuditLog.timestamp.desc())  # Newest first for pagination
+        .offset(offset)
+        .limit(limit)
         .all()
     )
     return [_entry_to_dict(e) for e in entries]
 
 
-def get_full_trail(db: Session) -> list[dict[str, Any]]:
-    """Get all audit entries, chronologically ordered (limit 1000)."""
+def get_full_trail(db: Session, limit: int = 100, offset: int = 0) -> list[dict[str, Any]]:
+    """Get all audit entries with pagination, chronologically ordered."""
     entries = (
         db.query(AuditLog)
-        .order_by(AuditLog.timestamp.asc())
-        .limit(1000)
+        .order_by(AuditLog.timestamp.desc())
+        .offset(offset)
+        .limit(limit)
         .all()
     )
     return [_entry_to_dict(e) for e in entries]

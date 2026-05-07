@@ -34,7 +34,10 @@ function AuthWrapper({ children }: { children: React.ReactNode }) {
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
-      <Head />
+      <Head>
+        <title>Nyayadarsi — AI Forensic Platform</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
       <ErrorBoundary>
         <AuthProvider>
           <NotificationProvider>

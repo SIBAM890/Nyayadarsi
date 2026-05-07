@@ -27,7 +27,16 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./nyayadarsi.db"
 
     # ── JWT Authentication ───────────────────────────────────────────────
-    # Must be set in .env — no insecure default in production.
+    from pydantic import field_validator
+
+    @field_validator("JWT_SECRET_KEY")
+    def validate_jwt_key(cls, v):
+        if v.startswith("nyayadarsi-dev-secret"):
+            raise ValueError("Default JWT key must not be used in non-local environments. Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\"")
+        if len(v) < 32:
+            raise ValueError("JWT key must be at least 32 characters (32 bytes) for HS256 security.")
+        return v
+
     JWT_SECRET_KEY: str = "nyayadarsi-dev-secret-CHANGE-BEFORE-DEPLOYING-32chars+"
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours

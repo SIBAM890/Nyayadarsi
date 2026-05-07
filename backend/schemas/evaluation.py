@@ -33,7 +33,15 @@ class BidderEvaluationSchema(BaseModel):
     bidder_id: str
     company_name: str
     overall_verdict: Verdict
+    bid_amount: Optional[float] = None
     verdicts: list[CriterionResult]
+
+
+class EvaluationData(BaseModel):
+    """Full evaluation dataset for a tender."""
+    tender_id: str
+    tender_title: str
+    bidders: list[BidderEvaluationSchema]
 
 
 class OfficerDecision(BaseModel):
@@ -42,7 +50,7 @@ class OfficerDecision(BaseModel):
     bidder_id: str
     criterion_id: str
     decision: str = Field(..., pattern=r"^(PASS|FAIL)$", description="Must be PASS or FAIL")
-    reason: str = Field(..., min_length=10, description="Justification (min 10 chars)")
+    reason: str = Field(..., min_length=10, max_length=2000, description="Justification (min 10 chars)")
     officer_id: str
 
 
@@ -72,4 +80,4 @@ class YellowQueueResponse(BaseModel):
     """Yellow queue response."""
     tender_id: str
     total_yellow: int
-    items: list[dict]
+    items: list[YellowQueueItem]

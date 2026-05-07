@@ -57,11 +57,11 @@ export default function EvaluationDashboard() {
           To do edge-to-edge we need negative margins or rewrite Layout. 
           Assuming standard Layout padding, we'll make our own full-height container inside it. */}
       <Layout title="Evaluation Officer — Review Bids">
-        {/* Negative margin to break out of layout padding and fill screen */}
-        <div className="flex h-screen overflow-hidden">
+        {/* Responsive container: stack on mobile, side-by-side on desktop */}
+        <div className="flex flex-col md:flex-row h-screen overflow-hidden">
 
-          {/* LEFT SIDEBAR (280px fixed) */}
-          <div className="w-[320px] flex-shrink-0 border-r border-theme-border bg-theme-bg-footer flex flex-col z-10">
+          {/* LEFT SIDEBAR (Responsive width) */}
+          <div className="w-full md:w-[320px] flex-shrink-0 border-r border-theme-border bg-theme-bg-footer flex flex-col z-10">
             {/* Tender Info */}
             <div className="p-5 border-b border-theme-border bg-theme-bg-card/50">
               <span className="text-[10px] font-mono text-theme-text-muted uppercase tracking-widest">{evalData?.tender_id}</span>

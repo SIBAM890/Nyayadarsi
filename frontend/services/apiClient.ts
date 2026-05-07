@@ -19,6 +19,7 @@ function getStoredToken(): string | null {
 function buildHeaders(customHeaders?: HeadersInit): HeadersInit {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'X-CSRF-Token': 'nyayadarsi_csrf_v2_2026', // Static token for header-based CSRF protection
   };
 
   const token = getStoredToken();
@@ -149,7 +150,9 @@ export async function apiUpload<T>(
   formData: FormData
 ): Promise<ApiResponse<T>> {
   try {
-    const headers: Record<string, string> = {};
+    const headers: Record<string, string> = {
+      'X-CSRF-Token': 'nyayadarsi_csrf_v2_2026',
+    };
     const token = getStoredToken();
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;

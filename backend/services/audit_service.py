@@ -11,21 +11,25 @@ from backend.audit.sha256_logger import get_trail, get_full_trail
 from backend.audit.pdf_exporter import generate_audit_pdf
 
 
-def get_audit_trail(db: Session, entity_id: str) -> dict[str, Any]:
-    """Get all audit entries for an entity, chronologically ordered."""
-    trail = get_trail(db, entity_id)
+def get_audit_trail(db: Session, entity_id: str, limit: int = 50, offset: int = 0) -> dict[str, Any]:
+    """Get paginated audit entries for an entity."""
+    trail = get_trail(db, entity_id, limit=limit, offset=offset)
     return {
         "entity_id": entity_id,
         "total_entries": len(trail),
+        "limit": limit,
+        "offset": offset,
         "trail": trail,
     }
 
 
-def get_all_audit_entries(db: Session) -> dict[str, Any]:
-    """Get all audit entries (limited to 1000)."""
-    trail = get_full_trail(db)
+def get_all_audit_entries(db: Session, limit: int = 50, offset: int = 0) -> dict[str, Any]:
+    """Get all audit entries paginated."""
+    trail = get_full_trail(db, limit=limit, offset=offset)
     return {
         "total_entries": len(trail),
+        "limit": limit,
+        "offset": offset,
         "trail": trail,
     }
 

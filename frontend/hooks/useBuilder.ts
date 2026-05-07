@@ -28,11 +28,20 @@ export function useMilestones(contractId: string): UseMilestonesReturn {
 
     async function load() {
       setLoading(true);
-      const { data, error: err } = await getMilestones(contractId);
-      if (!mountedRef.current) return;
-      if (err) setError(err);
-      if (data) setMilestoneData(data);
-      setLoading(false);
+      setError(null);
+      try {
+        const { data, error: err } = await getMilestones(contractId);
+        if (!mountedRef.current) return;
+        if (err) {
+          setError(`Failed to load milestones: ${err}`);
+        } else if (data) {
+          setMilestoneData(data);
+        }
+      } catch (err) {
+        if (mountedRef.current) setError('A network error occurred while loading milestones.');
+      } finally {
+        if (mountedRef.current) setLoading(false);
+      }
     }
 
     load();
@@ -74,8 +83,8 @@ export function useMilestones(contractId: string): UseMilestonesReturn {
         officer_id: officerId,
         confirmation_note: 'Milestone verified and confirmed for payment release.',
       });
-      if (err) return null;
-      if (data) return `Payment scheduled. Auto-release: ${data.release_at}`;
+      if (err) throw new Error(err);
+      if (data) return `Payment scheduled. Auto-release: ${new Date(data.release_at).toLocaleString()}`;
       return null;
     },
     []

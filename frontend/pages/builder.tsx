@@ -3,7 +3,7 @@ import Head from 'next/head';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Camera, Video, UploadCloud, MapPin, CheckCircle2,
+  Camera, Video, UploadCloud, CheckCircle2,
   AlertTriangle, Clock, Target, Wallet, Calendar,
   Navigation, Crosshair, Radar
 } from 'lucide-react';
@@ -72,9 +72,10 @@ function BuilderDashboardInner() {
     if (!location.coordinates) return;
     
     const verify = async () => {
+      if (!location.coordinates) return;
       const { data } = await verifyLocation({ 
-        latitude: location.coordinates!.lat, 
-        longitude: location.coordinates!.lng 
+        latitude: location.coordinates.lat, 
+        longitude: location.coordinates.lng 
       });
       if (data) setVerification(data);
     };
@@ -147,14 +148,14 @@ function BuilderDashboardInner() {
 
       const response = await uploadBuilderPhoto({
         contract_id: CONTRACT_ID,
-        latitude: location.coordinates.lat,
-        longitude: location.coordinates.lng,
+        latitude: location.coordinates!.lat,
+        longitude: location.coordinates!.lng,
         photos: photoBlobs.map((b, i) => new File([b], `site_photo_${i}.jpg`, { type: 'image/jpeg' })),
       });
 
       if (response.error) {
         setSubmitState('rejected');
-        alert(response.message || "Upload failed verification.");
+        alert(response.error || "Upload failed verification.");
       } else {
         setSubmitState('verifying');
         setTimeout(() => {

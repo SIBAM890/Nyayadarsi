@@ -32,6 +32,11 @@ def get_evaluation_results(tender_id: str) -> dict[str, Any]:
             status_code=status.HTTP_404_NOT_FOUND,
             detail={"error": True, "message": "Evaluation results not found. Run evaluation first.", "code": "NO_RESULTS"},
         )
+    
+    # Ensure tender_title exists for Phase 2 schema compliance
+    if "tender_title" not in data:
+        data["tender_title"] = "Tender Evaluation Report"
+        
     return data
 
 

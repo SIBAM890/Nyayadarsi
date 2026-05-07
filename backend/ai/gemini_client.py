@@ -113,39 +113,29 @@ async def generate(
 
         except Exception as e:
             error_str = str(e).lower()
+            logger.error("Gemini API Exception: %s", e, exc_info=True)
 
-            # Handle rate limit errors
             if "rate" in error_str or "quota" in error_str or "429" in error_str:
                 if attempt == 0:
                     logger.warning("Gemini rate limited. Waiting 10s before retry...")
                     await asyncio.sleep(10)
                     continue
-                raise RuntimeError(
-                    f"Gemini rate limit exceeded after retry. "
-                    f"Consider using OpenRouter fallback. Error: {e}"
-                )
+                raise RuntimeError("AI Service Rate Limit Exceeded.")
 
-            # Handle authentication errors
             if "api key" in error_str or "invalid" in error_str or "401" in error_str or "403" in error_str:
-                raise ValueError(
-                    f"Gemini API key invalid or lacks permissions: {e}. "
-                    "Get a valid key from https://aistudio.google.com/app/apikey"
-                )
+                raise ValueError("AI Service Authentication Failed.")
 
-            # Handle timeout
             if "timeout" in error_str or "deadline" in error_str:
-                raise RuntimeError(f"Gemini request timed out: {e}")
+                raise RuntimeError("AI Service request timed out.")
 
-            # Handle service unavailable
             if "unavailable" in error_str or "503" in error_str:
                 if attempt == 0:
-                    logger.warning(f"Gemini service unavailable. Retrying in 5s... ({e})")
+                    logger.warning(f"Gemini service unavailable. Retrying... ({e})")
                     await asyncio.sleep(5)
                     continue
-                raise RuntimeError(f"Gemini service unavailable after retry: {e}")
+                raise RuntimeError("AI Service currently unavailable.")
 
-            # Unknown error - wrap and raise
-            raise RuntimeError(f"Gemini API error: {e}")
+            raise RuntimeError("An unexpected AI error occurred.")
 
     raise RuntimeError("Gemini failed after maximum retries")
 

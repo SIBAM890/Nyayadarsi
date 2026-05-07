@@ -4,7 +4,7 @@ Provides access to the immutable audit trail and court-admissible PDF export.
 Now integrated with AI evidence processing.
 """
 import hashlib
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, Query
 from fastapi.responses import Response
 from sqlalchemy.orm import Session
 from typing import Any
@@ -23,29 +23,31 @@ router = APIRouter(prefix="/api/v1/audit", tags=["audit"])
 
 @router.get(
     "/{entity_id}/trail",
-    response_model=AuditTrailResponse,
     summary="Get entity audit trail",
 )
 async def get_audit_trail(
     entity_id: str,
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-) -> AuditTrailResponse:
-    """Get all audit entries for an entity, chronologically ordered."""
-    return audit_service.get_audit_trail(db, entity_id)
+) -> dict:
+    """Get paginated audit entries for an entity."""
+    return audit_service.get_audit_trail(db, entity_id, limit=limit, offset=offset)
 
 
 @router.get(
     "/all",
-    response_model=AuditTrailResponse,
     summary="Get all audit entries",
 )
 async def get_all_audit_entries(
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-) -> AuditTrailResponse:
-    """Get all audit entries (limited to 1000)."""
-    return audit_service.get_all_audit_entries(db)
+) -> dict:
+    """Get all audit entries paginated."""
+    return audit_service.get_all_audit_entries(db, limit=limit, offset=offset)
 
 
 @router.post(
