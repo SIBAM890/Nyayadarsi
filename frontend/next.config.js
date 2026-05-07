@@ -10,7 +10,14 @@ const nextConfig = {
   },
   // API rewrites - proxies /api/* to backend
   async rewrites() {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://nyayadarsi.onrender.com';
+    // Determine the API URL: 
+    // 1. Environment variable if set
+    // 2. Localhost if in development mode
+    // 3. Render URL as a production fallback
+    const isDev = process.env.NODE_ENV === 'development';
+    const defaultUrl = isDev ? 'http://localhost:8000' : 'https://nyayadarsi.onrender.com';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || defaultUrl;
+    
     const cleanApiUrl = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
     
     return [

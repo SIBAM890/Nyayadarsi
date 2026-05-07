@@ -66,17 +66,20 @@ function UploadZoneInner({ onUpload, isLoading }: UploadZoneProps) {
             className="text-sm font-semibold text-[#1A1A1A]"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
-            Processing with Nyayadarsi AI...
+            Nyayadarsi AI is analyzing...
           </p>
-          <p className="text-xs text-[#9A9A9A]">
-            Extracting eligibility criteria from tender document
+          <p className="text-xs text-[#9A9A9A] max-w-[200px] mx-auto">
+            Extracting eligibility criteria and checking GFR 2017 compliance
           </p>
-          <div className="w-48 mx-auto h-1.5 bg-[#F5F0E8] rounded-full overflow-hidden">
+          <div className="w-48 mx-auto h-1.5 bg-[#F5F0E8] rounded-full overflow-hidden mt-2">
             <div
-              className="h-full bg-[#D94040] rounded-full animate-pulse"
-              style={{ width: '60%' }}
+              className="h-full bg-[#D94040] rounded-full animate-progress"
+              style={{ width: '100%' }}
             />
           </div>
+          <p className="text-[10px] text-theme-brand/60 uppercase tracking-widest font-bold animate-pulse">
+            Forensic Scan in Progress
+          </p>
         </div>
       ) : (
         <div className="space-y-4">

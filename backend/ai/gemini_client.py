@@ -14,15 +14,16 @@ from backend.config import GEMINI_API_KEY
 
 logger = logging.getLogger(__name__)
 
-# Valid Gemini model names for text generation
+# Valid Gemini model names for text generation (2026 Standards)
 VALID_MODELS = [
+    "gemini-3.1-flash-lite-preview",
+    "gemini-3.1-pro-preview",
     "gemini-2.5-flash",
-    "gemini-2.5-flash-lite",
     "gemini-2.5-pro",
+    "gemini-2.0-flash",
+    "deep-research-preview-04-2026",
     "gemini-flash-latest",
     "gemini-pro-latest",
-    "gemini-3-flash-preview",
-    "gemini-3-pro-preview",
 ]
 
 DEFAULT_MODEL = "gemini-2.5-flash"

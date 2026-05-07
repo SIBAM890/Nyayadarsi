@@ -98,7 +98,7 @@ async def process_tender_upload(
         entity_type="tender",
         input_data={"filename": filename, "doc_hash": doc_hash, "pages": pdf_result["pages"]},
         output_data={"criteria_count": len(criteria), "alerts_count": len(alerts)},
-        model_version="gemini-1.5-flash",
+        model_version="gemini-2.5-flash",
     )
 
     mandatory_count = sum(1 for c in criteria if c.get("mandatory"))
