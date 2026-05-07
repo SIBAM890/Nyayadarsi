@@ -18,7 +18,15 @@ const nextConfig = {
     const defaultUrl = isDev ? 'http://localhost:8000' : 'https://nyayadarsi.onrender.com';
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || defaultUrl;
     
-    const cleanApiUrl = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
+    // Ensure protocol exists for internal networking (Render uses 'service-name:port')
+    let cleanApiUrl = apiUrl;
+    if (!cleanApiUrl.startsWith('http')) {
+      cleanApiUrl = `http://${cleanApiUrl}`;
+    }
+    // Strip trailing slash
+    if (cleanApiUrl.endsWith('/')) {
+      cleanApiUrl = cleanApiUrl.slice(0, -1);
+    }
     
     return [
       {
