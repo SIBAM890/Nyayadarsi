@@ -1,4 +1,12 @@
-# Nyayadarsi
+# Nyayadarsi (न्यायदर्शी)
+### *The AI Eye for Public Procurement Integrity*
+
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen?style=for-the-badge&logo=vercel)](https://nyayadarsi-five.vercel.app)
+[![Repo](https://img.shields.io/badge/GitHub-Repository-blue?style=for-the-badge&logo=github)](https://github.com/SIBAM890/Nyayadarsi)
+
+**Nyayadarsi** is a production-hardened forensic auditing platform that uses **Generative AI (Gemini Pro)**, **Geospatial Intelligence**, and **SHA-256 Audit Trails** to secure government tenders and prevent procurement fraud.
+
+---
 
 **AI-Powered Procurement Justice Platform**
 
