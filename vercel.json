@@ -1,15 +1,42 @@
 {
   "version": 2,
-  "rootDirectory": "frontend",
-  "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install",
-  "regions": ["bom1"],
+  "name": "nyayadarsi",
+  "builds": [
+    {
+      "src": "backend/main.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxDuration": 60
+      }
+    },
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "backend/main.py"
+    },
+    {
+      "source": "/docs",
+      "destination": "backend/main.py"
+    },
+    {
+      "source": "/openapi.json",
+      "destination": "backend/main.py"
+    },
+    {
+      "source": "/health",
+      "destination": "backend/main.py"
+    },
+    {
+      "source": "/((?!api|docs|openapi.json|health).*)",
+      "destination": "frontend/$1"
+    }
+  ],
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://nyayadarsi.onrender.com"
-  },
-  "github": {
-    "silent": true
+    "PYTHONPATH": "backend"
   }
 }
